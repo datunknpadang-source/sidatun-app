@@ -54,8 +54,16 @@
 
         #customTooltipCard, #pieLuxuryTooltip {
             transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
-            pointer-events: none;
             z-index: 9999;
+        }
+
+        /* Hover effect pada item matriks untuk memunculkan quick action */
+        .matrix-item-row .hover-action-btn {
+            opacity: 0;
+            transition: opacity 0.15s ease-in-out;
+        }
+        .matrix-item-row:hover .hover-action-btn {
+            opacity: 1;
         }
 
         @media print {
@@ -86,14 +94,15 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- FLOATING CARD TOOLTIP UTAMA -->
-    <div id="customTooltipCard" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-72 backdrop-blur-md">
+    <!-- FLOATING CARD TOOLTIP UTAMA (DILENGKAPI TOMBOL EDIT ELEGAN) -->
+    <div id="customTooltipCard" onmouseenter="keepCustomTooltip()" onmouseleave="hideCustomTooltip()" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-80 backdrop-blur-md">
         <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
             <i class="fa-solid fa-circle-info text-xs" id="ttIcon"></i>
         </div>
         <h4 class="font-bold text-xs text-slate-800 mb-2 leading-snug" id="ttTitle">Nama Instansi / Subjek</h4>
         <div class="space-y-1.5 text-[11px]" id="ttDetailsBody"></div>
+        <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-end space-x-2" id="ttActionFooter"></div>
     </div>
 
     <!-- POP-UP MEWAH LINGKARAN KATEGORI -->
@@ -279,7 +288,7 @@
                     <h2 class="text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-table-cells text-tosca-600 mr-2"></i> Matriks Data Kegiatan DATUN (Per Bulan)
                     </h2>
-                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi atau baris total untuk melihat rincian kartu</p>
+                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi untuk melihat rincian & tombol edit cepat</p>
                 </div>
 
                 <div class="flex items-center space-x-2">
@@ -448,7 +457,7 @@
                 </table>
             </div>
 
-            <!-- GRAFIK GARIS KEUANGAN ALA WEB DASBOR KEUANGAN (NEW FEATURE) -->
+            <!-- GRAFIK GARIS KEUANGAN ALA WEB DASBOR KEUANGAN -->
             <div class="pt-4 border-t border-slate-100 space-y-4 no-print">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
@@ -848,7 +857,8 @@
         let chartBarInstance = null;
         let chartPieInstance = null;
         let chartCompareInstance = null;
-        let chartFinanceLineInstance = null; // INSTANSI GRAFIK GARIS KEUANGAN
+        let chartFinanceLineInstance = null;
+        let hideTooltipTimer = null;
 
         let filteredLogData = [];
         let currentLogPage = 1;
@@ -1023,6 +1033,7 @@
         };
 
         window.editKegiatan = function(firestoreId) {
+            hideCustomTooltipNow();
             const item = datasetKegiatan.find(x => x.firestoreId === firestoreId);
             if (!item) return;
 
@@ -1051,6 +1062,7 @@
         };
 
         window.hapusKegiatan = async function(id) {
+            hideCustomTooltipNow();
             if (confirm('Yakin ingin menghapus data ini dari Cloud Firestore?')) {
                 try {
                     await deleteDoc(doc(db, "kegiatan_datun", id));
@@ -1425,13 +1437,11 @@
             if (elTotalDis) elTotalDis.innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
             if (elTotalDip) elTotalDip.innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
 
-            // UPDATE RINGKASAN CARDS GRAFIK GARIS KEUANGAN
             document.getElementById('chartTotalDisepakatiCard').innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
             document.getElementById('chartTotalDipulihkanCard').innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
             const rasio = grandTotalDisepakati > 0 ? ((grandTotalDipulihkan / grandTotalDisepakati) * 100).toFixed(1) + '%' : '0.0%';
             document.getElementById('chartRasioCapaianCard').innerText = rasio;
 
-            // RENDER / UPDATE GRAFIK GARIS KEUANGAN ALA DASHBOARD KEUANGAN
             renderFinanceLineChart(disepakatiArr, dipulihkanArr);
 
             const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
@@ -1445,7 +1455,6 @@
                 chartFinanceLineInstance.destroy();
             }
 
-            // DUA GRADIENT MEWAH UNTUK AREA BAWAH GARIS KEUANGAN
             const gradBlue = ctx.createLinearGradient(0, 0, 0, 300);
             gradBlue.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
             gradBlue.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
@@ -1688,6 +1697,7 @@
                 }
 
                 const itemDataAttr = encodeURIComponent(JSON.stringify({
+                    firestoreId: it.firestoreId,
                     instansi: it.instansi,
                     kategori: it.kategori,
                     theme: katTheme,
@@ -1701,10 +1711,17 @@
 
                 let labelInstansiText = it.instansi && it.instansi !== '-' ? it.instansi : (it.kategori === 'Pelayanan Hukum' ? `Pelayanan (${it.jumlahPelayanan || 1} Layanan)` : 'Pelayanan Hukum');
 
-                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;
-                t += `<span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmousemove="moveCustomTooltip(event)" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start">
-                        <span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span>
-                      </span>`;
+                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none matrix-item-row group">`;
+                t += `<div class="flex items-start justify-between">
+                        <span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start flex-grow">
+                            <span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span>
+                        </span>
+                        
+                        <!-- TOMBOL IKON EDIT HALUS HOVER MATRIKS (SOLUSI ELEGANT) -->
+                        <button onclick="editKegiatan('${it.firestoreId}')" title="Edit Kegiatan Ini" class="hover-action-btn text-blue-600 hover:text-blue-800 text-[10px] bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded transition ml-1 flex-shrink-0 border border-blue-200 no-print">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                      </div>`;
                 
                 if (it.kategori === 'Pelayanan Hukum' && it.jumlahPelayanan > 1) {
                     t += `<span class="text-purple-600 font-bold text-[10px] block pl-3">${it.jumlahPelayanan} Layanan</span>`;
@@ -1725,12 +1742,14 @@
         }
 
         window.showCustomTooltip = function(e, dataStr) {
+            clearTimeout(hideTooltipTimer);
             const data = JSON.parse(decodeURIComponent(dataStr));
             const card = document.getElementById('customTooltipCard');
             const badge = document.getElementById('ttBadge');
             const icon = document.getElementById('ttIcon');
             const title = document.getElementById('ttTitle');
             const body = document.getElementById('ttDetailsBody');
+            const footer = document.getElementById('ttActionFooter');
 
             card.className = `fixed opacity-100 transform scale-100 bg-white rounded-2xl shadow-2xl border ${data.theme.borderClass} p-4 max-w-sm w-80 backdrop-blur-md transition-all duration-150`;
             badge.className = `text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${data.theme.badgeClass}`;
@@ -1749,27 +1768,48 @@
             if (!bodyContent) bodyContent = `<p class="text-slate-400 italic text-[10px]">Tidak ada informasi tambahan.</p>`;
 
             body.innerHTML = bodyContent;
-            card.classList.remove('hidden');
-            moveCustomTooltip(e);
-        };
 
-        window.moveCustomTooltip = function(e) {
-            const card = document.getElementById('customTooltipCard');
+            // AKSI DIRECT EDIT PADA POPUP TOOLTIP
+            if (data.firestoreId) {
+                footer.innerHTML = `
+                    <button onclick="editKegiatan('${data.firestoreId}')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[11px] shadow-sm flex items-center transition">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Data
+                    </button>
+                    <button onclick="hapusKegiatan('${data.firestoreId}')" class="px-2.5 py-1 bg-slate-100 hover:bg-rose-100 text-rose-600 rounded-lg font-semibold text-[11px] transition">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+            } else {
+                footer.innerHTML = '';
+            }
+
+            card.classList.remove('hidden');
+
             const x = e.clientX + 15;
             const y = e.clientY + 15;
             const cardWidth = 320;
-            const cardHeight = 220;
+            const cardHeight = 240;
             const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
             const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
             card.style.left = `${posX}px`;
             card.style.top = `${posY}px`;
         };
 
+        window.keepCustomTooltip = function() {
+            clearTimeout(hideTooltipTimer);
+        }
+
         window.hideCustomTooltip = function() {
+            hideTooltipTimer = setTimeout(() => {
+                hideCustomTooltipNow();
+            }, 300);
+        };
+
+        function hideCustomTooltipNow() {
             const card = document.getElementById('customTooltipCard');
             card.classList.add('opacity-0', 'scale-95');
             setTimeout(() => { card.classList.add('hidden'); }, 150);
-        };
+        }
 
         window.showPieLuxuryTooltip = function(e, title, val, pct, color, desc) {
             const tt = document.getElementById('pieLuxuryTooltip');

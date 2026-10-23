@@ -85,8 +85,8 @@
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-wide">SI-DATUN KN PADANG</h1>
                     <p class="text-xs text-tosca-200 flex items-center">
-                        <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5"></span>
-                        <span id="syncText">Menghubungkan ke Cloud Firestore...</span>
+                        <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
+                        <span id="syncText">Menghubungkan ke Firestore...</span>
                     </p>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                 <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
                     <i class="fa-regular fa-calendar text-xs text-tosca-200 mr-2"></i>
                     <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-sm font-semibold text-white focus:outline-none cursor-pointer">
-                        <!-- Generasi Otomatis via JS -->
+                        <option value="2026" class="text-slate-800">Tahun 2026</option>
                     </select>
                 </div>
 
@@ -121,6 +121,17 @@
 
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
+
+        <!-- Banner Error Jika Ada Kendala Akses Firestore -->
+        <div id="firestoreErrorBanner" class="hidden bg-rose-100 border border-rose-300 text-rose-800 p-3 rounded-xl text-xs flex items-center justify-between no-print">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base"></i>
+                <div>
+                    <b>Gagal Membaca Data Firestore:</b> <span id="firestoreErrorMessage">Izin ditolak atau masalah aturan keamanan.</span>
+                </div>
+            </div>
+            <a href="https://console.firebase.google.com/" target="_blank" class="bg-rose-600 text-white px-3 py-1 rounded font-semibold text-[11px] hover:bg-rose-700">Cek Rules Firebase</a>
+        </div>
 
         <!-- Section 1: KPI Summary Cards (6 Kategori Terpisah) -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
@@ -483,10 +494,10 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDK & APPLICATION LOGIC -->
+    <!-- FIREBASE SDK & UNIFIED LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration milik giat-datun-kn-padang
         const firebaseConfig = {
@@ -508,27 +519,34 @@
         let chartBarInstance = null;
         let chartPieInstance = null;
 
+        // Inisialisasi Chart saat DOM Siap
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
+
         // Mendengarkan Perubahan Data Firestore Real-Time
         onSnapshot(colRef, (snapshot) => {
             datasetKegiatan = [];
-            snapshot.forEach((doc) => {
-                datasetKegiatan.push({ firestoreId: doc.id, ...doc.data() });
+            snapshot.forEach((docSnap) => {
+                datasetKegiatan.push({ firestoreId: docSnap.id, ...docSnap.data() });
             });
 
             document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5';
-            document.getElementById('syncText').innerText = 'Tersambung Cloud Firestore Real-time';
+            document.getElementById('syncText').innerText = 'Tersambung Firestore Real-time (' + datasetKegiatan.length + ' data)';
+            document.getElementById('firestoreErrorBanner').classList.add('hidden');
 
-            window.updateYearFilterOptions();
-            window.renderAll();
+            updateYearFilterOptions();
+            renderAll();
         }, (error) => {
             console.error("Firestore Error:", error);
             document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5';
-            document.getElementById('syncText').innerText = 'Koneksi Firestore Gagal/Offline';
+            document.getElementById('syncText').innerText = 'Koneksi Firestore Gagal';
+            
+            document.getElementById('firestoreErrorMessage').innerText = error.message;
+            document.getElementById('firestoreErrorBanner').classList.remove('hidden');
         });
 
-        // Expose Functions to Global Window Scope
-        window.datasetKegiatan = datasetKegiatan;
-
+        // Simpan Data Ke Firestore
         window.tambahKegiatan = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveSubmit');
@@ -555,9 +573,13 @@
 
                 await addDoc(colRef, item);
                 document.getElementById('formKegiatan').reset();
-                window.toggleFormFields();
-                window.closeModal();
-                alert('Data berhasil tersimpan secara permanen di Cloud Firestore!');
+                toggleFormFields();
+                closeModal();
+                
+                // Set Otomatis Filter ke Tahun Input Baru
+                updateYearFilterOptions(tahunInput);
+                renderAll();
+                alert('Data berhasil disimpan secara permanen di Cloud Firestore!');
             } catch (err) {
                 alert('Gagal menyimpan ke Cloud Firestore: ' + err.message);
             } finally {
@@ -566,6 +588,7 @@
             }
         };
 
+        // Hapus Data Firestore
         window.hapusKegiatan = async function(id) {
             if (confirm('Yakin ingin menghapus data ini dari Cloud Firestore?')) {
                 try {
@@ -576,6 +599,7 @@
             }
         };
 
+        // Impor Excel
         window.handleExcelUpload = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -616,27 +640,18 @@
             };
             reader.readAsArrayBuffer(file);
         };
-    </script>
 
-    <!-- UI Standard JS Handlers -->
-    <script>
-        let chartBarInstance = null;
-        let chartPieInstance = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            initCharts();
-        });
-
-        function openModal() { document.getElementById('modalForm').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modalForm').classList.add('hidden'); }
-        function openExportModal() { document.getElementById('modalExport').classList.remove('hidden'); }
-        function closeExportModal() { document.getElementById('modalExport').classList.add('hidden'); }
-        function closePreviewModal() { 
+        // Helper Modal Controls
+        window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); }
+        window.closeModal = function() { document.getElementById('modalForm').classList.add('hidden'); }
+        window.openExportModal = function() { document.getElementById('modalExport').classList.remove('hidden'); }
+        window.closeExportModal = function() { document.getElementById('modalExport').classList.add('hidden'); }
+        window.closePreviewModal = function() { 
             document.getElementById('modalPreview').classList.add('hidden'); 
             document.getElementById('previewIframe').src = '';
         }
 
-        function previewDriveFile(url, fileName) {
+        window.previewDriveFile = function(url, fileName) {
             if (!url) return;
             let previewUrl = url;
             if (url.includes('drive.google.com/file/d/')) {
@@ -649,7 +664,7 @@
             document.getElementById('modalPreview').classList.remove('hidden');
         }
 
-        function downloadDriveFile(url) {
+        window.downloadDriveFile = function(url) {
             if (!url) return;
             let downloadUrl = url;
             if (url.includes('drive.google.com/file/d/')) {
@@ -659,7 +674,7 @@
             window.open(downloadUrl, '_blank');
         }
 
-        function toggleFormFields() {
+        window.toggleFormFields = function() {
             const kat = document.getElementById('inputKategori').value;
             ['fieldMou1', 'fieldMou2', 'fieldSkk1', 'fieldSkk2', 'fieldSkk3', 'fieldSkk4'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -678,8 +693,7 @@
 
         function updateYearFilterOptions(selectYear = null) {
             const selectEl = document.getElementById('filterTahun');
-            const data = window.datasetKegiatan || [];
-            const years = Array.from(new Set(data.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
+            const years = Array.from(new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
 
             if (years.length === 0) {
                 years.push(new Date().getFullYear().toString());
@@ -696,20 +710,21 @@
                 selectEl.appendChild(opt);
             });
         }
+        window.updateYearFilterOptions = updateYearFilterOptions;
 
         function renderAll() {
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
             document.getElementById('chartYearBadge').innerText = `Tahun ${tahunAktif}`;
 
-            const data = window.datasetKegiatan || [];
-            const dataTahun = data.filter(x => x.tahun === tahunAktif);
+            const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
 
             renderKPI(dataTahun);
             renderCharts(dataTahun);
             renderMatriksView(dataTahun);
             renderLogView(dataTahun);
         }
+        window.renderAll = renderAll;
 
         function renderKPI(data) {
             let mou = 0, skkTotal = 0, disepakati = 0, dipulihkan = 0;
@@ -778,7 +793,7 @@
         }
 
         function getItemsCell(data, bulan, keys) {
-            const filtered = data.filter(x => x.bulan === bulan && keys.includes(x.kategori));
+            const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
 
             let text = filtered.map((it, idx) => {
@@ -840,7 +855,7 @@
             });
         }
 
-        function switchView(mode) {
+        window.switchView = function(mode) {
             if (mode === 'matrix') {
                 document.getElementById('containerMatrixView').classList.remove('hidden');
                 document.getElementById('containerLogView').classList.add('hidden');
@@ -894,7 +909,10 @@
 
         function renderCharts(data) {
             const bulanan = Array(12).fill(0);
-            data.forEach(x => { if (x.bulan >= 1 && x.bulan <= 12) bulanan[x.bulan - 1]++; });
+            data.forEach(x => { 
+                const b = parseInt(x.bulan);
+                if (b >= 1 && b <= 12) bulanan[b - 1]++; 
+            });
             chartBarInstance.data.datasets[0].data = bulanan;
             chartBarInstance.update();
 
@@ -915,7 +933,7 @@
             return new Intl.NumberFormat('id-ID').format(val || 0);
         }
 
-        function executeExport() {
+        window.executeExport = function() {
             const scope = document.querySelector('input[name="exportScope"]:checked').value;
             const format = document.querySelector('input[name="exportFormat"]:checked').value;
             const selectEl = document.getElementById('filterTahun');

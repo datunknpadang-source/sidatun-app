@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SI-DATUN - Kejaksaan Negeri Padang</title>
 
-    <!-- FAVICON TAB BROWSER (LOGO DATUN KEJAKSAAN NEGERI PADANG) -->
-    <link id="favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1_d2-R71m94m0g1d-Xo5_QJ8-Yy2S3L21=s300">
+    <!-- FAVICON TAB BROWSER (MENGAMBIL DARI FILE LOKAL logo.png) -->
+    <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
 
     <!-- Google Fonts & Tailwind CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -85,25 +85,23 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- FLOATING CARD TOOLTIP MEWAH (DINAMIS SESUAI GARIS KUNING) -->
+    <!-- FLOATING CARD TOOLTIP MEWAH (DINAMIS SESUAI WARNA KATEGORI) -->
     <div id="customTooltipCard" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-72 backdrop-blur-md">
         <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
             <i class="fa-solid fa-circle-info text-xs" id="ttIcon"></i>
         </div>
         <h4 class="font-bold text-xs text-slate-800 mb-2 leading-snug" id="ttTitle">Nama Instansi / Subjek</h4>
-        <div class="space-y-1.5 text-[11px]" id="ttDetailsBody">
-            <!-- Rincian Dinamis diisi via JavaScript -->
-        </div>
+        <div class="space-y-1.5 text-[11px]" id="ttDetailsBody"></div>
     </div>
 
     <!-- Top Navigation Header -->
     <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <!-- LOGO EMAS DATUN KEJAKSAAN NEGERI PADANG (LENGKAP DI HEADER) -->
+                <!-- LOGO EMAS DATUN KEJAKSAAN NEGERI PADANG (DARI FILE LOKAL logo.png) -->
                 <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
-                    <img id="appLogo" src="https://lh3.googleusercontent.com/d/1_d2-R71m94m0g1d-Xo5_QJ8-Yy2S3L21=s300" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
+                    <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" />
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center">
@@ -158,7 +156,7 @@
             <a href="https://console.firebase.google.com/" target="_blank" class="bg-rose-600 text-white px-3 py-1 rounded font-semibold text-[11px] hover:bg-rose-700">Cek Rules Firebase</a>
         </div>
 
-        <!-- Section 1: KPI Summary Cards (6 Kategori Terpisah - TAMPILAN GARIS KUNING) -->
+        <!-- Section 1: KPI Summary Cards (6 Kategori Terpisah) -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
             <!-- 1. MoU -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-tosca-500 transition">
@@ -270,7 +268,7 @@
                 </div>
             </div>
 
-            <!-- TAMPILAN MODE 1: MATRIKS BULANAN (Kolom = Kategori, Baris = Bulan) -->
+            <!-- TAMPILAN MODE 1: MATRIKS BULANAN -->
             <div id="containerMatrixView" class="overflow-x-auto custom-scrollbar">
                 <table class="w-full text-xs text-left excel-table border-collapse">
                     <thead>
@@ -286,9 +284,7 @@
                             <th class="p-2.5 w-16 bg-tosca-800">JUMLAH</th>
                         </tr>
                     </thead>
-                    <tbody id="bodyMatriks">
-                        <!-- Generasi Baris Dinamis via JavaScript -->
-                    </tbody>
+                    <tbody id="bodyMatriks"></tbody>
                 </table>
             </div>
 
@@ -307,16 +303,14 @@
                             <th class="p-2.5 text-center no-print">AKSI</th>
                         </tr>
                     </thead>
-                    <tbody id="bodyLogData">
-                        <!-- Generasi Log Dinamis -->
-                    </tbody>
+                    <tbody id="bodyLogData"></tbody>
                 </table>
             </div>
         </div>
 
     </main>
 
-    <!-- MODAL POPUP 1: FORM TAMBAH / EDIT KEGIATAN -->
+    <!-- MODAL POPUP 1: FORM TAMBAH / EDIT -->
     <div id="modalForm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
@@ -330,7 +324,6 @@
                 <input type="hidden" id="editDocId" value="">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Kategori -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Kegiatan *</label>
                         <select id="inputKategori" onchange="toggleFormFields()" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
@@ -346,7 +339,6 @@
                         </select>
                     </div>
 
-                    <!-- Bulan & Tahun -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Bulan *</label>
@@ -372,15 +364,12 @@
                     </div>
                 </div>
 
-                <!-- Subjek / Instansi -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Instansi / Pemohon / Subjek *</label>
                     <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
                 </div>
 
-                <!-- Field Dinamis Khusus -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200" id="dynamicFieldsContainer">
-                    <!-- Opsi MoU -->
                     <div id="fieldMou1" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor MoU</label>
                         <input type="text" id="inputNoMou" placeholder="No. B-12/N.3.10/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
@@ -389,8 +378,6 @@
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jangka Waktu (Masa Berlaku)</label>
                         <input type="text" id="inputJangkaWaktu" placeholder="Contoh: 1 Tahun (s.d. 2027)" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
-
-                    <!-- Opsi Bantuan Hukum SKK -->
                     <div id="fieldSkk1" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SKK</label>
                         <input type="text" id="inputNoSkk" placeholder="No. SKK-01/N.3.10/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
@@ -409,13 +396,11 @@
                     </div>
                 </div>
 
-                <!-- Uraian Ringkas (TIDAK WAJIB DIISI / OPTIONAL) -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Uraian Ringkas Kegiatan <span class="text-slate-400 font-normal">(Opsional)</span></label>
                     <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
-                <!-- LINK GOOGLE DRIVE BERKAS (100% GRATIS) -->
                 <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-bold text-blue-900 flex items-center">
@@ -425,8 +410,7 @@
                             <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Buka Google Drive
                         </a>
                     </div>
-                    <input type="url" id="inputDriveLink" placeholder="Tempelkan Link Berkas dari Google Drive di sini (misal: https://drive.google.com/file/d/...)" class="w-full text-xs bg-white border border-blue-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <p class="text-[10px] text-slate-500">Upload berkas ke Google Drive kantor Anda secara gratis (15 GB), lalu salin link-nya ke dalam kolom di atas.</p>
+                    <input type="url" id="inputDriveLink" placeholder="Tempelkan Link Berkas dari Google Drive di sini..." class="w-full text-xs bg-white border border-blue-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
@@ -439,7 +423,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP 2: POPUP OPTION CETAK LAPORAN (WORD / PDF) -->
+    <!-- MODAL EXPORT & PREVIEW -->
     <div id="modalExport" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
@@ -448,49 +432,37 @@
                 </h3>
                 <button onclick="closeExportModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
             <div class="p-5 space-y-4">
-                <!-- Pilihan 1: Tipe Isi Laporan -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1.5">1. Pilih Tipe Isi Laporan</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 hover:border-tosca-400 transition text-center">
-                            <input type="radio" name="exportScope" value="summary" checked class="mb-1 text-tosca-600 focus:ring-tosca-500">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportScope" value="summary" checked class="mb-1 text-tosca-600">
                             <span class="text-xs font-bold text-slate-800">Cetak Summary</span>
                             <span class="text-[10px] text-slate-500">Matriks Rekap Bulanan</span>
                         </label>
-                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 hover:border-tosca-400 transition text-center">
-                            <input type="radio" name="exportScope" value="detail" class="mb-1 text-tosca-600 focus:ring-tosca-500">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportScope" value="detail" class="mb-1 text-tosca-600">
                             <span class="text-xs font-bold text-slate-800">Cetak Detail</span>
                             <span class="text-[10px] text-slate-500">Rincian Lengkap Entri</span>
                         </label>
                     </div>
                 </div>
-
-                <!-- Pilihan 2: Format File -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1.5">2. Pilih Format Dokumen</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 hover:border-tosca-400 transition text-center">
-                            <input type="radio" name="exportFormat" value="word" checked class="mb-1 text-tosca-600 focus:ring-tosca-500">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportFormat" value="word" checked class="mb-1 text-tosca-600">
                             <i class="fa-solid fa-file-word text-blue-600 text-xl mb-1"></i>
                             <span class="text-xs font-bold text-slate-800">Microsoft Word (.doc)</span>
                         </label>
-                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 hover:border-tosca-400 transition text-center">
-                            <input type="radio" name="exportFormat" value="pdf" class="mb-1 text-tosca-600 focus:ring-tosca-500">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportFormat" value="pdf" class="mb-1 text-tosca-600">
                             <i class="fa-solid fa-file-pdf text-rose-600 text-xl mb-1"></i>
                             <span class="text-xs font-bold text-slate-800">Dokumen PDF</span>
                         </label>
                     </div>
                 </div>
-
-                <!-- Info Jenis Kertas -->
-                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-[11px] text-slate-500 flex items-center">
-                    <i class="fa-solid fa-circle-info text-tosca-600 mr-2 text-sm"></i>
-                    <span>Ukuran Kertas Baku: <b>LEGAL (Landscape)</b></span>
-                </div>
-
-                <!-- Tombol Aksi -->
                 <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeExportModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">Batal</button>
                     <button type="button" onclick="executeExport()" class="px-4 py-2 bg-tosca-600 hover:bg-tosca-700 text-white font-semibold text-xs rounded-lg shadow-sm transition flex items-center">
@@ -501,7 +473,7 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP 3: PREVIEW BERKAS DOKUMEN GOOGLE DRIVE -->
+    <!-- MODAL PREVIEW -->
     <div id="modalPreview" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] mx-4 overflow-hidden border border-slate-200 flex flex-col">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3.5 flex items-center justify-between">
@@ -521,12 +493,11 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDK & UNIFIED LOGIC -->
+    <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Configuration milik giat-datun-kn-padang
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
             authDomain: "giat-datun-kn-padang.firebaseapp.com",
@@ -537,7 +508,6 @@
             measurementId: "G-2PK9LDVPPV"
         };
 
-        // Inisialisasi Firebase App & Firestore
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const colRef = collection(db, "kegiatan_datun");
@@ -546,12 +516,10 @@
         let chartBarInstance = null;
         let chartPieInstance = null;
 
-        // Inisialisasi Chart & Logo saat DOM Siap
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
         });
 
-        // Mendengarkan Perubahan Data Firestore Real-Time
         onSnapshot(colRef, (snapshot) => {
             datasetKegiatan = [];
             snapshot.forEach((docSnap) => {
@@ -568,12 +536,10 @@
             console.error("Firestore Error:", error);
             document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5';
             document.getElementById('syncText').innerText = 'Koneksi Firestore Gagal';
-            
             document.getElementById('firestoreErrorMessage').innerText = error.message;
             document.getElementById('firestoreErrorBanner').classList.remove('hidden');
         });
 
-        // Simpan / Update Data Ke Firestore
         window.tambahAtauUpdateKegiatan = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveSubmit');
@@ -588,7 +554,7 @@
                     kategori: document.getElementById('inputKategori').value,
                     bulan: parseInt(document.getElementById('inputBulan').value),
                     instansi: document.getElementById('inputInstansi').value,
-                    uraian: document.getElementById('inputUraian').value || '-', // Opsional
+                    uraian: document.getElementById('inputUraian').value || '-',
                     driveLink: document.getElementById('inputDriveLink').value.trim(),
                     noMou: document.getElementById('inputNoMou').value || '-',
                     jangkaWaktu: document.getElementById('inputJangkaWaktu').value || '-',
@@ -612,7 +578,6 @@
                 document.getElementById('editDocId').value = '';
                 toggleFormFields();
                 closeModal();
-                
                 updateYearFilterOptions(tahunInput);
                 renderAll();
             } catch (err) {
@@ -623,7 +588,6 @@
             }
         };
 
-        // Buka Form Modal Dalam Mode Edit
         window.editKegiatan = function(firestoreId) {
             const item = datasetKegiatan.find(x => x.firestoreId === firestoreId);
             if (!item) return;
@@ -652,7 +616,6 @@
             openModal();
         };
 
-        // Hapus Data Firestore
         window.hapusKegiatan = async function(id) {
             if (confirm('Yakin ingin menghapus data ini dari Cloud Firestore?')) {
                 try {
@@ -663,7 +626,6 @@
             }
         };
 
-        // Impor Excel
         window.handleExcelUpload = async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -699,16 +661,12 @@
                     counter++;
                     detectedYear = yr;
                 }
-
                 alert(`Berhasil mengimpor ${counter} data kegiatan ke Cloud Firestore!`);
             };
             reader.readAsArrayBuffer(file);
         };
 
-        // Helper Modal Controls
-        window.openModal = function() { 
-            document.getElementById('modalForm').classList.remove('hidden'); 
-        }
+        window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); }
         window.closeModal = function() { 
             document.getElementById('modalForm').classList.add('hidden'); 
             document.getElementById('formKegiatan').reset();
@@ -864,13 +822,12 @@
             });
         }
 
-        // KARTU FLOATING TOOLTIP MEWAH (DINAMIS DENGAN DESAIN 6 KATEGORI GARIS KUNING)
+        // TOOLTIP DINAMIS SESUAI WARNA KATEGORI
         function getItemsCell(data, bulan, keys) {
             const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
 
             let text = filtered.map((it, idx) => {
-                // Konfigurasi Tema Kategori Warna Mewah
                 let katTheme = {
                     name: 'MoU', badgeClass: 'bg-tosca-100 text-tosca-800 border-tosca-200', borderClass: 'border-tosca-400', icon: 'fa-file-contract text-tosca-600'
                 };
@@ -887,7 +844,6 @@
                     katTheme = { name: 'Penegakan', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' };
                 }
 
-                // JSON Data Rincian untuk Tooltip
                 const itemDataAttr = encodeURIComponent(JSON.stringify({
                     instansi: it.instansi,
                     kategori: it.kategori,
@@ -922,7 +878,6 @@
             return { count: filtered.length, text: text };
         }
 
-        // HANDLER MOVEMENT KARTU TOOLTIP FLOATING MEWAH
         window.showCustomTooltip = function(e, dataStr) {
             const data = JSON.parse(decodeURIComponent(dataStr));
             const card = document.getElementById('customTooltipCard');
@@ -931,14 +886,12 @@
             const title = document.getElementById('ttTitle');
             const body = document.getElementById('ttDetailsBody');
 
-            // Set Header Tema
             card.className = `fixed opacity-100 transform scale-100 bg-white rounded-2xl shadow-2xl border ${data.theme.borderClass} p-4 max-w-sm w-80 backdrop-blur-md transition-all duration-150`;
             badge.className = `text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${data.theme.badgeClass}`;
             badge.innerText = data.theme.name;
             icon.className = `fa-solid ${data.theme.icon} text-sm`;
             title.innerText = data.instansi;
 
-            // Isi Rincian Khusus
             let bodyContent = '';
             if (data.noMou && data.noMou !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor MoU:</span> <span class="font-semibold text-slate-800">${data.noMou}</span></div>`;
             if (data.jangkaWaktu && data.jangkaWaktu !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Masa Berlaku:</span> <span class="font-semibold text-slate-800">${data.jangkaWaktu}</span></div>`;
@@ -959,13 +912,10 @@
             const card = document.getElementById('customTooltipCard');
             const x = e.clientX + 15;
             const y = e.clientY + 15;
-
-            // Deteksi batas layar kanan & bawah agar kartu tidak terpotong
             const cardWidth = 320;
             const cardHeight = 220;
             const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
             const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
-
             card.style.left = `${posX}px`;
             card.style.top = `${posY}px`;
         };
@@ -981,7 +931,7 @@
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-400">Belum ada data kegiatan di Firestore untuk tahun ini. Klik "+ Tambah Kegiatan" atau Upload Excel.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-400">Belum ada data kegiatan di Firestore untuk tahun ini.</td></tr>`;
                 return;
             }
 
@@ -1012,9 +962,9 @@
                     </td>
                     <td class="p-2.5 text-center no-print">
                         <div class="flex items-center justify-center space-x-2">
-                            <button onclick="editKegiatan('${item.firestoreId}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold p-1" title="Edit Data"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                            <button onclick="editKegiatan('${item.firestoreId}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold p-1"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
                             <span class="text-slate-300">|</span>
-                            <button onclick="hapusKegiatan('${item.firestoreId}')" class="text-rose-500 hover:text-rose-700 text-xs p-1" title="Hapus Data"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="hapusKegiatan('${item.firestoreId}')" class="text-rose-500 hover:text-rose-700 text-xs p-1"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </td>
                 `;
@@ -1125,7 +1075,7 @@
                         <title>Laporan DATUN</title>
                         <style>
                             @page WordSection1 {
-                                size: 355.6mm 215.9mm; /* Legal Landscape */
+                                size: 355.6mm 215.9mm;
                                 mso-page-orientation: landscape;
                                 margin: 15mm 15mm 15mm 15mm;
                             }

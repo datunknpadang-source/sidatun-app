@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SI-DATUN - Kejaksaan Negeri Padang</title>
 
-    <!-- FAVICON TAB BROWSER (MENGAMBIL DARI FILE LOKAL logo.png) -->
+    <!-- FAVICON TAB BROWSER -->
     <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
 
     <!-- Google Fonts & Tailwind CSS -->
@@ -49,14 +49,12 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #0D9488; border-radius: 4px; }
         .excel-table th, .excel-table td { border: 1px solid #E2E8F0; }
 
-        /* Custom Hover Tooltip Floating Card */
         #customTooltipCard {
             transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
             pointer-events: none;
             z-index: 9999;
         }
 
-        /* Aturan Cetak PDF Kertas Legal Landscape */
         @media print {
             @page {
                 size: legal landscape;
@@ -85,7 +83,7 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- FLOATING CARD TOOLTIP MEWAH (DINAMIS SESUAI WARNA KATEGORI) -->
+    <!-- FLOATING CARD TOOLTIP -->
     <div id="customTooltipCard" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-72 backdrop-blur-md">
         <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
@@ -99,9 +97,8 @@
     <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <!-- LOGO EMAS DATUN KEJAKSAAN NEGERI PADANG (DARI FILE LOKAL logo.png) -->
                 <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
-                    <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" />
+                    <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center">
@@ -115,7 +112,6 @@
             </div>
 
             <div class="flex items-center space-x-2.5">
-                <!-- Filter Tahun (Dinamis dari Data Firestore) -->
                 <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
                     <i class="fa-regular fa-calendar text-xs text-tosca-200 mr-2"></i>
                     <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-sm font-semibold text-white focus:outline-none cursor-pointer">
@@ -123,18 +119,15 @@
                     </select>
                 </div>
 
-                <!-- Tombol + Tambah Kegiatan (Modal Popup) -->
                 <button onclick="openModal()" class="bg-white text-tosca-800 hover:bg-tosca-50 font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition transform active:scale-95">
                     <i class="fa-solid fa-plus mr-1.5 text-tosca-600"></i> Tambah Kegiatan
                 </button>
 
-                <!-- Tombol Upload Excel -->
                 <label for="excelInput" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer flex items-center shadow-sm transition">
                     <i class="fa-solid fa-file-excel mr-1.5"></i> Upload Excel
                 </label>
                 <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
 
-                <!-- Tombol Cetak Word (Membuka Pop Up Option) -->
                 <button onclick="openExportModal()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 flex items-center transition">
                     <i class="fa-solid fa-file-word mr-1.5 text-blue-300"></i> Cetak Word
                 </button>
@@ -145,7 +138,6 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
 
-        <!-- Banner Error Jika Ada Kendala Akses Firestore -->
         <div id="firestoreErrorBanner" class="hidden bg-rose-100 border border-rose-300 text-rose-800 p-3 rounded-xl text-xs flex items-center justify-between no-print">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base"></i>
@@ -156,9 +148,8 @@
             <a href="https://console.firebase.google.com/" target="_blank" class="bg-rose-600 text-white px-3 py-1 rounded font-semibold text-[11px] hover:bg-rose-700">Cek Rules Firebase</a>
         </div>
 
-        <!-- Section 1: KPI Summary Cards (6 Kategori Terpisah) -->
+        <!-- Section 1: KPI Summary Cards -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
-            <!-- 1. MoU -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-tosca-500 transition">
                 <div class="flex items-center justify-between text-tosca-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">1. MoU</span>
@@ -168,7 +159,6 @@
                 <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
             </div>
 
-            <!-- 2. Bantuan Hukum -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-blue-500 transition">
                 <div class="flex items-center justify-between text-blue-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
@@ -181,7 +171,6 @@
                 </div>
             </div>
 
-            <!-- 3. Pertimbangan Hukum -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-amber-500 transition">
                 <div class="flex items-center justify-between text-amber-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">3. Pertimbangan</span>
@@ -191,7 +180,6 @@
                 <p class="text-[10px] text-slate-500 mt-1"><span id="kpiLA">0 LA</span> • <span id="kpiLO">0 LO</span></p>
             </div>
 
-            <!-- 4. Pelayanan Hukum -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-purple-500 transition">
                 <div class="flex items-center justify-between text-purple-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">4. Pelayanan</span>
@@ -201,7 +189,6 @@
                 <p class="text-[10px] text-slate-500 mt-1">Konsultasi / Layanan</p>
             </div>
 
-            <!-- 5. Tindakan Hukum Lainnya -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-teal-500 transition">
                 <div class="flex items-center justify-between text-teal-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">5. THL</span>
@@ -211,7 +198,6 @@
                 <p class="text-[10px] text-slate-500 mt-1">Tindakan Hukum Lain</p>
             </div>
 
-            <!-- 6. Penegakan Hukum -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-rose-500 transition">
                 <div class="flex items-center justify-between text-rose-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">6. Penegakan</span>
@@ -224,7 +210,6 @@
 
         <!-- Section 2: Visualisasi Grafik Ganda -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-            <!-- Grafik Tren Bulanan -->
             <div class="lg:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-slate-200">
                 <div class="flex items-center justify-between mb-3">
                     <div>
@@ -238,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Grafik Proporsi Doughnut -->
             <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
                 <h2 class="text-sm font-bold text-slate-800">Proporsi 6 Kategori Datun</h2>
                 <p class="text-xs text-slate-500 mb-3">Persentase sebaran per bidang kategori kegiatan</p>
@@ -401,16 +385,13 @@
                     <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
+                <!-- UPLOAD FILE OTOMATIS KE GOOGLE DRIVE (MENGGANTIKAN INPUT LINK) -->
                 <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-xs font-bold text-blue-900 flex items-center">
-                            <i class="fa-brands fa-google-drive text-blue-600 mr-1.5 text-sm"></i> Link Berkas Google Drive (100% Gratis)
-                        </label>
-                        <a href="https://drive.google.com" target="_blank" class="text-[11px] text-blue-600 font-semibold hover:underline flex items-center">
-                            <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Buka Google Drive
-                        </a>
-                    </div>
-                    <input type="url" id="inputDriveLink" placeholder="Tempelkan Link Berkas dari Google Drive di sini..." class="w-full text-xs bg-white border border-blue-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <label class="block text-xs font-bold text-blue-900 flex items-center">
+                        <i class="fa-brands fa-google-drive text-blue-600 mr-1.5 text-sm"></i> Upload Berkas Pendukung (Format Apa Saja - Otomatis ke Drive)
+                    </label>
+                    <input type="file" id="inputFileUpload" class="w-full text-xs bg-white border border-blue-300 rounded-lg p-2 text-slate-700 focus:outline-none">
+                    <p class="text-[10px] text-slate-500">Pilih file dari komputer Anda. Sistem akan mengunggahnya ke Google Drive kantor secara otomatis saat disimpan.</p>
                 </div>
 
                 <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
@@ -508,6 +489,9 @@
             measurementId: "G-2PK9LDVPPV"
         };
 
+        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+        const GAS_WEB_APP_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnTYkt-J5b_KRvrr08uonzeLpSxDZW-zPvZ5AggMzktlEzMb9bDKyWtTVmt90SGNHu4mcXfGYRbZnIJwK9TzHEPgAZoN6v2zw6LfS-H-by6FDQrJA23a5UWOLyaQ6HGuZ7fGY8uYMlpSruM_33UbauwizhcEfSs1TF0jpqKloP3cb26GOuEWw8YBtmuQKfaoRUy1F0fpduBBtmUv9EDJO4Ea0BkMoahSzSYaPG2psp9TtYX2rBj5I2pRNAyzfVaKtWxm2_LvhLtXyv_ejCVpDoN0yaIqDA&lib=MANgh1O0VxZFX4lDl4nmJ-SJyJK9c3lKD";
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const colRef = collection(db, "kegiatan_datun");
@@ -540,14 +524,48 @@
             document.getElementById('firestoreErrorBanner').classList.remove('hidden');
         });
 
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
         window.tambahAtauUpdateKegiatan = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveSubmit');
             const docId = document.getElementById('editDocId').value;
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Mengunggah & Menyimpan...`;
 
             try {
+                let driveLink = "";
+                if (docId) {
+                    const existingItem = datasetKegiatan.find(x => x.firestoreId === docId);
+                    if (existingItem) driveLink = existingItem.driveLink || "";
+                }
+
+                const fileInput = document.getElementById('inputFileUpload');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const base64Data = await toBase64(file);
+                    
+                    const response = await fetch(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            fileName: file.name,
+                            mimeType: file.type,
+                            fileBytes: base64Data.split(',')[1]
+                        })
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        driveLink = result.driveUrl;
+                    } else {
+                        throw new Error(result.message || 'Gagal mengunggah file ke Google Drive.');
+                    }
+                }
+
                 const tahunInput = document.getElementById('inputTahun').value.toString();
                 const item = {
                     tahun: tahunInput,
@@ -555,7 +573,7 @@
                     bulan: parseInt(document.getElementById('inputBulan').value),
                     instansi: document.getElementById('inputInstansi').value,
                     uraian: document.getElementById('inputUraian').value || '-',
-                    driveLink: document.getElementById('inputDriveLink').value.trim(),
+                    driveLink: driveLink,
                     noMou: document.getElementById('inputNoMou').value || '-',
                     jangkaWaktu: document.getElementById('inputJangkaWaktu').value || '-',
                     noSkk: document.getElementById('inputNoSkk').value || '-',
@@ -567,11 +585,11 @@
 
                 if (docId) {
                     await updateDoc(doc(db, "kegiatan_datun", docId), item);
-                    alert('Data kegiatan berhasil diperbarui di Cloud Firestore!');
+                    alert('Data kegiatan dan berkas berhasil diperbarui!');
                 } else {
                     item.createdAt = new Date().toISOString();
                     await addDoc(colRef, item);
-                    alert('Data baru berhasil disimpan di Cloud Firestore!');
+                    alert('Data baru dan berkas berhasil diunggah ke Google Drive & disimpan ke Cloud!');
                 }
 
                 document.getElementById('formKegiatan').reset();
@@ -581,7 +599,7 @@
                 updateYearFilterOptions(tahunInput);
                 renderAll();
             } catch (err) {
-                alert('Gagal menyimpan ke Cloud Firestore: ' + err.message);
+                alert('Gagal memproses data: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Ke Cloud`;
@@ -598,7 +616,6 @@
             document.getElementById('inputTahun').value = item.tahun || 2026;
             document.getElementById('inputInstansi').value = item.instansi || '';
             document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
-            document.getElementById('inputDriveLink').value = item.driveLink || '';
 
             toggleFormFields();
 
@@ -822,7 +839,6 @@
             });
         }
 
-        // TOOLTIP DINAMIS SESUAI WARNA KATEGORI
         function getItemsCell(data, bulan, keys) {
             const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };

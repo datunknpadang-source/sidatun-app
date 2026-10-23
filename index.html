@@ -404,7 +404,7 @@
                             Atau Tempel Link Google Drive Manual <span class="text-slate-400 font-normal">(Opsional / Alternatif jika file besar)</span>
                         </label>
                         <input type="url" id="inputManualDriveLink" placeholder="https://drive.google.com/file/d/.../view" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none">
-                        <p class="text-[10px] text-slate-500 mt-0.5">Jika upload otomatis *timeout*, Anda bisa isi link Drive secara manual di sini.</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Jika upload otomatis mengalami *timeout*, file tetap masuk ke Drive kantor. Anda dapat menyalin link Drive manual ke sini agar tombol Lihat langsung aktif.</p>
                     </div>
                 </div>
 
@@ -628,8 +628,8 @@
                     try {
                         driveLink = await uploadFileToDrive(file);
                     } catch (uploadErr) {
-                        console.warn("Upload otomatis gagal/timeout, melanjutkan dengan link kosong atau manual:", uploadErr);
-                        alert("Perhatian: Upload otomatis gagal atau timeout. Data teks akan tetap disimpan. Jika ada file, Anda bisa memasukkan link Drive secara manual.");
+                        console.warn("Upload otomatis timeout:", uploadErr);
+                        alert("Perhatian: Upload otomatis mengalami timeout. File kemungkinan sudah masuk ke Drive, namun jika tombol Lihat tidak muncul, silakan salin link Google Drive secara manual ke kolom 'Link Google Drive Manual' di bawahnya.");
                     }
                 }
 
@@ -640,7 +640,7 @@
                     bulan: parseInt(document.getElementById('inputBulan').value),
                     instansi: document.getElementById('inputInstansi').value.trim() || '-',
                     uraian: document.getElementById('inputUraian').value || '-',
-                    driveLink: driveLink || '-',
+                    driveLink: driveLink || '',
                     noMou: document.getElementById('inputNoMou') ? document.getElementById('inputNoMou').value : '-',
                     jangkaWaktu: document.getElementById('inputJangkaWaktu') ? document.getElementById('inputJangkaWaktu').value : '-',
                     noSkk: document.getElementById('inputNoSkk') ? document.getElementById('inputNoSkk').value : '-',
@@ -684,6 +684,7 @@
             document.getElementById('inputTahun').value = item.tahun || 2026;
             document.getElementById('inputInstansi').value = item.instansi === '-' ? '' : (item.instansi || '');
             document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
+            document.getElementById('inputManualDriveLink').value = (item.driveLink && item.driveLink !== '-') ? item.driveLink : '';
 
             toggleFormFields();
 
@@ -814,11 +815,9 @@
                 document.getElementById('fieldMou1').classList.remove('hidden');
                 document.getElementById('fieldMou2').classList.remove('hidden');
             } else if (kat === 'Bantuan Hukum Litigasi') {
-                // Litigasi: HANYA tampilkan No SKK & Jumlah SKK (Tanpa Disepakati/Dipulihkan)
                 document.getElementById('fieldSkk1').classList.remove('hidden');
                 document.getElementById('fieldSkk2').classList.remove('hidden');
             } else if (kat === 'Bantuan Hukum Non-Litigasi') {
-                // Non-Litigasi: Tampilkan No SKK, Jumlah SKK, Disepakati, Dipulihkan
                 document.getElementById('fieldSkk1').classList.remove('hidden');
                 document.getElementById('fieldSkk2').classList.remove('hidden');
                 document.getElementById('fieldSkk3').classList.remove('hidden');
@@ -876,7 +875,6 @@
                     if (item.kategori.includes('LA')) la++;
                     if (item.kategori.includes('LO')) lo++;
                 } else if (item.kategori === 'Pelayanan Hukum') {
-                    // Akumulasi total angka pelayanan
                     pelayanan += (item.jumlahPelayanan || 1);
                 } else if (item.kategori === 'Tindakan Hukum Lainnya') thl++;
                 else if (item.kategori === 'Penegakan Hukum') penegakan++;
@@ -986,7 +984,8 @@
 
                 if (it.dipulihkan > 0) t += `<span class="text-emerald-600 font-bold text-[10px] block pl-3">Rp ${formatRp(it.dipulihkan)}</span>`;
                 
-                if (it.driveLink) {
+                // HANYA MUNCUL JIKA ADA LINK DRIVE YANG VALID (Bukan kosong / '-')
+                if (it.driveLink && it.driveLink !== '-' && it.driveLink.trim() !== '') {
                     t += `<div class="flex items-center space-x-2 mt-1 pl-3">
                             <button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
                             <span class="text-slate-300">|</span>
@@ -1076,7 +1075,7 @@
                     <td class="p-2.5 text-[11px]">${detail}</td>
                     <td class="p-2.5 text-[11px] text-slate-600 max-w-xs">${item.uraian || '-'}</td>
                     <td class="p-2.5">
-                        ${item.driveLink ? `
+                        ${item.driveLink && item.driveLink !== '-' && item.driveLink.trim() !== '' ? `
                             <div class="flex items-center space-x-2">
                                 <button onclick="previewDriveFile('${item.driveLink}', '${item.instansi}')" class="text-blue-600 font-semibold text-[11px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
                                 <span class="text-slate-300">|</span>

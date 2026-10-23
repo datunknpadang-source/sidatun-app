@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SI-DATUN - Kejaksaan Negeri Padang</title>
 
+    <!-- FAVICON TAB BROWSER (LOGO DATUN KEJAKSAAN NEGERI PADANG) -->
+    <link id="favicon" rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1_d2-R71m94m0g1d-Xo5_QJ8-Yy2S3L21=s300">
+
     <!-- Google Fonts & Tailwind CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -46,6 +49,13 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #0D9488; border-radius: 4px; }
         .excel-table th, .excel-table td { border: 1px solid #E2E8F0; }
 
+        /* Custom Hover Tooltip Floating Card */
+        #customTooltipCard {
+            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
         /* Aturan Cetak PDF Kertas Legal Landscape */
         @media print {
             @page {
@@ -56,7 +66,7 @@
                 background: white;
                 color: black;
             }
-            header, #modalForm, #modalExport, #modalPreview, #firestoreErrorBanner, .no-print {
+            header, #modalForm, #modalExport, #modalPreview, #firestoreErrorBanner, #customTooltipCard, .no-print {
                 display: none !important;
             }
             .print-area {
@@ -75,11 +85,23 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
+    <!-- FLOATING CARD TOOLTIP MEWAH (DINAMIS SESUAI GARIS KUNING) -->
+    <div id="customTooltipCard" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-72 backdrop-blur-md">
+        <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
+            <i class="fa-solid fa-circle-info text-xs" id="ttIcon"></i>
+        </div>
+        <h4 class="font-bold text-xs text-slate-800 mb-2 leading-snug" id="ttTitle">Nama Instansi / Subjek</h4>
+        <div class="space-y-1.5 text-[11px]" id="ttDetailsBody">
+            <!-- Rincian Dinamis diisi via JavaScript -->
+        </div>
+    </div>
+
     <!-- Top Navigation Header -->
     <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <!-- Logo Aplikasi Baru Gambar DATUN Kejaksaan Negeri Padang -->
+                <!-- LOGO EMAS DATUN KEJAKSAAN NEGERI PADANG (LENGKAP DI HEADER) -->
                 <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
                     <img id="appLogo" src="https://lh3.googleusercontent.com/d/1_d2-R71m94m0g1d-Xo5_QJ8-Yy2S3L21=s300" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
                 </div>
@@ -136,7 +158,7 @@
             <a href="https://console.firebase.google.com/" target="_blank" class="bg-rose-600 text-white px-3 py-1 rounded font-semibold text-[11px] hover:bg-rose-700">Cek Rules Firebase</a>
         </div>
 
-        <!-- Section 1: KPI Summary Cards (6 Kategori Terpisah) -->
+        <!-- Section 1: KPI Summary Cards (6 Kategori Terpisah - TAMPILAN GARIS KUNING) -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
             <!-- 1. MoU -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-tosca-500 transition">
@@ -235,7 +257,7 @@
                     <h2 class="text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-table-cells text-tosca-600 mr-2"></i> Matriks Data Kegiatan DATUN (Per Bulan)
                     </h2>
-                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi untuk melihat rincian detail singkat</p>
+                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi untuk melihat rincian kartu mewah</p>
                 </div>
 
                 <div class="flex items-center space-x-2">
@@ -393,7 +415,7 @@
                     <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
-                <!-- LINK GOOGLE DRIVE BERKAS (TANPA FIREBASE STORAGE BERBAYAR) -->
+                <!-- LINK GOOGLE DRIVE BERKAS (100% GRATIS) -->
                 <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-bold text-blue-900 flex items-center">
@@ -524,7 +546,7 @@
         let chartBarInstance = null;
         let chartPieInstance = null;
 
-        // Inisialisasi Chart saat DOM Siap
+        // Inisialisasi Chart & Logo saat DOM Siap
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
         });
@@ -578,11 +600,9 @@
                 };
 
                 if (docId) {
-                    // Mode Update / Edit
                     await updateDoc(doc(db, "kegiatan_datun", docId), item);
                     alert('Data kegiatan berhasil diperbarui di Cloud Firestore!');
                 } else {
-                    // Mode Tambah Baru
                     item.createdAt = new Date().toISOString();
                     await addDoc(colRef, item);
                     alert('Data baru berhasil disimpan di Cloud Firestore!');
@@ -844,30 +864,52 @@
             });
         }
 
-        // DENGAN FITUR TOOLTIP DEATAIL HOOVER PADA NAMA INSTANSI
+        // KARTU FLOATING TOOLTIP MEWAH (DINAMIS DENGAN DESAIN 6 KATEGORI GARIS KUNING)
         function getItemsCell(data, bulan, keys) {
             const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
 
             let text = filtered.map((it, idx) => {
-                let detailInfo = [];
-                if (it.noMou && it.noMou !== '-') detailInfo.push(`No. MoU: ${it.noMou}`);
-                if (it.jangkaWaktu && it.jangkaWaktu !== '-') detailInfo.push(`Masa: ${it.jangkaWaktu}`);
-                if (it.noSkk && it.noSkk !== '-') detailInfo.push(`No. SKK: ${it.noSkk}`);
-                if (it.jumlahSkk && it.jumlahSkk > 1) detailInfo.push(`Jml SKK: ${it.jumlahSkk}`);
-                if (it.disepakati && it.disepakati > 0) detailInfo.push(`Disepakati: Rp ${formatRp(it.disepakati)}`);
-                if (it.dipulihkan && it.dipulihkan > 0) detailInfo.push(`Dipulihkan: Rp ${formatRp(it.dipulihkan)}`);
-                if (it.uraian && it.uraian !== '-') detailInfo.push(`Uraian: ${it.uraian}`);
+                // Konfigurasi Tema Kategori Warna Mewah
+                let katTheme = {
+                    name: 'MoU', badgeClass: 'bg-tosca-100 text-tosca-800 border-tosca-200', borderClass: 'border-tosca-400', icon: 'fa-file-contract text-tosca-600'
+                };
 
-                let tooltipText = detailInfo.length > 0 ? detailInfo.join(' &#10;• ') : 'Tidak ada rincian tambahan';
+                if (it.kategori.includes('Bantuan Hukum')) {
+                    katTheme = { name: 'Bantuan Hukum', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
+                } else if (it.kategori.includes('Pertimbangan')) {
+                    katTheme = { name: 'Pertimbangan', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
+                } else if (it.kategori === 'Pelayanan Hukum') {
+                    katTheme = { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' };
+                } else if (it.kategori === 'Tindakan Hukum Lainnya') {
+                    katTheme = { name: 'Tindakan Hukum Lain', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' };
+                } else if (it.kategori === 'Penegakan Hukum') {
+                    katTheme = { name: 'Penegakan', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' };
+                }
 
-                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none group relative">`;
-                t += `<span class="cursor-help font-semibold text-slate-800 hover:text-tosca-700 underline decoration-dotted decoration-tosca-400" title="${tooltipText}"><b>${idx+1}.</b> ${it.instansi}</span>`;
+                // JSON Data Rincian untuk Tooltip
+                const itemDataAttr = encodeURIComponent(JSON.stringify({
+                    instansi: it.instansi,
+                    kategori: it.kategori,
+                    theme: katTheme,
+                    noMou: it.noMou,
+                    jangkaWaktu: it.jangkaWaktu,
+                    noSkk: it.noSkk,
+                    jumlahSkk: it.jumlahSkk,
+                    disepakati: it.disepakati,
+                    dipulihkan: it.dipulihkan,
+                    uraian: it.uraian
+                }));
+
+                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;
+                t += `<span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmousemove="moveCustomTooltip(event)" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start">
+                        <span class="mr-1"><b>${idx+1}.</b></span> <span>${it.instansi}</span>
+                      </span>`;
                 
-                if (it.dipulihkan > 0) t += `<br><span class="text-emerald-600 font-bold text-[10px]">Rp ${formatRp(it.dipulihkan)}</span>`;
+                if (it.dipulihkan > 0) t += `<span class="text-emerald-600 font-bold text-[10px] block pl-3">Rp ${formatRp(it.dipulihkan)}</span>`;
                 
                 if (it.driveLink) {
-                    t += `<div class="flex items-center space-x-2 mt-1">
+                    t += `<div class="flex items-center space-x-2 mt-1 pl-3">
                             <button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
                             <span class="text-slate-300">|</span>
                             <button onclick="downloadDriveFile('${it.driveLink}')" class="text-emerald-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-download mr-1"></i> Unduh</button>
@@ -879,6 +921,60 @@
 
             return { count: filtered.length, text: text };
         }
+
+        // HANDLER MOVEMENT KARTU TOOLTIP FLOATING MEWAH
+        window.showCustomTooltip = function(e, dataStr) {
+            const data = JSON.parse(decodeURIComponent(dataStr));
+            const card = document.getElementById('customTooltipCard');
+            const badge = document.getElementById('ttBadge');
+            const icon = document.getElementById('ttIcon');
+            const title = document.getElementById('ttTitle');
+            const body = document.getElementById('ttDetailsBody');
+
+            // Set Header Tema
+            card.className = `fixed opacity-100 transform scale-100 bg-white rounded-2xl shadow-2xl border ${data.theme.borderClass} p-4 max-w-sm w-80 backdrop-blur-md transition-all duration-150`;
+            badge.className = `text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${data.theme.badgeClass}`;
+            badge.innerText = data.theme.name;
+            icon.className = `fa-solid ${data.theme.icon} text-sm`;
+            title.innerText = data.instansi;
+
+            // Isi Rincian Khusus
+            let bodyContent = '';
+            if (data.noMou && data.noMou !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor MoU:</span> <span class="font-semibold text-slate-800">${data.noMou}</span></div>`;
+            if (data.jangkaWaktu && data.jangkaWaktu !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Masa Berlaku:</span> <span class="font-semibold text-slate-800">${data.jangkaWaktu}</span></div>`;
+            if (data.noSkk && data.noSkk !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor SKK:</span> <span class="font-semibold text-slate-800">${data.noSkk}</span></div>`;
+            if (data.jumlahSkk && data.jumlahSkk > 1) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah SKK:</span> <span class="font-semibold text-slate-800">${data.jumlahSkk} SKK</span></div>`;
+            if (data.disepakati && data.disepakati > 0) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nilai Disepakati:</span> <span class="font-bold text-blue-600">Rp ${formatRp(data.disepakati)}</span></div>`;
+            if (data.dipulihkan && data.dipulihkan > 0) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nilai Dipulihkan:</span> <span class="font-bold text-emerald-600">Rp ${formatRp(data.dipulihkan)}</span></div>`;
+            if (data.uraian && data.uraian !== '-') bodyContent += `<div class="pt-1"><span class="text-slate-500 block text-[10px] mb-0.5">Uraian Ringkas:</span> <p class="text-slate-700 bg-slate-50 p-2 rounded-lg text-[10px] leading-relaxed border border-slate-100">${data.uraian}</p></div>`;
+
+            if (!bodyContent) bodyContent = `<p class="text-slate-400 italic text-[10px]">Tidak ada informasi tambahan.</p>`;
+
+            body.innerHTML = bodyContent;
+            card.classList.remove('hidden');
+            moveCustomTooltip(e);
+        };
+
+        window.moveCustomTooltip = function(e) {
+            const card = document.getElementById('customTooltipCard');
+            const x = e.clientX + 15;
+            const y = e.clientY + 15;
+
+            // Deteksi batas layar kanan & bawah agar kartu tidak terpotong
+            const cardWidth = 320;
+            const cardHeight = 220;
+            const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
+            const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
+
+            card.style.left = `${posX}px`;
+            card.style.top = `${posY}px`;
+        };
+
+        window.hideCustomTooltip = function() {
+            const card = document.getElementById('customTooltipCard');
+            card.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { card.classList.add('hidden'); }, 150);
+        };
 
         function renderLogView(data) {
             const tbody = document.getElementById('bodyLogData');

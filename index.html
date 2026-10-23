@@ -45,9 +45,9 @@
         .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #0D9488; border-radius: 4px; }
-        .excel-table th, .excel-table td { border: 1px solid #E2E8F0; }
+        .excel-table th, .excel-table td { border: 1px solid #CBD5E1; }
 
-        #customTooltipCard {
+        #customTooltipCard, #pieLuxuryTooltip {
             transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
             pointer-events: none;
             z-index: 9999;
@@ -62,7 +62,7 @@
                 background: white;
                 color: black;
             }
-            header, #modalForm, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, .no-print {
+            header, #modalForm, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, .no-print {
                 display: none !important;
             }
             .print-area {
@@ -81,7 +81,7 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- FLOATING CARD TOOLTIP -->
+    <!-- FLOATING CARD TOOLTIP UTAMA -->
     <div id="customTooltipCard" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-72 backdrop-blur-md">
         <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
@@ -89,6 +89,19 @@
         </div>
         <h4 class="font-bold text-xs text-slate-800 mb-2 leading-snug" id="ttTitle">Nama Instansi / Subjek</h4>
         <div class="space-y-1.5 text-[11px]" id="ttDetailsBody"></div>
+    </div>
+
+    <!-- POP-UP MEWAH LINGKARAN KATEGORI (REVISI POIN 1) -->
+    <div id="pieLuxuryTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border p-3 max-w-xs w-64 border-tosca-500 z-50">
+        <div class="flex items-center space-x-2 border-b pb-1.5 mb-1.5 border-slate-100">
+            <span id="pieTtDot" class="w-3 h-3 rounded-full flex-shrink-0"></span>
+            <h5 id="pieTtTitle" class="font-bold text-xs text-slate-800 truncate">Kategori</h5>
+        </div>
+        <div class="space-y-1 text-[11px]">
+            <div class="flex justify-between"><span class="text-slate-500">Jumlah Volume:</span> <span id="pieTtVal" class="font-bold text-slate-800">0</span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Persentase Total:</span> <span id="pieTtPct" class="font-bold text-tosca-700">0%</span></div>
+            <p id="pieTtDesc" class="text-[10px] text-slate-500 italic mt-1 pt-1 border-t border-slate-100 leading-tight">Penjelasan singkat kategori kegiatan DATUN.</p>
+        </div>
     </div>
 
     <!-- Top Navigation Header -->
@@ -121,7 +134,6 @@
                     <i class="fa-solid fa-plus mr-1.5 text-tosca-600"></i> Tambah Kegiatan
                 </button>
 
-                <!-- TOMBOL BANDINGKAN DATA -->
                 <button onclick="openCompareModal()" class="bg-tosca-600 hover:bg-tosca-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm flex items-center transition">
                     <i class="fa-solid fa-chart-line mr-1.5"></i> Bandingkan Data
                 </button>
@@ -157,7 +169,7 @@
                 <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
             </div>
 
-            <!-- KARTU KPI 2. BANTUAN HUKUM (DIPERTAHANKAN SESUAI PERMINTAAN) -->
+            <!-- KARTU KPI 2. BANTUAN HUKUM -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-blue-500 transition">
                 <div class="flex items-center justify-between text-blue-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
@@ -225,22 +237,22 @@
                 </div>
             </div>
 
-            <!-- REVISI 1: GRAFIK PROPORSI DENGAN TOTAL KANBAN & PERSENTASE DETAIL -->
-            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+            <!-- REVISI POIN 1: GRAFIK PROPORSI + POPUP MEWAH TOOLTIP PADA BANTUAN HUKUM LITIGASI DAN NON-LITIGASI -->
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between relative">
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <h2 class="text-sm font-bold text-slate-800">Proporsi 6 Kategori Datun</h2>
-                        <span class="text-[11px] font-bold text-tosca-800 bg-tosca-50 px-2 py-0.5 rounded-full border border-tosca-200" id="pieTotalLabel">Total: 0</span>
+                        <h2 class="text-sm font-bold text-slate-800">Proporsi Kategori DATUN</h2>
+                        <span class="text-[11px] font-bold text-tosca-800 bg-tosca-50 px-2.5 py-0.5 rounded-full border border-tosca-200" id="pieTotalLabel">Total: 0</span>
                     </div>
-                    <p class="text-xs text-slate-500 mb-3">Persentase sebaran per bidang kategori kegiatan</p>
+                    <p class="text-xs text-slate-500 mb-3">Arahkan kursor pada item bawah untuk melihat nama lengkap</p>
                     
-                    <div class="h-44 flex items-center justify-center">
+                    <div class="h-40 flex items-center justify-center">
                         <canvas id="chartGiatPie"></canvas>
                     </div>
                 </div>
 
-                <!-- LIST PERSENTASE & KETERANGAN DETAIL -->
-                <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] grid grid-cols-2 gap-x-3 gap-y-1.5" id="pieDetailsList">
+                <!-- LIST PERSENTASE DENGAN POPUP TOOLTIP MEWAH (REVISI POIN 1) -->
+                <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] grid grid-cols-2 gap-x-2 gap-y-1.5" id="pieDetailsList">
                     <!-- Dynamic rendering -->
                 </div>
             </div>
@@ -266,30 +278,37 @@
                 </div>
             </div>
 
-            <!-- TAMPILAN MODE 1: MATRIKS BULANAN (REVISI 3: PECAH KOLOM BANTUAN HUKUM MITIGASI & NON-LITIGASI) -->
+            <!-- TAMPILAN MODE 1: MATRIKS BULANAN (REVISI POIN 2 & 3: SUB HEADER 2 LEVEL & BARIS TOTAL) -->
             <div id="containerMatrixView" class="overflow-x-auto custom-scrollbar">
                 <table class="w-full text-xs text-left excel-table border-collapse">
                     <thead>
+                        <!-- HEADER TINGKAT 1 (REVISI POIN 3) -->
                         <tr class="bg-tosca-700 text-white text-center font-bold">
-                            <th class="p-2.5 w-10">NO.</th>
-                            <th class="p-2.5 w-24">BULAN</th>
-                            <th class="p-2.5 min-w-[140px]">1. MOU</th>
-                            <th class="p-2.5 min-w-[140px]">2a. LITIGASI</th>
-                            <th class="p-2.5 min-w-[140px]">2b. NON-LITIGASI</th>
-                            <th class="p-2.5 min-w-[150px]">3. PERTIMBANGAN HUKUM<br><span class="text-[10px] font-normal">(LA / LO)</span></th>
-                            <th class="p-2.5 min-w-[140px]">4. PELAYANAN HUKUM</th>
-                            <th class="p-2.5 min-w-[140px]">5. TINDAKAN HUKUM LAIN</th>
-                            <th class="p-2.5 min-w-[140px]">6. PENEGAKAN HUKUM</th>
-                            <th class="p-2.5 w-16 bg-tosca-800">JUMLAH</th>
+                            <th class="p-2 w-10" rowspan="2">NO.</th>
+                            <th class="p-2 w-28" rowspan="2">BULAN</th>
+                            <th class="p-2 min-w-[130px]" rowspan="2">1. MOU</th>
+                            <th class="p-2 border-b border-tosca-600" colspan="2">2. BANTUAN HUKUM</th>
+                            <th class="p-2 border-b border-tosca-600" colspan="2">3. PERTIMBANGAN HUKUM</th>
+                            <th class="p-2 min-w-[130px]" rowspan="2">4. PELAYANAN HUKUM</th>
+                            <th class="p-2 min-w-[130px]" rowspan="2">5. TINDAKAN HUKUM LAIN</th>
+                            <th class="p-2 min-w-[130px]" rowspan="2">6. PENEGAKAN HUKUM</th>
+                        </tr>
+                        <!-- HEADER TINGKAT 2 (SUB KATEGORI) -->
+                        <tr class="bg-tosca-800 text-white text-center font-semibold text-[11px]">
+                            <th class="p-1.5 min-w-[120px] bg-tosca-800/90">LITIGASI</th>
+                            <th class="p-1.5 min-w-[120px] bg-tosca-800/90">NON-LITIGASI</th>
+                            <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LA</th>
+                            <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LO</th>
                         </tr>
                     </thead>
                     <tbody id="bodyMatriks"></tbody>
+                    <!-- BARIS TOTAL DI BAWAH DESEMBER (REVISI POIN 2) -->
+                    <tfoot id="footMatriksTotal"></tfoot>
                 </table>
             </div>
 
-            <!-- TAMPILAN MODE 2: LOG DETIL TABEL (REVISI 4: PENCARIAN, FILTER & PAGINASI 20 LIST) -->
+            <!-- TAMPILAN MODE 2: LOG DETIL TABEL -->
             <div id="containerLogView" class="hidden space-y-3">
-                <!-- PANEL FILTER LOG RINCI -->
                 <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-3 no-print">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1"><i class="fa-solid fa-magnifying-glass mr-1"></i> Cari Instansi / Uraian</label>
@@ -336,12 +355,9 @@
                     </table>
                 </div>
 
-                <!-- NAVIGASI PAGINASI (MAXIMAL 20 LIST PER HALAMAN) -->
                 <div class="flex flex-col md:flex-row items-center justify-between pt-2 border-t border-slate-100 text-xs text-slate-600 gap-2 no-print" id="paginationContainer">
                     <span id="logPageInfo">Menampilkan 0 dari 0 data</span>
-                    <div class="flex items-center space-x-1" id="logPaginationButtons">
-                        <!-- Dynamic Buttons -->
-                    </div>
+                    <div class="flex items-center space-x-1" id="logPaginationButtons"></div>
                 </div>
             </div>
         </div>
@@ -443,7 +459,6 @@
                     <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
-                <!-- UPLOAD FILE OTOMATIS & CADANGAN LINK MANUAL -->
                 <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-3">
                     <div>
                         <label class="block text-xs font-bold text-blue-900 flex items-center mb-1">
@@ -458,11 +473,9 @@
                             Atau Tempel Link Google Drive Manual <span class="text-slate-400 font-normal">(Opsional / Alternatif jika file besar)</span>
                         </label>
                         <input type="url" id="inputManualDriveLink" placeholder="https://drive.google.com/file/d/.../view" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none">
-                        <p class="text-[10px] text-slate-500 mt-0.5">Jika upload otomatis mengalami *timeout*, file tetap masuk ke Drive kantor. Anda dapat menyalin link Drive manual ke sini agar tombol Lihat langsung aktif.</p>
                     </div>
                 </div>
 
-                <!-- TOMBOL AKSI MODAL -->
                 <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
                     <button type="submit" id="btnSaveSubmit" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
@@ -654,13 +667,13 @@
         let chartPieInstance = null;
         let chartCompareInstance = null;
 
-        // PAGINASI & FILTER LOG STATE
         let filteredLogData = [];
         let currentLogPage = 1;
         const LOG_ITEMS_PER_PAGE = 20;
 
-        const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
-        const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
+        // WARNA & KEY KATEGORI (REVISI POIN 1: DIPECAN MENJADI LITIGASI & NON-LITIGASI UNTUK PIE / PROPORSI)
+        const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#3B82F6', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
+        const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -874,7 +887,6 @@
             document.getElementById('previewIframe').src = '';
         }
 
-        // --- FITUR PERBANDINGAN DATA ---
         window.openCompareModal = function() {
             const years = Array.from(new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
             
@@ -918,19 +930,20 @@
 
         window.updateCompareData = function() {
             const mode = document.getElementById('compareType').value;
-            let counts1 = [0,0,0,0,0,0];
-            let counts2 = [0,0,0,0,0,0];
+            let counts1 = [0,0,0,0,0,0,0];
+            let counts2 = [0,0,0,0,0,0,0];
             let labelP1 = '', labelP2 = '';
 
             const helperCount = (itemList) => {
-                let c = [0,0,0,0,0,0];
+                let c = [0,0,0,0,0,0,0];
                 itemList.forEach(it => {
                     if (it.kategori === 'MoU') c[0]++;
-                    else if (it.kategori && it.kategori.includes('Bantuan Hukum')) c[1] += (parseInt(it.jumlahSkk) || 1);
-                    else if (it.kategori && it.kategori.includes('Pertimbangan')) c[2]++;
-                    else if (it.kategori === 'Pelayanan Hukum') c[3] += (parseInt(it.jumlahPelayanan) || 1);
-                    else if (it.kategori === 'Tindakan Hukum Lainnya') c[4]++;
-                    else if (it.kategori === 'Penegakan Hukum') c[5]++;
+                    else if (it.kategori === 'Bantuan Hukum Litigasi') c[1] += (parseInt(it.jumlahSkk) || 1);
+                    else if (it.kategori === 'Bantuan Hukum Non-Litigasi') c[2] += (parseInt(it.jumlahSkk) || 1);
+                    else if (it.kategori && it.kategori.includes('Pertimbangan')) c[3]++;
+                    else if (it.kategori === 'Pelayanan Hukum') c[4] += (parseInt(it.jumlahPelayanan) || 1);
+                    else if (it.kategori === 'Tindakan Hukum Lainnya') c[5]++;
+                    else if (it.kategori === 'Penegakan Hukum') c[6]++;
                 });
                 return c;
             };
@@ -985,20 +998,10 @@
             chartCompareInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['MoU', 'Bantuan H.', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'],
+                    labels: ['MoU', 'BH Litigasi', 'BH Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'],
                     datasets: [
-                        {
-                            label: labelP1,
-                            data: counts1,
-                            backgroundColor: '#0D9488',
-                            borderRadius: 4
-                        },
-                        {
-                            label: labelP2,
-                            data: counts2,
-                            backgroundColor: '#2563EB',
-                            borderRadius: 4
-                        }
+                        { label: labelP1, data: counts1, backgroundColor: '#0D9488', borderRadius: 4 },
+                        { label: labelP2, data: counts2, backgroundColor: '#2563EB', borderRadius: 4 }
                     ]
                 },
                 options: {
@@ -1141,11 +1144,17 @@
             document.getElementById('kpiPenegakan').innerText = penegakan;
         }
 
-        // --- REVISI 3: MATRIKS BULANAN DENGAN KOLOM LITIGASI DAN NON-LITIGASI TERPISAH & TANPA NOMINAL DIPULIHKAN DI TEKS URAIAN ---
+        // --- REVISI POIN 2 & 3: RENDER MATRIKS DENGAN BANTUAN HUKUM & PERTIMBANGAN HUKUM 2 SUB-KOLOM + BARIS TOTAL DI BAWAH DESEMBER ---
         function renderMatriksView(data) {
             const tbody = document.getElementById('bodyMatriks');
+            const tfoot = document.getElementById('footMatriksTotal');
             tbody.innerHTML = '';
+            tfoot.innerHTML = '';
+
             const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+            // Akumulasi Total Keseluruhan Bulan per Kategori
+            let totalMou = 0, totalLitigasi = 0, totalNonLitigasi = 0, totalLA = 0, totalLO = 0, totalPelayanan = 0, totalThl = 0, totalPenegakan = 0;
 
             namaBulan.forEach((blnName, index) => {
                 const blnNum = index + 1;
@@ -1158,25 +1167,50 @@
                 let countMou = getItemsCell(data, blnNum, ['MoU']);
                 let countLitigasi = getItemsCell(data, blnNum, ['Bantuan Hukum Litigasi']);
                 let countNonLitigasi = getItemsCell(data, blnNum, ['Bantuan Hukum Non-Litigasi']);
-                let countPertimbangan = getItemsCell(data, blnNum, ['Pertimbangan LA', 'Pertimbangan LO']);
+                let countLA = getItemsCell(data, blnNum, ['Pertimbangan LA']);
+                let countLO = getItemsCell(data, blnNum, ['Pertimbangan LO']);
                 let countPelayanan = getItemsCell(data, blnNum, ['Pelayanan Hukum']);
                 let countThl = getItemsCell(data, blnNum, ['Tindakan Hukum Lainnya']);
                 let countPenegakan = getItemsCell(data, blnNum, ['Penegakan Hukum']);
 
-                let totalBulan = countMou.count + countLitigasi.count + countNonLitigasi.count + countPertimbangan.count + countPelayanan.count + countThl.count + countPenegakan.count;
+                // Penambahan Total per Kolom Vertikal
+                totalMou += countMou.count;
+                totalLitigasi += countLitigasi.count;
+                totalNonLitigasi += countNonLitigasi.count;
+                totalLA += countLA.count;
+                totalLO += countLO.count;
+                totalPelayanan += countPelayanan.count;
+                totalThl += countThl.count;
+                totalPenegakan += countPenegakan.count;
 
                 html += `<td class="p-2 align-top text-[11px]">${countMou.text}</td>`;
                 html += `<td class="p-2 align-top text-[11px]">${countLitigasi.text}</td>`;
                 html += `<td class="p-2 align-top text-[11px]">${countNonLitigasi.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countPertimbangan.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countLA.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countLO.text}</td>`;
                 html += `<td class="p-2 align-top text-[11px]">${countPelayanan.text}</td>`;
                 html += `<td class="p-2 align-top text-[11px]">${countThl.text}</td>`;
                 html += `<td class="p-2 align-top text-[11px]">${countPenegakan.text}</td>`;
-                html += `<td class="p-2 text-center font-bold text-tosca-800 bg-tosca-50">${totalBulan}</td>`;
 
                 tr.innerHTML = html;
                 tbody.appendChild(tr);
             });
+
+            // REVISI POIN 2: MEMBUAT BARIS TOTAL DI BAGIAN PALING BAWAH
+            let totalFootRow = document.createElement('tr');
+            totalFootRow.className = "bg-tosca-100/80 text-tosca-900 font-bold border-t-2 border-tosca-600 text-center text-xs";
+            totalFootRow.innerHTML = `
+                <td colspan="2" class="p-2.5 text-center font-extrabold tracking-wider uppercase bg-tosca-200/60 border-r border-tosca-300">TOTAL</td>
+                <td class="p-2.5 text-center font-black">${totalMou}</td>
+                <td class="p-2.5 text-center font-black text-blue-800">${totalLitigasi} SKK</td>
+                <td class="p-2.5 text-center font-black text-blue-800">${totalNonLitigasi} SKK</td>
+                <td class="p-2.5 text-center font-black text-amber-800">${totalLA} LA</td>
+                <td class="p-2.5 text-center font-black text-amber-800">${totalLO} LO</td>
+                <td class="p-2.5 text-center font-black text-purple-800">${totalPelayanan}</td>
+                <td class="p-2.5 text-center font-black text-teal-800">${totalThl}</td>
+                <td class="p-2.5 text-center font-black text-rose-800">${totalPenegakan}</td>
+            `;
+            tfoot.appendChild(totalFootRow);
         }
 
         function getItemsCell(data, bulan, keys) {
@@ -1194,7 +1228,7 @@
                     katTheme = { name: it.kategori.includes('Litigasi') ? 'Bantuan Hukum (Litigasi)' : 'Bantuan Hukum (Non-Litigasi)', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
                     totalCountInCell += (parseInt(it.jumlahSkk) || 1);
                 } else if (it.kategori.includes('Pertimbangan')) {
-                    katTheme = { name: 'Pertimbangan', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
+                    katTheme = { name: it.kategori.includes('LA') ? 'Pertimbangan Hukum (LA)' : 'Pertimbangan Hukum (LO)', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
                     totalCountInCell += 1;
                 } else if (it.kategori === 'Pelayanan Hukum') {
                     katTheme = { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' };
@@ -1234,8 +1268,6 @@
                     t += `<span class="text-purple-600 font-bold text-[10px] block pl-3">${it.jumlahPelayanan} Layanan</span>`;
                 }
 
-                // REVISI 3: Dihapus penayangan "Rp Dipulihkan" di bawah uraian teks tabel agar rapi (sesuai permintaan)
-                
                 if (it.driveLink && it.driveLink !== '-' && it.driveLink.trim() !== '') {
                     t += `<div class="flex items-center space-x-2 mt-1 pl-3">
                             <button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
@@ -1299,7 +1331,41 @@
             setTimeout(() => { card.classList.add('hidden'); }, 150);
         };
 
-        // --- REVISI 4: PENCARIAN, FILTER, DAN PAGINASI (20 BARIS / HALAMAN) MODE LOG RINCI ---
+        // FUNGSIONALITAS TOOLTIP LINGKARAN PROPORSI KATEGORI (REVISI POIN 1)
+        window.showPieLuxuryTooltip = function(e, title, val, pct, color, desc) {
+            const tt = document.getElementById('pieLuxuryTooltip');
+            document.getElementById('pieTtDot').style.backgroundColor = color;
+            document.getElementById('pieTtTitle').innerText = title;
+            document.getElementById('pieTtVal').innerText = val;
+            document.getElementById('pieTtPct').innerText = pct;
+            document.getElementById('pieTtDesc').innerText = desc;
+
+            tt.style.borderColor = color;
+            tt.classList.remove('hidden');
+            tt.classList.remove('opacity-0', 'scale-95');
+            tt.classList.add('opacity-100', 'scale-100');
+            movePieLuxuryTooltip(e);
+        };
+
+        window.movePieLuxuryTooltip = function(e) {
+            const tt = document.getElementById('pieLuxuryTooltip');
+            const x = e.clientX + 15;
+            const y = e.clientY + 15;
+            const cardWidth = 260;
+            const cardHeight = 130;
+            const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
+            const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
+            tt.style.left = `${posX}px`;
+            tt.style.top = `${posY}px`;
+        };
+
+        window.hidePieLuxuryTooltip = function() {
+            const tt = document.getElementById('pieLuxuryTooltip');
+            tt.classList.remove('opacity-100', 'scale-100');
+            tt.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { tt.classList.add('hidden'); }, 150);
+        };
+
         window.applyLogFilters = function() {
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
@@ -1381,14 +1447,12 @@
                 });
             }
 
-            // Render Pagination Info & Buttons
             document.getElementById('logPageInfo').innerText = `Menampilkan ${totalData === 0 ? 0 : startIndex + 1} - ${endIndex} dari ${totalData} data (Maks. 20 per halaman)`;
             
             const btnContainer = document.getElementById('logPaginationButtons');
             btnContainer.innerHTML = '';
 
             if (totalPages > 1) {
-                // Tombol Prev
                 const prevBtn = document.createElement('button');
                 prevBtn.className = `px-2.5 py-1 rounded-lg border text-xs font-semibold ${currentLogPage === 1 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-700 hover:bg-slate-50'}`;
                 prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
@@ -1396,7 +1460,6 @@
                 prevBtn.onclick = () => { currentLogPage--; renderLogView(); };
                 btnContainer.appendChild(prevBtn);
 
-                // Page Number Buttons
                 for (let i = 1; i <= totalPages; i++) {
                     const pageBtn = document.createElement('button');
                     pageBtn.className = `px-3 py-1 rounded-lg border text-xs font-bold ${i === currentLogPage ? 'bg-tosca-600 text-white border-tosca-600' : 'bg-white text-slate-700 hover:bg-slate-50'}`;
@@ -1405,7 +1468,6 @@
                     btnContainer.appendChild(pageBtn);
                 }
 
-                // Tombol Next
                 const nextBtn = document.createElement('button');
                 nextBtn.className = `px-2.5 py-1 rounded-lg border text-xs font-semibold ${currentLogPage === totalPages ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white text-slate-700 hover:bg-slate-50'}`;
                 nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right"></i>`;
@@ -1461,7 +1523,7 @@
                 data: {
                     labels: CATEGORY_KEYS,
                     datasets: [{
-                        data: [0, 0, 0, 0, 0, 0],
+                        data: [0, 0, 0, 0, 0, 0, 0],
                         backgroundColor: CATEGORY_COLORS
                     }]
                 },
@@ -1473,7 +1535,7 @@
             });
         }
 
-        // --- REVISI 1: RENDER GRAFIK PIE DENGAN TOTAL KEGIATAN & LIST PERSENTASE / VOLUME DETIL ---
+        // --- RENDER GRAFIK PIE & TOOLTIP LIST MEWAH (REVISI POIN 1) ---
         function renderCharts(data) {
             let monthlyData = CATEGORY_KEYS.map(() => Array(12).fill(0));
 
@@ -1482,11 +1544,12 @@
                 if (b >= 1 && b <= 12) {
                     let catIdx = -1;
                     if (x.kategori === 'MoU') catIdx = 0;
-                    else if (x.kategori && x.kategori.includes('Bantuan Hukum')) catIdx = 1;
-                    else if (x.kategori && x.kategori.includes('Pertimbangan')) catIdx = 2;
-                    else if (x.kategori === 'Pelayanan Hukum') catIdx = 3;
-                    else if (x.kategori === 'Tindakan Hukum Lainnya') catIdx = 4;
-                    else if (x.kategori === 'Penegakan Hukum') catIdx = 5;
+                    else if (x.kategori === 'Bantuan Hukum Litigasi') catIdx = 1;
+                    else if (x.kategori === 'Bantuan Hukum Non-Litigasi') catIdx = 2;
+                    else if (x.kategori && x.kategori.includes('Pertimbangan')) catIdx = 3;
+                    else if (x.kategori === 'Pelayanan Hukum') catIdx = 4;
+                    else if (x.kategori === 'Tindakan Hukum Lainnya') catIdx = 5;
+                    else if (x.kategori === 'Penegakan Hukum') catIdx = 6;
 
                     if (catIdx !== -1) {
                         if (x.kategori === 'Pelayanan Hukum') {
@@ -1505,39 +1568,54 @@
             });
             chartBarInstance.update();
 
-            let counts = [0, 0, 0, 0, 0, 0];
+            let counts = [0, 0, 0, 0, 0, 0, 0];
             data.forEach(x => {
                 if (x.kategori === 'MoU') counts[0]++;
-                else if (x.kategori && x.kategori.includes('Bantuan Hukum')) counts[1] += (parseInt(x.jumlahSkk) || 1);
-                else if (x.kategori && x.kategori.includes('Pertimbangan')) counts[2]++;
-                else if (x.kategori === 'Pelayanan Hukum') counts[3] += (parseInt(x.jumlahPelayanan) || 1);
-                else if (x.kategori === 'Tindakan Hukum Lainnya') counts[4]++;
-                else if (x.kategori === 'Penegakan Hukum') counts[5]++;
+                else if (x.kategori === 'Bantuan Hukum Litigasi') counts[1] += (parseInt(x.jumlahSkk) || 1);
+                else if (x.kategori === 'Bantuan Hukum Non-Litigasi') counts[2] += (parseInt(x.jumlahSkk) || 1);
+                else if (x.kategori && x.kategori.includes('Pertimbangan')) counts[3]++;
+                else if (x.kategori === 'Pelayanan Hukum') counts[4] += (parseInt(x.jumlahPelayanan) || 1);
+                else if (x.kategori === 'Tindakan Hukum Lainnya') counts[5]++;
+                else if (x.kategori === 'Penegakan Hukum') counts[6]++;
             });
 
             chartPieInstance.data.datasets[0].data = counts;
             chartPieInstance.update();
 
-            // Total Keseluruhan Kegiatan & Rendering Detail Persentase
             const grandTotal = counts.reduce((a, b) => a + b, 0);
             document.getElementById('pieTotalLabel').innerText = `Total: ${grandTotal} Kegiatan`;
 
             const pieDetailsList = document.getElementById('pieDetailsList');
             let listHtml = '';
 
+            const CATEGORY_DESCS = [
+                "Nota Kesepakatan Bersama antara Kejaksaan dan Instansi Pemerintah / BUMN / BUMD.",
+                "Penanganan Perkara Perdata maupun TATA Usaha Negara melalui Jalur Pengadilan (Litigasi).",
+                "Penanganan dan Pemulihan Keuangan/Aset Negara di luar Pengadilan (Non-Litigasi).",
+                "Pemberian Pendapat Hukum (Legal Opinion / LO) dan Pendampingan Hukum (Legal Assistance / LA).",
+                "Layanan Konsultasi dan Bantuan Hukum Gratis kepada Masyarakat Umum.",
+                "Tindakan Hukum Lainnya dalam Rangka Menyelamatkan dan Memulihkan Kekayaan Negara.",
+                "Penegakan Hukum Perdata dan Tata Usaha Negara."
+            ];
+
             CATEGORY_KEYS.forEach((cat, idx) => {
                 const val = counts[idx];
-                const pct = grandTotal > 0 ? ((val / grandTotal) * 100).toFixed(1) : '0.0';
-                
+                const pct = grandTotal > 0 ? ((val / grandTotal) * 100).toFixed(1) + '%' : '0.0%';
+                const color = CATEGORY_COLORS[idx];
+                const desc = CATEGORY_DESCS[idx];
+
                 listHtml += `
-                    <div class="flex items-center justify-between p-1 bg-slate-50 rounded border border-slate-100">
+                    <div onmouseenter="showPieLuxuryTooltip(event, '${cat}', '${val}', '${pct}', '${color}', '${desc}')" 
+                         onmousemove="movePieLuxuryTooltip(event)" 
+                         onmouseleave="hidePieLuxuryTooltip()" 
+                         class="flex items-center justify-between p-1.5 bg-slate-50/80 hover:bg-slate-100/80 rounded-lg border border-slate-200/60 cursor-pointer transition">
                         <div class="flex items-center truncate mr-1">
-                            <span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0" style="background-color: ${CATEGORY_COLORS[idx]}"></span>
-                            <span class="font-medium text-slate-700 truncate">${cat}</span>
+                            <span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0" style="background-color: ${color}"></span>
+                            <span class="font-bold text-slate-700 truncate text-[10px]">${cat}</span>
                         </div>
                         <div class="text-right flex-shrink-0">
-                            <span class="font-bold text-slate-800">${val}</span>
-                            <span class="text-[10px] text-slate-400 font-semibold ml-0.5">(${pct}%)</span>
+                            <span class="font-black text-slate-800 text-[11px]">${val}</span>
+                            <span class="text-[9px] text-slate-400 font-semibold ml-0.5">(${pct})</span>
                         </div>
                     </div>
                 `;

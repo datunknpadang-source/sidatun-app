@@ -349,8 +349,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Instansi / Pemohon / Subjek *</label>
-                    <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1" id="labelInstansi">Instansi / Pemohon / Subjek <span id="reqInstansiMark" class="text-rose-500">*</span></label>
+                    <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200" id="dynamicFieldsContainer">
@@ -377,6 +377,10 @@
                     <div id="fieldSkk4" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Dipulihkan (Rp)</label>
                         <input type="number" id="inputNilaiDipulihkan" placeholder="0" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div id="fieldPelayanan1" class="hidden col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Pelayanan (Orang/Layanan)</label>
+                        <input type="number" id="inputJumlahPelayanan" min="1" value="1" placeholder="Masukkan jumlah pelayanan dalam angka..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
                 </div>
 
@@ -634,15 +638,16 @@
                     tahun: tahunInput,
                     kategori: document.getElementById('inputKategori').value,
                     bulan: parseInt(document.getElementById('inputBulan').value),
-                    instansi: document.getElementById('inputInstansi').value,
+                    instansi: document.getElementById('inputInstansi').value.trim() || '-',
                     uraian: document.getElementById('inputUraian').value || '-',
                     driveLink: driveLink || '-',
-                    noMou: document.getElementById('inputNoMou').value || '-',
-                    jangkaWaktu: document.getElementById('inputJangkaWaktu').value || '-',
-                    noSkk: document.getElementById('inputNoSkk').value || '-',
-                    jumlahSkk: parseInt(document.getElementById('inputJumlahSkk').value) || 1,
-                    disepakati: parseFloat(document.getElementById('inputNilaiDisepakati').value) || 0,
-                    dipulihkan: parseFloat(document.getElementById('inputNilaiDipulihkan').value) || 0,
+                    noMou: document.getElementById('inputNoMou') ? document.getElementById('inputNoMou').value : '-',
+                    jangkaWaktu: document.getElementById('inputJangkaWaktu') ? document.getElementById('inputJangkaWaktu').value : '-',
+                    noSkk: document.getElementById('inputNoSkk') ? document.getElementById('inputNoSkk').value : '-',
+                    jumlahSkk: parseInt(document.getElementById('inputJumlahSkk') ? document.getElementById('inputJumlahSkk').value : 1),
+                    disepakati: parseFloat(document.getElementById('inputNilaiDisepakati') ? document.getElementById('inputNilaiDisepakati').value : 0),
+                    dipulihkan: parseFloat(document.getElementById('inputNilaiDipulihkan') ? document.getElementById('inputNilaiDipulihkan').value : 0),
+                    jumlahPelayanan: parseInt(document.getElementById('inputJumlahPelayanan') ? document.getElementById('inputJumlahPelayanan').value : 1),
                     updatedAt: new Date().toISOString()
                 };
 
@@ -677,7 +682,7 @@
             document.getElementById('inputKategori').value = item.kategori || '';
             document.getElementById('inputBulan').value = item.bulan || 1;
             document.getElementById('inputTahun').value = item.tahun || 2026;
-            document.getElementById('inputInstansi').value = item.instansi || '';
+            document.getElementById('inputInstansi').value = item.instansi === '-' ? '' : (item.instansi || '');
             document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
 
             toggleFormFields();
@@ -688,8 +693,10 @@
             } else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
                 document.getElementById('inputNoSkk').value = item.noSkk || '';
                 document.getElementById('inputJumlahSkk').value = item.jumlahSkk || 1;
-                document.getElementById('inputNilaiDisepakati').value = item.disepakati || 0;
-                document.getElementById('inputNilaiDipulihkan').value = item.dipulihkan || 0;
+                if (document.getElementById('inputNilaiDisepakati')) document.getElementById('inputNilaiDisepakati').value = item.disepakati || 0;
+                if (document.getElementById('inputNilaiDipulihkan')) document.getElementById('inputNilaiDipulihkan').value = item.dipulihkan || 0;
+            } else if (item.kategori === 'Pelayanan Hukum') {
+                if (document.getElementById('inputJumlahPelayanan')) document.getElementById('inputJumlahPelayanan').value = item.jumlahPelayanan || 1;
             }
 
             document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-tosca-200 mr-2"></i> Edit Data Kegiatan DATUN`;
@@ -726,7 +733,7 @@
                         tahun: yr,
                         kategori: row['Kategori'] || 'Pelayanan Hukum',
                         bulan: parseInt(row['Bulan']) || 1,
-                        instansi: row['Instansi'] || 'Instansi Umum',
+                        instansi: row['Instansi'] || '-',
                         uraian: row['Uraian'] || '-',
                         driveLink: row['Link Drive'] || row['Link Google Drive'] || '',
                         noMou: row['No MoU'] || '-',
@@ -735,6 +742,7 @@
                         jumlahSkk: parseInt(row['Jumlah SKK']) || 1,
                         disepakati: parseFloat(row['Disepakati']) || 0,
                         dipulihkan: parseFloat(row['Dipulihkan']) || 0,
+                        jumlahPelayanan: parseInt(row['Jumlah Pelayanan']) || 1,
                         createdAt: new Date().toISOString()
                     };
                     await addDoc(colRef, item);
@@ -786,14 +794,31 @@
 
         window.toggleFormFields = function() {
             const kat = document.getElementById('inputKategori').value;
-            ['fieldMou1', 'fieldMou2', 'fieldSkk1', 'fieldSkk2', 'fieldSkk3', 'fieldSkk4'].forEach(id => {
+            const inputInstansi = document.getElementById('inputInstansi');
+            const reqMark = document.getElementById('reqInstansiMark');
+
+            ['fieldMou1', 'fieldMou2', 'fieldSkk1', 'fieldSkk2', 'fieldSkk3', 'fieldSkk4', 'fieldPelayanan1'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
+
+            if (kat === 'Pelayanan Hukum') {
+                inputInstansi.removeAttribute('required');
+                if (reqMark) reqMark.classList.add('hidden');
+                document.getElementById('fieldPelayanan1').classList.remove('hidden');
+            } else {
+                inputInstansi.setAttribute('required', 'true');
+                if (reqMark) reqMark.classList.remove('hidden');
+            }
 
             if (kat === 'MoU') {
                 document.getElementById('fieldMou1').classList.remove('hidden');
                 document.getElementById('fieldMou2').classList.remove('hidden');
-            } else if (kat === 'Bantuan Hukum Litigasi' || kat === 'Bantuan Hukum Non-Litigasi') {
+            } else if (kat === 'Bantuan Hukum Litigasi') {
+                // Litigasi: HANYA tampilkan No SKK & Jumlah SKK (Tanpa Disepakati/Dipulihkan)
+                document.getElementById('fieldSkk1').classList.remove('hidden');
+                document.getElementById('fieldSkk2').classList.remove('hidden');
+            } else if (kat === 'Bantuan Hukum Non-Litigasi') {
+                // Non-Litigasi: Tampilkan No SKK, Jumlah SKK, Disepakati, Dipulihkan
                 document.getElementById('fieldSkk1').classList.remove('hidden');
                 document.getElementById('fieldSkk2').classList.remove('hidden');
                 document.getElementById('fieldSkk3').classList.remove('hidden');
@@ -850,8 +875,10 @@
                     pertimbangan++;
                     if (item.kategori.includes('LA')) la++;
                     if (item.kategori.includes('LO')) lo++;
-                } else if (item.kategori === 'Pelayanan Hukum') pelayanan++;
-                else if (item.kategori === 'Tindakan Hukum Lainnya') thl++;
+                } else if (item.kategori === 'Pelayanan Hukum') {
+                    // Akumulasi total angka pelayanan
+                    pelayanan += (item.jumlahPelayanan || 1);
+                } else if (item.kategori === 'Tindakan Hukum Lainnya') thl++;
                 else if (item.kategori === 'Penegakan Hukum') penegakan++;
             });
 
@@ -906,6 +933,8 @@
             const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
 
+            let totalCountInCell = 0;
+
             let text = filtered.map((it, idx) => {
                 let katTheme = {
                     name: 'MoU', badgeClass: 'bg-tosca-100 text-tosca-800 border-tosca-200', borderClass: 'border-tosca-400', icon: 'fa-file-contract text-tosca-600'
@@ -913,14 +942,21 @@
 
                 if (it.kategori.includes('Bantuan Hukum')) {
                     katTheme = { name: 'Bantuan Hukum', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
+                    totalCountInCell += 1;
                 } else if (it.kategori.includes('Pertimbangan')) {
                     katTheme = { name: 'Pertimbangan', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
+                    totalCountInCell += 1;
                 } else if (it.kategori === 'Pelayanan Hukum') {
                     katTheme = { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' };
+                    totalCountInCell += (it.jumlahPelayanan || 1);
                 } else if (it.kategori === 'Tindakan Hukum Lainnya') {
                     katTheme = { name: 'Tindakan Hukum Lain', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' };
+                    totalCountInCell += 1;
                 } else if (it.kategori === 'Penegakan Hukum') {
                     katTheme = { name: 'Penegakan', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' };
+                    totalCountInCell += 1;
+                } else {
+                    totalCountInCell += 1;
                 }
 
                 const itemDataAttr = encodeURIComponent(JSON.stringify({
@@ -933,14 +969,21 @@
                     jumlahSkk: it.jumlahSkk,
                     disepakati: it.disepakati,
                     dipulihkan: it.dipulihkan,
+                    jumlahPelayanan: it.jumlahPelayanan,
                     uraian: it.uraian
                 }));
 
+                let labelInstansiText = it.instansi && it.instansi !== '-' ? it.instansi : (it.kategori === 'Pelayanan Hukum' ? `Pelayanan (${it.jumlahPelayanan || 1} Orang)` : 'Pelayanan Hukum');
+
                 let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;
                 t += `<span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmousemove="moveCustomTooltip(event)" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start">
-                        <span class="mr-1"><b>${idx+1}.</b></span> <span>${it.instansi}</span>
+                        <span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span>
                       </span>`;
                 
+                if (it.kategori === 'Pelayanan Hukum' && it.jumlahPelayanan > 1) {
+                    t += `<span class="text-purple-600 font-bold text-[10px] block pl-3">${it.jumlahPelayanan} Layanan</span>`;
+                }
+
                 if (it.dipulihkan > 0) t += `<span class="text-emerald-600 font-bold text-[10px] block pl-3">Rp ${formatRp(it.dipulihkan)}</span>`;
                 
                 if (it.driveLink) {
@@ -954,7 +997,7 @@
                 return t;
             }).join('');
 
-            return { count: filtered.length, text: text };
+            return { count: totalCountInCell, text: text };
         }
 
         window.showCustomTooltip = function(e, dataStr) {
@@ -969,9 +1012,10 @@
             badge.className = `text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${data.theme.badgeClass}`;
             badge.innerText = data.theme.name;
             icon.className = `fa-solid ${data.theme.icon} text-sm`;
-            title.innerText = data.instansi;
+            title.innerText = data.instansi && data.instansi !== '-' ? data.instansi : 'Pelayanan Hukum';
 
             let bodyContent = '';
+            if (data.kategori === 'Pelayanan Hukum' && data.jumlahPelayanan) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah Layanan:</span> <span class="font-bold text-purple-600">${data.jumlahPelayanan} Orang/Kegiatan</span></div>`;
             if (data.noMou && data.noMou !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor MoU:</span> <span class="font-semibold text-slate-800">${data.noMou}</span></div>`;
             if (data.jangkaWaktu && data.jangkaWaktu !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Masa Berlaku:</span> <span class="font-semibold text-slate-800">${data.jangkaWaktu}</span></div>`;
             if (data.noSkk && data.noSkk !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor SKK:</span> <span class="font-semibold text-slate-800">${data.noSkk}</span></div>`;
@@ -1020,6 +1064,7 @@
                 let detail = '-';
                 if (item.kategori === 'MoU') detail = `Masa: ${item.jangkaWaktu}<br><span class="text-slate-400">${item.noMou}</span>`;
                 else if (item.kategori && item.kategori.includes('Bantuan Hukum')) detail = `SKK: ${item.jumlahSkk} (${item.noSkk})<br>Dipulihkan: <span class="text-emerald-600 font-semibold">Rp ${formatRp(item.dipulihkan)}</span>`;
+                else if (item.kategori === 'Pelayanan Hukum') detail = `Jumlah: <span class="text-purple-600 font-bold">${item.jumlahPelayanan || 1} Pelayanan</span>`;
 
                 let tr = document.createElement('tr');
                 tr.className = "border-b border-slate-200 hover:bg-slate-50";
@@ -1027,7 +1072,7 @@
                     <td class="p-2.5 font-bold text-slate-500">${index + 1}</td>
                     <td class="p-2.5 font-semibold text-slate-700">${namaBulan[item.bulan]} ${item.tahun}</td>
                     <td class="p-2.5"><span class="px-2 py-1 rounded bg-tosca-100 text-tosca-800 font-semibold text-[10px]">${item.kategori}</span></td>
-                    <td class="p-2.5 font-medium text-slate-800">${item.instansi}</td>
+                    <td class="p-2.5 font-medium text-slate-800">${item.instansi && item.instansi !== '-' ? item.instansi : '-'}</td>
                     <td class="p-2.5 text-[11px]">${detail}</td>
                     <td class="p-2.5 text-[11px] text-slate-600 max-w-xs">${item.uraian || '-'}</td>
                     <td class="p-2.5">
@@ -1107,7 +1152,13 @@
             const bulanan = Array(12).fill(0);
             data.forEach(x => { 
                 const b = parseInt(x.bulan);
-                if (b >= 1 && b <= 12) bulanan[b - 1]++; 
+                if (b >= 1 && b <= 12) {
+                    if (x.kategori === 'Pelayanan Hukum') {
+                        bulanan[b - 1] += (x.jumlahPelayanan || 1);
+                    } else {
+                        bulanan[b - 1]++;
+                    }
+                }
             });
             chartBarInstance.data.datasets[0].data = bulanan;
             chartBarInstance.update();
@@ -1117,7 +1168,7 @@
                 if (x.kategori === 'MoU') c[0]++;
                 else if (x.kategori && x.kategori.includes('Bantuan Hukum')) c[1]++;
                 else if (x.kategori && x.kategori.includes('Pertimbangan')) c[2]++;
-                else if (x.kategori === 'Pelayanan Hukum') c[3]++;
+                else if (x.kategori === 'Pelayanan Hukum') c[3] += (x.jumlahPelayanan || 1);
                 else if (x.kategori === 'Tindakan Hukum Lainnya') c[4]++;
                 else if (x.kategori === 'Penegakan Hukum') c[5]++;
             });

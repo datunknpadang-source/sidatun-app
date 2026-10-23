@@ -3,152 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI-DATUN - Sistem Informasi Perdata dan Tata Usaha Negara</title>
-    <!-- Tailwind CSS -->
+    <title>SI-DATUN - Kejaksaan Negeri Padang</title>
+
+    <!-- FAVICON TAB BROWSER -->
+    <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
+
+    <!-- Google Fonts & Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         tosca: {
-                            50: '#f0fdfa',
-                            500: '#14b8a6',
-                            600: '#0d9488',
-                            700: '#0f766e',
+                            50: '#F0FDF9',
+                            100: '#CCFBF1',
+                            200: '#99F6E4',
+                            500: '#14B8A6',
+                            600: '#0D9488',
+                            700: '#0F766E',
+                            800: '#115E59',
+                            900: '#134E4A',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-</head>
-<body class="bg-slate-100 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- HEADER / NAVBAR -->
-    <header class="bg-gradient-to-r from-slate-900 via-slate-800 to-tosca-700 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center space-x-3 mb-3 md:mb-0">
-                <div class="bg-tosca-500 p-2.5 rounded-xl shadow">
-                    <i class="fa-solid fa-scale-balanced text-xl text-white"></i>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js untuk Grafik -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS untuk Parsing Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #0D9488; border-radius: 4px; }
+        .excel-table th, .excel-table td { border: 1px solid #E2E8F0; }
+
+        #customTooltipCard {
+            transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @media print {
+            @page {
+                size: legal landscape;
+                margin: 10mm;
+            }
+            body {
+                background: white;
+                color: black;
+            }
+            header, #modalForm, #modalExport, #modalPreview, #firestoreErrorBanner, #customTooltipCard, .no-print {
+                display: none !important;
+            }
+            .print-area {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            table {
+                width: 100% !important;
+                font-size: 10px !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- FLOATING CARD TOOLTIP -->
+    <div id="customTooltipCard" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-72 backdrop-blur-md">
+        <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
+            <i class="fa-solid fa-circle-info text-xs" id="ttIcon"></i>
+        </div>
+        <h4 class="font-bold text-xs text-slate-800 mb-2 leading-snug" id="ttTitle">Nama Instansi / Subjek</h4>
+        <div class="space-y-1.5 text-[11px]" id="ttDetailsBody"></div>
+    </div>
+
+    <!-- Top Navigation Header -->
+    <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
+                    <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-wide">SI-DATUN KEJARI PADANG</h1>
-                    <p class="text-xs text-slate-300">Bidang Perdata dan Tata Usaha Negara</p>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center">
+                        SI-DATUN KN PADANG
+                    </h1>
+                    <p class="text-xs text-tosca-200 flex items-center">
+                        <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
+                        <span id="syncText">Menghubungkan ke Firestore...</span>
+                    </p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="openModal()" class="bg-tosca-600 hover:bg-tosca-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center">
-                    <i class="fa-solid fa-plus mr-1.5"></i> Tambah Kegiatan
+
+            <div class="flex items-center space-x-2.5">
+                <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
+                    <i class="fa-regular fa-calendar text-xs text-tosca-200 mr-2"></i>
+                    <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-sm font-semibold text-white focus:outline-none cursor-pointer">
+                        <option value="2026" class="text-slate-800">Tahun 2026</option>
+                    </select>
+                </div>
+
+                <button onclick="openModal()" class="bg-white text-tosca-800 hover:bg-tosca-50 font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition transform active:scale-95">
+                    <i class="fa-solid fa-plus mr-1.5 text-tosca-600"></i> Tambah Kegiatan
+                </button>
+
+                <label for="excelInput" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer flex items-center shadow-sm transition">
+                    <i class="fa-solid fa-file-excel mr-1.5"></i> Upload Excel
+                </label>
+                <input type="file" id="excelInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
+
+                <button onclick="openExportModal()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 flex items-center transition">
+                    <i class="fa-solid fa-file-word mr-1.5 text-blue-300"></i> Cetak Word
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
-        
-        <!-- FILTER & KONTROL -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap justify-between items-center gap-4">
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
+
+        <div id="firestoreErrorBanner" class="hidden bg-rose-100 border border-rose-300 text-rose-800 p-3 rounded-xl text-xs flex items-center justify-between no-print">
             <div class="flex items-center space-x-2">
-                <span class="text-xs font-semibold text-slate-500">Filter Tahun:</span>
-                <select id="filterTahun" onchange="renderAll()" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-tosca-500">
-                    <!-- Opsi tahun akan terisi otomatis -->
-                </select>
+                <i class="fa-solid fa-triangle-exclamation text-rose-600 text-base"></i>
+                <div>
+                    <b>Gagal Membaca Data Firestore:</b> <span id="firestoreErrorMessage">Izin ditolak atau masalah aturan keamanan.</span>
+                </div>
             </div>
-            <div class="text-xs text-slate-500 font-medium" id="infoTotalData">
-                Memuat data dari Cloud...
+            <a href="https://console.firebase.google.com/" target="_blank" class="bg-rose-600 text-white px-3 py-1 rounded font-semibold text-[11px] hover:bg-rose-700">Cek Rules Firebase</a>
+        </div>
+
+        <!-- Section 1: KPI Summary Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 no-print">
+            <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-tosca-500 transition">
+                <div class="flex items-center justify-between text-tosca-700 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider">1. MoU</span>
+                    <i class="fa-solid fa-file-contract text-tosca-500"></i>
+                </div>
+                <div class="text-2xl font-black text-slate-800" id="kpiMou">0</div>
+                <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-blue-500 transition">
+                <div class="flex items-center justify-between text-blue-700 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
+                    <i class="fa-solid fa-gavel text-blue-500"></i>
+                </div>
+                <div class="text-2xl font-black text-slate-800" id="kpiBantuanHukum">0 <span class="text-xs font-normal text-slate-500">SKK</span></div>
+                <div class="text-[10px] text-slate-500 mt-1 space-y-0.5">
+                    <div class="text-blue-600 font-medium">Disepakati: <span id="kpiDisepakati">Rp 0</span></div>
+                    <div class="text-emerald-600 font-semibold">Dipulihkan: <span id="kpiDipulihkan">Rp 0</span></div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-amber-500 transition">
+                <div class="flex items-center justify-between text-amber-700 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider">3. Pertimbangan</span>
+                    <i class="fa-solid fa-balance-scale text-amber-500"></i>
+                </div>
+                <div class="text-2xl font-black text-slate-800" id="kpiPertimbangan">0</div>
+                <p class="text-[10px] text-slate-500 mt-1"><span id="kpiLA">0 LA</span> • <span id="kpiLO">0 LO</span></p>
+            </div>
+
+            <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-purple-500 transition">
+                <div class="flex items-center justify-between text-purple-700 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider">4. Pelayanan</span>
+                    <i class="fa-solid fa-handshake-angle text-purple-500"></i>
+                </div>
+                <div class="text-2xl font-black text-slate-800" id="kpiPelayanan">0</div>
+                <p class="text-[10px] text-slate-500 mt-1">Konsultasi / Layanan</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-teal-500 transition">
+                <div class="flex items-center justify-between text-teal-700 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider">5. THL</span>
+                    <i class="fa-solid fa-shield-halved text-teal-500"></i>
+                </div>
+                <div class="text-2xl font-black text-slate-800" id="kpiThl">0</div>
+                <p class="text-[10px] text-slate-500 mt-1">Tindakan Hukum Lain</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-rose-500 transition">
+                <div class="flex items-center justify-between text-rose-700 mb-1">
+                    <span class="text-xs font-bold uppercase tracking-wider">6. Penegakan</span>
+                    <i class="fa-solid fa-user-shield text-rose-500"></i>
+                </div>
+                <div class="text-2xl font-black text-slate-800" id="kpiPenegakan">0</div>
+                <p class="text-[10px] text-slate-500 mt-1">Penegakan Hukum</p>
             </div>
         </div>
 
-        <!-- TABEL / MATRIKS DATA -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider">Matriks & Log Kegiatan DATUN</h2>
+        <!-- Section 2: Visualisasi Grafik Ganda -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
+            <div class="lg:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800">Tren Rekapitulasi Kegiatan Per Bulan</h2>
+                        <p class="text-xs text-slate-500">Frekuensi seluruh jenis kegiatan Datun (Januari - Desember)</p>
+                    </div>
+                    <span class="bg-tosca-50 text-tosca-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-tosca-200" id="chartYearBadge">Tahun 2026</span>
+                </div>
+                <div class="h-60">
+                    <canvas id="chartGiatBar"></canvas>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
+
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <h2 class="text-sm font-bold text-slate-800">Proporsi 6 Kategori Datun</h2>
+                <p class="text-xs text-slate-500 mb-3">Persentase sebaran per bidang kategori kegiatan</p>
+                <div class="h-56 flex items-center justify-center">
+                    <canvas id="chartGiatPie"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Matriks Laporan Data Kegiatan DATUN -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 print-area">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 pb-3 border-b border-slate-100 gap-3 no-print">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-table-cells text-tosca-600 mr-2"></i> Matriks Data Kegiatan DATUN (Per Bulan)
+                    </h2>
+                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi untuk melihat rincian kartu mewah</p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button id="btnViewMatrix" onclick="switchView('matrix')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-tosca-600 text-white shadow-sm">
+                        <i class="fa-solid fa-table mr-1"></i> Mode Matriks Bulanan
+                    </button>
+                    <button id="btnViewLog" onclick="switchView('log')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                        <i class="fa-solid fa-list-ul mr-1"></i> Mode Log Rinci
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAMPILAN MODE 1: MATRIKS BULANAN -->
+            <div id="containerMatrixView" class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-xs text-left excel-table border-collapse">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-600 uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-3 px-4 font-semibold">No</th>
-                            <th class="py-3 px-4 font-semibold">Bulan</th>
-                            <th class="py-3 px-4 font-semibold">Kategori</th>
-                            <th class="py-3 px-4 font-semibold">Instansi / Pemohon</th>
-                            <th class="py-3 px-4 font-semibold">Detail Khusus</th>
-                            <th class="py-3 px-4 font-semibold">Uraian Ringkas</th>
-                            <th class="py-3 px-4 font-semibold text-center">Berkas Drive</th>
-                            <th class="py-3 px-4 font-semibold text-center">Aksi</th>
+                        <tr class="bg-tosca-700 text-white text-center font-bold">
+                            <th class="p-2.5 w-12">NO.</th>
+                            <th class="p-2.5 w-28">BULAN</th>
+                            <th class="p-2.5 min-w-[160px]">1. MOU</th>
+                            <th class="p-2.5 min-w-[180px]">2. BANTUAN HUKUM<br><span class="text-[10px] font-normal">(Litigasi / Non-Litigasi)</span></th>
+                            <th class="p-2.5 min-w-[180px]">3. PERTIMBANGAN HUKUM<br><span class="text-[10px] font-normal">(LA / LO)</span></th>
+                            <th class="p-2.5 min-w-[160px]">4. PELAYANAN HUKUM</th>
+                            <th class="p-2.5 min-w-[160px]">5. TINDAKAN HUKUM LAIN</th>
+                            <th class="p-2.5 min-w-[160px]">6. PENEGAKAN HUKUM</th>
+                            <th class="p-2.5 w-16 bg-tosca-800">JUMLAH</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelKegiatanBody" class="divide-y divide-slate-200">
-                        <!-- Data dirender melalui JavaScript -->
-                    </tbody>
+                    <tbody id="bodyMatriks"></tbody>
+                </table>
+            </div>
+
+            <!-- TAMPILAN MODE 2: LOG DETIL TABEL -->
+            <div id="containerLogView" class="hidden overflow-x-auto custom-scrollbar">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                            <th class="p-2.5">NO</th>
+                            <th class="p-2.5">BULAN</th>
+                            <th class="p-2.5">KATEGORI</th>
+                            <th class="p-2.5">INSTANSI / PEMOHON</th>
+                            <th class="p-2.5">DETAIL KHUSUS</th>
+                            <th class="p-2.5">URAIAN RINGKAS</th>
+                            <th class="p-2.5">BERKAS DRIVE</th>
+                            <th class="p-2.5 text-center no-print">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyLogData"></tbody>
                 </table>
             </div>
         </div>
+
     </main>
 
-    <!-- MODAL FORM TAMBAH / EDIT KEGIATAN -->
-    <div id="modalKegiatan" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden transform transition-all my-8">
-            <div class="bg-slate-900 px-6 py-4 flex justify-between items-center text-white">
-                <h3 id="modalTitle" class="text-sm font-bold uppercase tracking-wider">Input Kegiatan DATUN Baru</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
+    <!-- MODAL POPUP 1: FORM TAMBAH / EDIT -->
+    <div id="modalForm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden border border-slate-200">
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center" id="modalTitle">
+                    <i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru
+                </h3>
+                <button onclick="closeModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
-            <form id="formKegiatan" onsubmit="tambahAtauUpdateKegiatan(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                <input type="hidden" id="editDocId">
 
-                <!-- Kategori, Bulan, Tahun -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <form id="formKegiatan" onsubmit="tambahAtauUpdateKegiatan(event)" class="p-5 space-y-4">
+                <input type="hidden" id="editDocId" value="">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Kegiatan *</label>
-                        <select id="inputKategori" onchange="toggleFormFields()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none" required>
-                            <option value="1. MoU (Nota Kesepakatan)">1. MoU (Nota Kesepakatan)</option>
-                            <option value="2a. Bantuan Hukum (Litigasi)">2a. Bantuan Hukum (Litigasi)</option>
-                            <option value="2b. Bantuan Hukum (Non Litigasi)">2b. Bantuan Hukum (Non Litigasi)</option>
-                            <option value="3. Pertimbangan Hukum">3. Pertimbangan Hukum</option>
-                            <option value="4. Tindakan Hukum Lain">4. Tindakan Hukum Lain</option>
-                            <option value="5. Pelayanan Hukum">5. Pelayanan Hukum</option>
+                        <select id="inputKategori" onchange="toggleFormFields()" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="MoU">1. MoU (Nota Kesepakatan)</option>
+                            <option value="Bantuan Hukum Litigasi">2a. Bantuan Hukum (Litigasi)</option>
+                            <option value="Bantuan Hukum Non-Litigasi">2b. Bantuan Hukum (Non-Litigasi)</option>
+                            <option value="Pertimbangan LA">3a. Pertimbangan Hukum (Legal Assistance / LA)</option>
+                            <option value="Pertimbangan LO">3b. Pertimbangan Hukum (Legal Opinion / LO)</option>
+                            <option value="Pelayanan Hukum">4. Pelayanan Hukum</option>
+                            <option value="Tindakan Hukum Lainnya">5. Tindakan Hukum Lainnya (THL)</option>
+                            <option value="Penegakan Hukum">6. Penegakan Hukum</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Bulan *</label>
-                        <select id="inputBulan" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none" required>
-                            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
-                            <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
-                            <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
-                            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tahun *</label>
-                        <input type="number" id="inputTahun" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none" required>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Bulan *</label>
+                            <select id="inputBulan" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tahun *</label>
+                            <input type="number" id="inputTahun" value="2026" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Instansi -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Instansi / Pemohon / Subjek *</label>
-                    <input type="text" id="inputInstansi" placeholder="Nama instansi atau subjek pemohon..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none" required>
+                    <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
                 </div>
 
-                <!-- Field Dinamis MoU / SKK / Keuangan -->
-                <div id="dynamicFieldsContainer">
-                    <!-- Diatur otomatis oleh toggleFormFields() -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200" id="dynamicFieldsContainer">
+                    <div id="fieldMou1" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor MoU</label>
+                        <input type="text" id="inputNoMou" placeholder="No. B-12/N.3.10/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div id="fieldMou2" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jangka Waktu (Masa Berlaku)</label>
+                        <input type="text" id="inputJangkaWaktu" placeholder="Contoh: 1 Tahun (s.d. 2027)" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div id="fieldSkk1" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SKK</label>
+                        <input type="text" id="inputNoSkk" placeholder="No. SKK-01/N.3.10/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div id="fieldSkk2" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah SKK</label>
+                        <input type="number" id="inputJumlahSkk" min="1" value="1" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div id="fieldSkk3" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Disepakati (Rp)</label>
+                        <input type="number" id="inputNilaiDisepakati" placeholder="0" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
+                    <div id="fieldSkk4" class="hidden">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Dipulihkan (Rp)</label>
+                        <input type="number" id="inputNilaiDipulihkan" placeholder="0" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                    </div>
                 </div>
 
-                <!-- Uraian Ringkas -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Uraian Ringkas Kegiatan <span class="text-slate-400 font-normal">(Opsional)</span></label>
-                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
+                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
+                
                 <!-- UPLOAD FILE OTOMATIS & CADANGAN LINK MANUAL -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Uraian Ringkas Kegiatan <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
+                </div>
+
+                <!-- UPLOAD FILE OTOMATIS & CADANGAN LINK MANUAL (Hanya 1 bagian ini saja) -->
                 <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-3">
                     <div>
                         <label class="block text-xs font-bold text-blue-900 flex items-center mb-1">
@@ -162,55 +406,139 @@
                         <label class="block text-xs font-semibold text-slate-700 mb-1">
                             Atau Tempel Link Google Drive Manual <span class="text-slate-400 font-normal">(Opsional / Alternatif jika file besar)</span>
                         </label>
-                        <input type="url" id="inputManualDriveLink" placeholder="https://drive.google.com/file/d/.../view" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none">
+                        <input type="url" id="inputManualDriveLink" placeholder="https://drive.google.com/file/d/.../view" class="w-full text-xs bg-white border border-blue-300 rounded-lg p-2 text-slate-700 focus:outline-none">
                         <p class="text-[10px] text-slate-500 mt-0.5">Jika upload otomatis *timeout*, Anda bisa isi link Drive secara manual di sini.</p>
                     </div>
                 </div>
 
-                <!-- TOMBOL AKSI MODAL -->
-                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
-                    <button type="submit" id="btnSaveSubmit" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
-                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Ke Cloud
+    <!-- MODAL EXPORT & PREVIEW -->
+    <div id="modalExport" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center">
+                    <i class="fa-solid fa-file-word text-blue-200 mr-2"></i> Option Cetak Laporan DATUN
+                </h3>
+                <button onclick="closeExportModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">1. Pilih Tipe Isi Laporan</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportScope" value="summary" checked class="mb-1 text-tosca-600">
+                            <span class="text-xs font-bold text-slate-800">Cetak Summary</span>
+                            <span class="text-[10px] text-slate-500">Matriks Rekap Bulanan</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportScope" value="detail" class="mb-1 text-tosca-600">
+                            <span class="text-xs font-bold text-slate-800">Cetak Detail</span>
+                            <span class="text-[10px] text-slate-500">Rincian Lengkap Entri</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">2. Pilih Format Dokumen</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportFormat" value="word" checked class="mb-1 text-tosca-600">
+                            <i class="fa-solid fa-file-word text-blue-600 text-xl mb-1"></i>
+                            <span class="text-xs font-bold text-slate-800">Microsoft Word (.doc)</span>
+                        </label>
+                        <label class="border border-slate-200 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer hover:bg-tosca-50 transition text-center">
+                            <input type="radio" name="exportFormat" value="pdf" class="mb-1 text-tosca-600">
+                            <i class="fa-solid fa-file-pdf text-rose-600 text-xl mb-1"></i>
+                            <span class="text-xs font-bold text-slate-800">Dokumen PDF</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeExportModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">Batal</button>
+                    <button type="button" onclick="executeExport()" class="px-4 py-2 bg-tosca-600 hover:bg-tosca-700 text-white font-semibold text-xs rounded-lg shadow-sm transition flex items-center">
+                        <i class="fa-solid fa-download mr-1.5"></i> Unduh / Cetak
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- FIREBASE & APLIKASI UTAMA -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- MODAL PREVIEW -->
+    <div id="modalPreview" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] mx-4 overflow-hidden border border-slate-200 flex flex-col">
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3.5 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center" id="previewTitle">
+                    <i class="fa-solid fa-eye text-tosca-200 mr-2"></i> Pratinjau Berkas Google Drive
+                </h3>
+                <div class="flex items-center space-x-2">
+                    <a id="btnDownloadDirect" href="#" target="_blank" download class="bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-1 rounded-lg font-semibold flex items-center">
+                        <i class="fa-solid fa-download mr-1"></i> Unduh Berkas
+                    </a>
+                    <button onclick="closePreviewModal()" class="text-white/70 hover:text-white text-lg px-2"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div class="flex-grow bg-slate-100 p-2">
+                <iframe id="previewIframe" src="" class="w-full h-full rounded-xl border border-slate-300" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
 
-        // Konfigurasi Firebase Anda (Sesuaikan jika ada perubahan kredensial)
+    <!-- FIREBASE SDK & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-            projectId: "sidatun-app",
-            storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
+            authDomain: "giat-datun-kn-padang.firebaseapp.com",
+            projectId: "giat-datun-kn-padang",
+            storageBucket: "giat-datun-kn-padang.firebasestorage.app",
+            messagingSenderId: "458865243044",
+            appId: "1:458865243044:web:443b9a425309221c020731",
+            measurementId: "G-2PK9LDVPPV"
         };
+
+        // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzhENWdCyfJDpoLkxU7bzuPLCiBhjUHtMtti7P9tepQi2Z7_g9Z79pUz3DQ7QYT2ydGGQ/exec";
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const colRef = collection(db, "kegiatan_datun");
 
-        // URL Web App Google Apps Script
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEDMIzUAHPrhRdOvm7pr6bW0NgpO29Uk1aJhcJH7AKYkEsZ_EKM-qC-eNgw8klRYgg/exec";
-
         let datasetKegiatan = [];
+        let chartBarInstance = null;
+        let chartPieInstance = null;
 
-        window.toBase64 = file => new Promise((resolve, reject) => {
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
+
+        onSnapshot(colRef, (snapshot) => {
+            datasetKegiatan = [];
+            snapshot.forEach((docSnap) => {
+                datasetKegiatan.push({ firestoreId: docSnap.id, ...docSnap.data() });
+            });
+
+            document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5';
+            document.getElementById('syncText').innerText = 'Tersambung Firestore Real-time (' + datasetKegiatan.length + ' data)';
+            document.getElementById('firestoreErrorBanner').classList.add('hidden');
+
+            updateYearFilterOptions();
+            renderAll();
+        }, (error) => {
+            console.error("Firestore Error:", error);
+            document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5';
+            document.getElementById('syncText').innerText = 'Koneksi Firestore Gagal';
+            document.getElementById('firestoreErrorMessage').innerText = error.message;
+            document.getElementById('firestoreErrorBanner').classList.remove('hidden');
+        });
+
+        const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => resolve(reader.result);
             reader.onerror = error => reject(error);
         });
 
-        // Helper Upload Bebas CORS via Iframe & postMessage dengan Timeout 90 Detik
-        function uploadFileToDrive(file) {
+function uploadFileToDrive(file) {
             return new Promise(async (resolve, reject) => {
                 try {
                     const base64Data = await toBase64(file);
@@ -259,104 +587,26 @@
                         }
                     };
                     window.addEventListener('message', messageListener);
+                    
                     form.submit();
                     
                     setTimeout(() => {
                         window.removeEventListener('message', messageListener);
                         reject(new Error('Waktu upload Google Drive habis (Timeout)'));
                     }, 90000);
+                    
                 } catch (err) {
                     reject(err);
                 }
             });
         }
 
-        window.toggleFormFields = function() {
-            const kategori = document.getElementById('inputKategori').value;
-            const container = document.getElementById('dynamicFieldsContainer');
-            
-            if (kategori.includes('MoU')) {
-                container.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor MoU *</label>
-                            <input type="text" id="inputNoMou" placeholder="Contoh: 01/MOU/..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jangka Waktu (Masa Berlaku) *</label>
-                            <input type="text" id="inputJangkaWaktu" placeholder="Contoh: 1 Tahun" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none" required>
-                        </div>
-                    </div>
-                    <input type="hidden" id="inputNoSkk" value="-">
-                    <input type="hidden" id="inputJumlahSkk" value="1">
-                    <input type="hidden" id="inputNilaiDisepakati" value="0">
-                    <input type="hidden" id="inputNilaiDipulihkan" value="0">
-                `;
-            } else if (kategori.includes('Litigasi')) {
-                // Litigasi disembunyikan nilai keuangannya
-                container.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SKK *</label>
-                            <input type="text" id="inputNoSkk" placeholder="Contoh: SKK-01/..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah SKK *</label>
-                            <input type="number" id="inputJumlahSkk" value="1" min="1" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none" required>
-                        </div>
-                    </div>
-                    <input type="hidden" id="inputNoMou" value="-">
-                    <input type="hidden" id="inputJangkaWaktu" value="-">
-                    <input type="hidden" id="inputNilaiDisepakati" value="0">
-                    <input type="hidden" id="inputNilaiDipulihkan" value="0">
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SKK *</label>
-                            <input type="text" id="inputNoSkk" placeholder="Contoh: SKK-01/..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none" required>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah SKK *</label>
-                            <input type="number" id="inputJumlahSkk" value="1" min="1" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none" required>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Disepakati (Rp)</label>
-                            <input type="number" id="inputNilaiDisepakati" value="0" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Dipulihkan (Rp)</label>
-                            <input type="number" id="inputNilaiDipulihkan" value="0" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:outline-none">
-                        </div>
-                    </div>
-                    <input type="hidden" id="inputNoMou" value="-">
-                    <input type="hidden" id="inputJangkaWaktu" value="-">
-                `;
-            }
-        };
-
-        window.openModal = function() {
-            document.getElementById('editDocId').value = '';
-            document.getElementById('formKegiatan').reset();
-            document.getElementById('modalTitle').innerText = "Input Kegiatan DATUN Baru";
-            document.getElementById('inputTahun').value = new Date().getFullYear();
-            toggleFormFields();
-            document.getElementById('modalKegiatan').classList.remove('hidden');
-        };
-
-        window.closeModal = function() {
-            document.getElementById('modalKegiatan').classList.add('hidden');
-        };
-
         window.tambahAtauUpdateKegiatan = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveSubmit');
             const docId = document.getElementById('editDocId').value;
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan Data...`;
 
             try {
                 let driveLink = document.getElementById('inputManualDriveLink').value.trim();
@@ -371,8 +621,8 @@
                     try {
                         driveLink = await uploadFileToDrive(file);
                     } catch (uploadErr) {
-                        console.warn("Upload otomatis gagal/timeout:", uploadErr);
-                        alert("Perhatian: Upload otomatis gagal atau timeout. Data teks akan tetap disimpan. Anda dapat memasukkan link Drive secara manual.");
+                        console.warn("Upload otomatis gagal/timeout, melanjutkan dengan link kosong atau manual:", uploadErr);
+                        alert("Perhatian: Upload otomatis gagal atau timeout. Data teks akan tetap disimpan. Jika ada file, Anda bisa memasukkan link Drive secara manual.");
                     }
                 }
 
@@ -384,12 +634,12 @@
                     instansi: document.getElementById('inputInstansi').value,
                     uraian: document.getElementById('inputUraian').value || '-',
                     driveLink: driveLink || '-',
-                    noMou: document.getElementById('inputNoMou') ? document.getElementById('inputNoMou').value : '-',
-                    jangkaWaktu: document.getElementById('inputJangkaWaktu') ? document.getElementById('inputJangkaWaktu').value : '-',
-                    noSkk: document.getElementById('inputNoSkk') ? document.getElementById('inputNoSkk').value : '-',
-                    jumlahSkk: parseInt(document.getElementById('inputJumlahSkk') ? document.getElementById('inputJumlahSkk').value : 1),
-                    disepakati: parseFloat(document.getElementById('inputNilaiDisepakati') ? document.getElementById('inputNilaiDisepakati').value : 0),
-                    dipulihkan: parseFloat(document.getElementById('inputNilaiDipulihkan') ? document.getElementById('inputNilaiDipulihkan').value : 0),
+                    noMou: document.getElementById('inputNoMou').value || '-',
+                    jangkaWaktu: document.getElementById('inputJangkaWaktu').value || '-',
+                    noSkk: document.getElementById('inputNoSkk').value || '-',
+                    jumlahSkk: parseInt(document.getElementById('inputJumlahSkk').value) || 1,
+                    disepakati: parseFloat(document.getElementById('inputNilaiDisepakati').value) || 0,
+                    dipulihkan: parseFloat(document.getElementById('inputNilaiDipulihkan').value) || 0,
                     updatedAt: new Date().toISOString()
                 };
 
@@ -402,8 +652,12 @@
                     alert('Data baru berhasil disimpan ke Cloud!');
                 }
 
+                document.getElementById('formKegiatan').reset();
+                document.getElementById('editDocId').value = '';
+                toggleFormFields();
                 closeModal();
-                loadDataFromCloud();
+                updateYearFilterOptions(tahunInput);
+                renderAll();
             } catch (err) {
                 alert('Gagal memproses data: ' + err.message);
             } finally {
@@ -412,147 +666,524 @@
             }
         };
 
-        window.hapusKegiatan = async function(docId) {
-            if (confirm("Apakah Anda yakin ingin menghapus data kegiatan ini?")) {
+        window.editKegiatan = function(firestoreId) {
+            const item = datasetKegiatan.find(x => x.firestoreId === firestoreId);
+            if (!item) return;
+
+            document.getElementById('editDocId').value = item.firestoreId;
+            document.getElementById('inputKategori').value = item.kategori || '';
+            document.getElementById('inputBulan').value = item.bulan || 1;
+            document.getElementById('inputTahun').value = item.tahun || 2026;
+            document.getElementById('inputInstansi').value = item.instansi || '';
+            document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
+
+            toggleFormFields();
+
+            if (item.kategori === 'MoU') {
+                document.getElementById('inputNoMou').value = item.noMou || '';
+                document.getElementById('inputJangkaWaktu').value = item.jangkaWaktu || '';
+            } else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
+                document.getElementById('inputNoSkk').value = item.noSkk || '';
+                document.getElementById('inputJumlahSkk').value = item.jumlahSkk || 1;
+                document.getElementById('inputNilaiDisepakati').value = item.disepakati || 0;
+                document.getElementById('inputNilaiDipulihkan').value = item.dipulihkan || 0;
+            }
+
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-tosca-200 mr-2"></i> Edit Data Kegiatan DATUN`;
+            openModal();
+        };
+
+        window.hapusKegiatan = async function(id) {
+            if (confirm('Yakin ingin menghapus data ini dari Cloud Firestore?')) {
                 try {
-                    await deleteDoc(doc(db, "kegiatan_datun", docId));
-                    alert("Data berhasil dihapus.");
-                    loadDataFromCloud();
+                    await deleteDoc(doc(db, "kegiatan_datun", id));
                 } catch (err) {
-                    alert("Gagal menghapus data: " + err.message);
+                    alert('Gagal menghapus: ' + err.message);
                 }
             }
         };
 
-        window.editKegiatan = function(docId) {
-            const item = datasetKegiatan.find(x => x.firestoreId === docId);
-            if (!item) return;
+        window.handleExcelUpload = async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-            document.getElementById('editDocId').value = item.firestoreId;
-            document.getElementById('modalTitle').innerText = "Edit Kegiatan DATUN";
-            document.getElementById('inputKategori').value = item.kategori;
-            toggleFormFields();
-            
-            document.getElementById('inputBulan').value = item.bulan;
-            document.getElementById('inputTahun').value = item.tahun;
-            document.getElementById('inputInstansi').value = item.instansi;
-            document.getElementById('inputUraian').value = item.uraian;
-            document.getElementById('inputManualDriveLink').value = item.driveLink !== '-' ? item.driveLink : '';
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(sheet);
 
-            if (document.getElementById('inputNoMou')) document.getElementById('inputNoMou').value = item.noMou;
-            if (document.getElementById('inputJangkaWaktu')) document.getElementById('inputJangkaWaktu').value = item.jangkaWaktu;
-            if (document.getElementById('inputNoSkk')) document.getElementById('inputNoSkk').value = item.noSkk;
-            if (document.getElementById('inputJumlahSkk')) document.getElementById('inputJumlahSkk').value = item.jumlahSkk;
-            if (document.getElementById('inputNilaiDisepakati')) document.getElementById('inputNilaiDisepakati').value = item.disepakati;
-            if (document.getElementById('inputNilaiDipulihkan')) document.getElementById('inputNilaiDipulihkan').value = item.dipulihkan;
+                let counter = 0;
+                let detectedYear = new Date().getFullYear().toString();
 
-            document.getElementById('modalKegiatan').classList.remove('hidden');
+                for (const row of json) {
+                    const yr = row['Tahun'] ? row['Tahun'].toString() : detectedYear;
+                    const item = {
+                        tahun: yr,
+                        kategori: row['Kategori'] || 'Pelayanan Hukum',
+                        bulan: parseInt(row['Bulan']) || 1,
+                        instansi: row['Instansi'] || 'Instansi Umum',
+                        uraian: row['Uraian'] || '-',
+                        driveLink: row['Link Drive'] || row['Link Google Drive'] || '',
+                        noMou: row['No MoU'] || '-',
+                        jangkaWaktu: row['Masa MoU'] || '-',
+                        noSkk: row['No SKK'] || '-',
+                        jumlahSkk: parseInt(row['Jumlah SKK']) || 1,
+                        disepakati: parseFloat(row['Disepakati']) || 0,
+                        dipulihkan: parseFloat(row['Dipulihkan']) || 0,
+                        createdAt: new Date().toISOString()
+                    };
+                    await addDoc(colRef, item);
+                    counter++;
+                    detectedYear = yr;
+                }
+                alert(`Berhasil mengimpor ${counter} data kegiatan ke Cloud Firestore!`);
+            };
+            reader.readAsArrayBuffer(file);
         };
 
-        window.renderAll = function() {
-            const tahunPilihan = document.getElementById('filterTahun').value;
-            const tbody = document.getElementById('tabelKegiatanBody');
+        window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); }
+        window.closeModal = function() { 
+            document.getElementById('modalForm').classList.add('hidden'); 
+            document.getElementById('formKegiatan').reset();
+            document.getElementById('editDocId').value = '';
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru`;
+            toggleFormFields();
+        }
+        window.openExportModal = function() { document.getElementById('modalExport').classList.remove('hidden'); }
+        window.closeExportModal = function() { document.getElementById('modalExport').classList.add('hidden'); }
+        window.closePreviewModal = function() { 
+            document.getElementById('modalPreview').classList.add('hidden'); 
+            document.getElementById('previewIframe').src = '';
+        }
+
+        window.previewDriveFile = function(url, fileName) {
+            if (!url) return;
+            let previewUrl = url;
+            if (url.includes('drive.google.com/file/d/')) {
+                const fileId = url.split('/file/d/')[1].split('/')[0];
+                previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+            }
+            document.getElementById('previewTitle').innerHTML = `<i class="fa-solid fa-eye text-tosca-200 mr-2"></i> Pratinjau: ${fileName || 'Berkas Google Drive'}`;
+            document.getElementById('previewIframe').src = previewUrl;
+            document.getElementById('btnDownloadDirect').href = url;
+            document.getElementById('modalPreview').classList.remove('hidden');
+        }
+
+        window.downloadDriveFile = function(url) {
+            if (!url) return;
+            let downloadUrl = url;
+            if (url.includes('drive.google.com/file/d/')) {
+                const fileId = url.split('/file/d/')[1].split('/')[0];
+                downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+            window.open(downloadUrl, '_blank');
+        }
+
+        window.toggleFormFields = function() {
+            const kat = document.getElementById('inputKategori').value;
+            ['fieldMou1', 'fieldMou2', 'fieldSkk1', 'fieldSkk2', 'fieldSkk3', 'fieldSkk4'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            if (kat === 'MoU') {
+                document.getElementById('fieldMou1').classList.remove('hidden');
+                document.getElementById('fieldMou2').classList.remove('hidden');
+            } else if (kat === 'Bantuan Hukum Litigasi' || kat === 'Bantuan Hukum Non-Litigasi') {
+                document.getElementById('fieldSkk1').classList.remove('hidden');
+                document.getElementById('fieldSkk2').classList.remove('hidden');
+                document.getElementById('fieldSkk3').classList.remove('hidden');
+                document.getElementById('fieldSkk4').classList.remove('hidden');
+            }
+        }
+
+        function updateYearFilterOptions(selectYear = null) {
+            const selectEl = document.getElementById('filterTahun');
+            const years = Array.from(new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
+
+            if (years.length === 0) {
+                years.push(new Date().getFullYear().toString());
+            }
+
+            const currentSelected = selectYear || selectEl.value || years[0];
+            selectEl.innerHTML = '';
+            years.forEach(yr => {
+                const opt = document.createElement('option');
+                opt.value = yr;
+                opt.textContent = `Tahun ${yr}`;
+                opt.className = 'text-slate-800';
+                if (yr === currentSelected) opt.selected = true;
+                selectEl.appendChild(opt);
+            });
+        }
+        window.updateYearFilterOptions = updateYearFilterOptions;
+
+        function renderAll() {
+            const selectEl = document.getElementById('filterTahun');
+            const tahunAktif = selectEl ? selectEl.value : '2026';
+            document.getElementById('chartYearBadge').innerText = `Tahun ${tahunAktif}`;
+
+            const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
+
+            renderKPI(dataTahun);
+            renderCharts(dataTahun);
+            renderMatriksView(dataTahun);
+            renderLogView(dataTahun);
+        }
+        window.renderAll = renderAll;
+
+        function renderKPI(data) {
+            let mou = 0, skkTotal = 0, disepakati = 0, dipulihkan = 0;
+            let pertimbangan = 0, la = 0, lo = 0, pelayanan = 0, thl = 0, penegakan = 0;
+
+            data.forEach(item => {
+                if (item.kategori === 'MoU') mou++;
+                else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
+                    skkTotal += item.jumlahSkk || 1;
+                    disepakati += item.disepakati || 0;
+                    dipulihkan += item.dipulihkan || 0;
+                } else if (item.kategori && item.kategori.includes('Pertimbangan')) {
+                    pertimbangan++;
+                    if (item.kategori.includes('LA')) la++;
+                    if (item.kategori.includes('LO')) lo++;
+                } else if (item.kategori === 'Pelayanan Hukum') pelayanan++;
+                else if (item.kategori === 'Tindakan Hukum Lainnya') thl++;
+                else if (item.kategori === 'Penegakan Hukum') penegakan++;
+            });
+
+            document.getElementById('kpiMou').innerText = mou;
+            document.getElementById('kpiBantuanHukum').innerHTML = `${skkTotal} <span class="text-xs font-normal text-slate-500">SKK</span>`;
+            document.getElementById('kpiDisepakati').innerText = formatRp(disepakati);
+            document.getElementById('kpiDipulihkan').innerText = formatRp(dipulihkan);
+            document.getElementById('kpiPertimbangan').innerText = pertimbangan;
+            document.getElementById('kpiLA').innerText = `${la} LA`;
+            document.getElementById('kpiLO').innerText = `${lo} LO`;
+            document.getElementById('kpiPelayanan').innerText = pelayanan;
+            document.getElementById('kpiThl').innerText = thl;
+            document.getElementById('kpiPenegakan').innerText = penegakan;
+        }
+
+        function renderMatriksView(data) {
+            const tbody = document.getElementById('bodyMatriks');
+            tbody.innerHTML = '';
+            const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+            namaBulan.forEach((blnName, index) => {
+                const blnNum = index + 1;
+                let tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-200";
+
+                let html = `<td class="p-2 text-center font-bold text-slate-500 bg-slate-50">${blnNum}</td>`;
+                html += `<td class="p-2.5 font-bold text-slate-800 bg-slate-50">${blnName}</td>`;
+
+                let countMou = getItemsCell(data, blnNum, ['MoU']);
+                let countBantuan = getItemsCell(data, blnNum, ['Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi']);
+                let countPertimbangan = getItemsCell(data, blnNum, ['Pertimbangan LA', 'Pertimbangan LO']);
+                let countPelayanan = getItemsCell(data, blnNum, ['Pelayanan Hukum']);
+                let countThl = getItemsCell(data, blnNum, ['Tindakan Hukum Lainnya']);
+                let countPenegakan = getItemsCell(data, blnNum, ['Penegakan Hukum']);
+
+                let totalBulan = countMou.count + countBantuan.count + countPertimbangan.count + countPelayanan.count + countThl.count + countPenegakan.count;
+
+                html += `<td class="p-2 align-top text-[11px]">${countMou.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countBantuan.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countPertimbangan.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countPelayanan.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countThl.text}</td>`;
+                html += `<td class="p-2 align-top text-[11px]">${countPenegakan.text}</td>`;
+                html += `<td class="p-2 text-center font-bold text-tosca-800 bg-tosca-50">${totalBulan}</td>`;
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function getItemsCell(data, bulan, keys) {
+            const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
+            if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
+
+            let text = filtered.map((it, idx) => {
+                let katTheme = {
+                    name: 'MoU', badgeClass: 'bg-tosca-100 text-tosca-800 border-tosca-200', borderClass: 'border-tosca-400', icon: 'fa-file-contract text-tosca-600'
+                };
+
+                if (it.kategori.includes('Bantuan Hukum')) {
+                    katTheme = { name: 'Bantuan Hukum', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
+                } else if (it.kategori.includes('Pertimbangan')) {
+                    katTheme = { name: 'Pertimbangan', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
+                } else if (it.kategori === 'Pelayanan Hukum') {
+                    katTheme = { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' };
+                } else if (it.kategori === 'Tindakan Hukum Lainnya') {
+                    katTheme = { name: 'Tindakan Hukum Lain', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' };
+                } else if (it.kategori === 'Penegakan Hukum') {
+                    katTheme = { name: 'Penegakan', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' };
+                }
+
+                const itemDataAttr = encodeURIComponent(JSON.stringify({
+                    instansi: it.instansi,
+                    kategori: it.kategori,
+                    theme: katTheme,
+                    noMou: it.noMou,
+                    jangkaWaktu: it.jangkaWaktu,
+                    noSkk: it.noSkk,
+                    jumlahSkk: it.jumlahSkk,
+                    disepakati: it.disepakati,
+                    dipulihkan: it.dipulihkan,
+                    uraian: it.uraian
+                }));
+
+                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;
+                t += `<span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmousemove="moveCustomTooltip(event)" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start">
+                        <span class="mr-1"><b>${idx+1}.</b></span> <span>${it.instansi}</span>
+                      </span>`;
+                
+                if (it.dipulihkan > 0) t += `<span class="text-emerald-600 font-bold text-[10px] block pl-3">Rp ${formatRp(it.dipulihkan)}</span>`;
+                
+                if (it.driveLink) {
+                    t += `<div class="flex items-center space-x-2 mt-1 pl-3">
+                            <button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="downloadDriveFile('${it.driveLink}')" class="text-emerald-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-download mr-1"></i> Unduh</button>
+                          </div>`;
+                }
+                t += `</div>`;
+                return t;
+            }).join('');
+
+            return { count: filtered.length, text: text };
+        }
+
+        window.showCustomTooltip = function(e, dataStr) {
+            const data = JSON.parse(decodeURIComponent(dataStr));
+            const card = document.getElementById('customTooltipCard');
+            const badge = document.getElementById('ttBadge');
+            const icon = document.getElementById('ttIcon');
+            const title = document.getElementById('ttTitle');
+            const body = document.getElementById('ttDetailsBody');
+
+            card.className = `fixed opacity-100 transform scale-100 bg-white rounded-2xl shadow-2xl border ${data.theme.borderClass} p-4 max-w-sm w-80 backdrop-blur-md transition-all duration-150`;
+            badge.className = `text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${data.theme.badgeClass}`;
+            badge.innerText = data.theme.name;
+            icon.className = `fa-solid ${data.theme.icon} text-sm`;
+            title.innerText = data.instansi;
+
+            let bodyContent = '';
+            if (data.noMou && data.noMou !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor MoU:</span> <span class="font-semibold text-slate-800">${data.noMou}</span></div>`;
+            if (data.jangkaWaktu && data.jangkaWaktu !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Masa Berlaku:</span> <span class="font-semibold text-slate-800">${data.jangkaWaktu}</span></div>`;
+            if (data.noSkk && data.noSkk !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor SKK:</span> <span class="font-semibold text-slate-800">${data.noSkk}</span></div>`;
+            if (data.jumlahSkk && data.jumlahSkk > 1) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah SKK:</span> <span class="font-semibold text-slate-800">${data.jumlahSkk} SKK</span></div>`;
+            if (data.disepakati && data.disepakati > 0) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nilai Disepakati:</span> <span class="font-bold text-blue-600">Rp ${formatRp(data.disepakati)}</span></div>`;
+            if (data.dipulihkan && data.dipulihkan > 0) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nilai Dipulihkan:</span> <span class="font-bold text-emerald-600">Rp ${formatRp(data.dipulihkan)}</span></div>`;
+            if (data.uraian && data.uraian !== '-') bodyContent += `<div class="pt-1"><span class="text-slate-500 block text-[10px] mb-0.5">Uraian Ringkas:</span> <p class="text-slate-700 bg-slate-50 p-2 rounded-lg text-[10px] leading-relaxed border border-slate-100">${data.uraian}</p></div>`;
+
+            if (!bodyContent) bodyContent = `<p class="text-slate-400 italic text-[10px]">Tidak ada informasi tambahan.</p>`;
+
+            body.innerHTML = bodyContent;
+            card.classList.remove('hidden');
+            moveCustomTooltip(e);
+        };
+
+        window.moveCustomTooltip = function(e) {
+            const card = document.getElementById('customTooltipCard');
+            const x = e.clientX + 15;
+            const y = e.clientY + 15;
+            const cardWidth = 320;
+            const cardHeight = 220;
+            const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
+            const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
+            card.style.left = `${posX}px`;
+            card.style.top = `${posY}px`;
+        };
+
+        window.hideCustomTooltip = function() {
+            const card = document.getElementById('customTooltipCard');
+            card.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => { card.classList.add('hidden'); }, 150);
+        };
+
+        function renderLogView(data) {
+            const tbody = document.getElementById('bodyLogData');
             tbody.innerHTML = '';
 
-            const filtered = datasetKegiatan.filter(item => item.tahun.toString() === tahunPilihan.toString());
-            document.getElementById('infoTotalData').innerText = `Total Data Tahun ${tahunPilihan}: ${filtered.length} kegiatan`;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">Belum ada data kegiatan untuk tahun ${tahunPilihan}.</td></tr>`;
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-400">Belum ada data kegiatan di Firestore untuk tahun ini.</td></tr>`;
                 return;
             }
 
             const namaBulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-            filtered.forEach((item, index) => {
-                let badgeKategori = '<span class="px-2 py-1 bg-slate-100 text-slate-700 rounded-md font-medium text-[10px]">Lainnya</span>';
-                if (item.kategori.includes('MoU')) badgeKategori = '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-md font-medium text-[10px]">MoU</span>';
-                else if (item.kategori.includes('Litigasi')) badgeKategori = '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-md font-medium text-[10px]">Litigasi</span>';
-                else if (item.kategori.includes('Non Litigasi')) badgeKategori = '<span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md font-medium text-[10px]">Non Litigasi</span>';
+            data.forEach((item, index) => {
+                let detail = '-';
+                if (item.kategori === 'MoU') detail = `Masa: ${item.jangkaWaktu}<br><span class="text-slate-400">${item.noMou}</span>`;
+                else if (item.kategori && item.kategori.includes('Bantuan Hukum')) detail = `SKK: ${item.jumlahSkk} (${item.noSkk})<br>Dipulihkan: <span class="text-emerald-600 font-semibold">Rp ${formatRp(item.dipulihkan)}</span>`;
 
-                let detailKhusus = '-';
-                if (item.kategori.includes('MoU')) {
-                    detailKhusus = `Masa: ${item.jangkaWaktu}<br><span class="text-slate-400">${item.noMou}</span>`;
-                } else {
-                    detailKhusus = `SKK: ${item.noSkk} (${item.jumlahSkk} SKK)`;
-                }
-
-                let driveCol = '-';
-                if (item.driveLink && item.driveLink !== '-') {
-                    driveCol = `
-                        <div class="flex items-center justify-center space-x-1.5">
-                            <a href="${item.driveLink}" target="_blank" class="px-2 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-[10px] font-semibold transition flex items-center">
-                                <i class="fa-solid fa-eye mr-1"></i> Lihat
-                            </a>
-                            <a href="${item.driveLink}" target="_blank" download class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded text-[10px] font-semibold transition flex items-center">
-                                <i class="fa-solid fa-download mr-1"></i> Unduh
-                            </a>
-                        </div>
-                    `;
-                }
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                let tr = document.createElement('tr');
+                tr.className = "border-b border-slate-200 hover:bg-slate-50";
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-medium text-slate-500">${index + 1}</td>
-                    <td class="py-3 px-4 font-semibold text-slate-700">${namaBulan[item.bulan] || item.bulan} ${item.tahun}</td>
-                    <td class="py-3 px-4">${badgeKategori}</td>
-                    <td class="py-3 px-4 font-medium text-slate-800">${item.instansi}</td>
-                    <td class="py-3 px-4 text-slate-600">${detailKhusus}</td>
-                    <td class="py-3 px-4 text-slate-600 max-w-xs truncate" title="${item.uraian}">${item.uraian}</td>
-                    <td class="py-3 px-4 text-center">${driveCol}</td>
-                    <td class="py-3 px-4 text-center">
-                        <div class="flex items-center justify-center space-x-1">
-                            <button onclick="editKegiatan('${item.firestoreId}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition" title="Edit">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="hapusKegiatan('${item.firestoreId}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded transition" title="Hapus">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                    <td class="p-2.5 font-bold text-slate-500">${index + 1}</td>
+                    <td class="p-2.5 font-semibold text-slate-700">${namaBulan[item.bulan]} ${item.tahun}</td>
+                    <td class="p-2.5"><span class="px-2 py-1 rounded bg-tosca-100 text-tosca-800 font-semibold text-[10px]">${item.kategori}</span></td>
+                    <td class="p-2.5 font-medium text-slate-800">${item.instansi}</td>
+                    <td class="p-2.5 text-[11px]">${detail}</td>
+                    <td class="p-2.5 text-[11px] text-slate-600 max-w-xs">${item.uraian || '-'}</td>
+                    <td class="p-2.5">
+                        ${item.driveLink ? `
+                            <div class="flex items-center space-x-2">
+                                <button onclick="previewDriveFile('${item.driveLink}', '${item.instansi}')" class="text-blue-600 font-semibold text-[11px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
+                                <span class="text-slate-300">|</span>
+                                <button onclick="downloadDriveFile('${item.driveLink}')" class="text-emerald-600 font-semibold text-[11px] hover:underline flex items-center"><i class="fa-solid fa-download mr-1"></i> Unduh</button>
+                            </div>
+                        ` : '-'}
+                    </td>
+                    <td class="p-2.5 text-center no-print">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editKegiatan('${item.firestoreId}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold p-1"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="hapusKegiatan('${item.firestoreId}')" class="text-rose-500 hover:text-rose-700 text-xs p-1"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
-        };
+        }
 
-        async function loadDataFromCloud() {
-            try {
-                const querySnapshot = await getDocs(colRef);
-                datasetKegiatan = [];
-                let setTahun = new Set();
-                const tahunIni = new Date().getFullYear().toString();
-                setTahun.add(tahunIni);
-
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    datasetKegiatan.push({
-                        firestoreId: docSnap.id,
-                        ...data
-                    });
-                    if (data.tahun) setTahun.add(data.tahun.toString());
-                });
-
-                const selectTahun = document.getElementById('filterTahun');
-                const selectedVal = selectTahun.value || tahunIni;
-                selectTahun.innerHTML = '';
-                
-                Array.from(setTahun).sort().reverse().forEach(thn => {
-                    const opt = document.createElement('option');
-                    opt.value = thn;
-                    opt.textContent = thn;
-                    if (thn === selectedVal) opt.selected = true;
-                    selectTahun.appendChild(opt);
-                });
-
-                renderAll();
-            } catch (err) {
-                console.error("Gagal memuat data dari Cloud:", err);
+        window.switchView = function(mode) {
+            if (mode === 'matrix') {
+                document.getElementById('containerMatrixView').classList.remove('hidden');
+                document.getElementById('containerLogView').classList.add('hidden');
+                document.getElementById('btnViewMatrix').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-tosca-600 text-white shadow-sm';
+                document.getElementById('btnViewLog').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
+            } else {
+                document.getElementById('containerMatrixView').classList.add('hidden');
+                document.getElementById('containerLogView').classList.remove('hidden');
+                document.getElementById('btnViewLog').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-tosca-600 text-white shadow-sm';
+                document.getElementById('btnViewMatrix').className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200';
             }
         }
 
-        // Inisialisasi awal saat halaman dimuat
-        loadDataFromCloud();
+        function initCharts() {
+            const ctxBar = document.getElementById('chartGiatBar').getContext('2d');
+            chartBarInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
+                    datasets: [{
+                        data: Array(12).fill(0),
+                        backgroundColor: '#0D9488',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            const ctxPie = document.getElementById('chartGiatPie').getContext('2d');
+            chartPieInstance = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['1. MoU', '2. Bantuan Hukum', '3. Pertimbangan', '4. Pelayanan', '5. THL', '6. Penegakan'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: ['#0D9488', '#2563EB', '#D97706', '#9333EA', '#0D9488', '#E11D48']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function renderCharts(data) {
+            const bulanan = Array(12).fill(0);
+            data.forEach(x => { 
+                const b = parseInt(x.bulan);
+                if (b >= 1 && b <= 12) bulanan[b - 1]++; 
+            });
+            chartBarInstance.data.datasets[0].data = bulanan;
+            chartBarInstance.update();
+
+            let c = [0, 0, 0, 0, 0, 0];
+            data.forEach(x => {
+                if (x.kategori === 'MoU') c[0]++;
+                else if (x.kategori && x.kategori.includes('Bantuan Hukum')) c[1]++;
+                else if (x.kategori && x.kategori.includes('Pertimbangan')) c[2]++;
+                else if (x.kategori === 'Pelayanan Hukum') c[3]++;
+                else if (x.kategori === 'Tindakan Hukum Lainnya') c[4]++;
+                else if (x.kategori === 'Penegakan Hukum') c[5]++;
+            });
+            chartPieInstance.data.datasets[0].data = c;
+            chartPieInstance.update();
+        }
+
+        function formatRp(val) {
+            return new Intl.NumberFormat('id-ID').format(val || 0);
+        }
+
+        window.executeExport = function() {
+            const scope = document.querySelector('input[name="exportScope"]:checked').value;
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            const selectEl = document.getElementById('filterTahun');
+            const tahun = selectEl ? selectEl.value : '2026';
+
+            closeExportModal();
+
+            if (format === 'pdf') {
+                if (scope === 'summary') switchView('matrix');
+                else switchView('log');
+                setTimeout(() => { window.print(); }, 300);
+            } else {
+                let title = scope === 'summary' ? `REKAPITULASI MATRIKS KEGIATAN DATUN` : `DETAIL DATA KEGIATAN DATUN`;
+                let contentHtml = scope === 'summary' ? 
+                    document.getElementById('containerMatrixView').innerHTML : 
+                    document.getElementById('containerLogView').innerHTML;
+
+                let wordDoc = `
+                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head>
+                        <meta charset='utf-8'>
+                        <title>Laporan DATUN</title>
+                        <style>
+                            @page WordSection1 {
+                                size: 355.6mm 215.9mm;
+                                mso-page-orientation: landscape;
+                                margin: 15mm 15mm 15mm 15mm;
+                            }
+                            div.WordSection1 { page: WordSection1; }
+                            body { font-family: 'Arial', sans-serif; font-size: 10pt; }
+                            h2 { text-align: center; color: #0F766E; margin-bottom: 5px; }
+                            h3 { text-align: center; margin-top: 0; color: #333; font-size: 11pt; }
+                            table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+                            th, td { border: 1px solid #94A3B8; padding: 6px; font-size: 9pt; }
+                            th { background-color: #0F766E; color: white; text-align: center; }
+                            .no-print { display: none !important; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="WordSection1">
+                            <h2>KEJAKSAAN NEGERI PADANG</h2>
+                            <h3>${title} - TAHUN ${tahun}</h3>
+                            <hr style="border: 1px solid #0F766E; margin-bottom: 15px;">
+                            ${contentHtml}
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                const blob = new Blob(['\ufeff' + wordDoc], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Laporan_DATUN_${scope.toUpperCase()}_${tahun}.doc`;
+                a.click();
+            }
+        }
     </script>
 </body>
 </html>

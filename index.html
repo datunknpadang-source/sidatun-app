@@ -586,7 +586,7 @@ function uploadFileToDrive(file) {
                     setTimeout(() => {
                         window.removeEventListener('message', messageListener);
                         reject(new Error('Waktu upload Google Drive habis (Timeout)'));
-                    }, 35000);
+                    }, 90000);
                     
                 } catch (err) {
                     reject(err);

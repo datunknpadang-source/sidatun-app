@@ -169,7 +169,7 @@
                 <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
             </div>
 
-            <!-- KARTU KPI 2. BANTUAN HUKUM (DITAMBAHKAN NILAI DISEPAKATI & DIPULIHKAN DARI TABEL PEMULIHAN) -->
+            <!-- KARTU KPI 2. BANTUAN HUKUM -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-blue-500 transition">
                 <div class="flex items-center justify-between text-blue-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
@@ -237,7 +237,6 @@
                 </div>
             </div>
 
-            <!-- GRAFIK PROPORSI + POPUP MEWAH TOOLTIP -->
             <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between relative">
                 <div>
                     <div class="flex items-center justify-between mb-1">
@@ -251,13 +250,11 @@
                     </div>
                 </div>
 
-                <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] grid grid-cols-2 gap-x-2 gap-y-1.5" id="pieDetailsList">
-                    <!-- Dynamic rendering -->
-                </div>
+                <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] grid grid-cols-2 gap-x-2 gap-y-1.5" id="pieDetailsList"></div>
             </div>
         </div>
 
-        <!-- Section 3: Matriks Laporan Data Kegiatan DATUN & PEMULIHAN KEUANGAN NEGARA -->
+        <!-- Section 3: Matriks Laporan Data Kegiatan DATUN -->
         <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-6 print-area">
             <div class="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-slate-100 gap-3 no-print">
                 <div>
@@ -277,10 +274,9 @@
                 </div>
             </div>
 
-            <!-- TAMPILAN MODE 1: MATRIKS BULANAN & TABEL PEMULIHAN KEUANGAN NEGARA -->
+            <!-- TAMPILAN MODE 1: MATRIKS BULANAN -->
             <div id="containerMatrixView" class="space-y-6">
                 
-                <!-- TABEL 1: MATRIKS DATA KEGIATAN -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-xs text-left excel-table border-collapse">
                         <thead>
@@ -304,73 +300,6 @@
                         <tbody id="bodyMatriks"></tbody>
                         <tfoot id="footMatriksTotal"></tfoot>
                     </table>
-                </div>
-
-                <!-- TABEL 2: TABEL PEMULIHAN KEUANGAN NEGARA (REVISI BARUSESUAI GAMBAR REVISI) -->
-                <div class="pt-2">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-coins text-amber-500 mr-2"></i> PEMULIHAN KEUANGAN NEGARA
-                        </h3>
-                        <span class="text-[11px] text-slate-500 italic">Klik tombol <b class="text-tosca-700 font-extrabold">(+)</b> di samping nama bulan untuk menginput / mengedit data disepakati & dipulihkan</span>
-                    </div>
-
-                    <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-xs text-left excel-table border-collapse">
-                            <thead>
-                                <tr class="bg-tosca-800 text-white text-center font-bold">
-                                    <th class="p-2.5 w-44">KATEGORI</th>
-                                    <th class="p-2 min-w-[90px]">JANUARI <button onclick="openPemulihanModal(1)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">FEB <button onclick="openPemulihanModal(2)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">MAR <button onclick="openPemulihanModal(3)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">APR <button onclick="openPemulihanModal(4)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">MEI <button onclick="openPemulihanModal(5)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">JUN <button onclick="openPemulihanModal(6)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">JUL <button onclick="openPemulihanModal(7)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">AGT <button onclick="openPemulihanModal(8)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">SEP <button onclick="openPemulihanModal(9)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">OKT <button onclick="openPemulihanModal(10)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">NOV <button onclick="openPemulihanModal(11)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2 min-w-[90px]">DES <button onclick="openPemulihanModal(12)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
-                                    <th class="p-2.5 min-w-[130px] bg-tosca-900">TOTAL (Rp.)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="border-b border-slate-200 hover:bg-slate-50">
-                                    <td class="p-2.5 font-bold text-blue-900 bg-blue-50/50">Yang Disepakati</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_1">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_2">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_3">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_4">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_5">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_6">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_7">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_8">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_9">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_10">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_11">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_12">0</td>
-                                    <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
-                                </tr>
-                                <tr class="border-b border-slate-200 hover:bg-slate-50">
-                                    <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Dipulihkan</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_4">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_5">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_6">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_7">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_8">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_9">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_10">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_11">0</td>
-                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_12">0</td>
-                                    <td class="p-2.5 text-right font-black text-emerald-900 bg-emerald-100/60" id="pemulihanDipulihkan_TOTAL">Rp 0</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
             </div>
@@ -427,6 +356,78 @@
                     <span id="logPageInfo">Menampilkan 0 dari 0 data</span>
                     <div class="flex items-center space-x-1" id="logPaginationButtons"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Section 4: TABEL PEMULIHAN KEUANGAN NEGARA (TERPISAH SEPENUHNYA) -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-coins text-amber-500 mr-2"></i> TABEL PEMULIHAN KEUANGAN NEGARA
+                    </h2>
+                    <p class="text-xs text-slate-500">Rekapitulasi nilai yang disepakati dan ditangani/dipulihkan per bulan</p>
+                </div>
+                <button onclick="openPemulihanModal()" class="no-print bg-tosca-600 hover:bg-tosca-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition">
+                    <i class="fa-solid fa-plus mr-1.5"></i> (+) Input Data Pemulihan
+                </button>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-xs text-left excel-table border-collapse">
+                    <thead>
+                        <tr class="bg-tosca-800 text-white text-center font-bold">
+                            <th class="p-2.5 w-44">KATEGORI</th>
+                            <th class="p-2 min-w-[90px]">JANUARI</th>
+                            <th class="p-2 min-w-[90px]">FEB</th>
+                            <th class="p-2 min-w-[90px]">MAR</th>
+                            <th class="p-2 min-w-[90px]">APR</th>
+                            <th class="p-2 min-w-[90px]">MEI</th>
+                            <th class="p-2 min-w-[90px]">JUN</th>
+                            <th class="p-2 min-w-[90px]">JUL</th>
+                            <th class="p-2 min-w-[90px]">AGT</th>
+                            <th class="p-2 min-w-[90px]">SEP</th>
+                            <th class="p-2 min-w-[90px]">OKT</th>
+                            <th class="p-2 min-w-[90px]">NOV</th>
+                            <th class="p-2 min-w-[90px]">DES</th>
+                            <th class="p-2.5 min-w-[130px] bg-tosca-900">TOTAL (Rp.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-2.5 font-bold text-blue-900 bg-blue-50/50">Yang Disepakati</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_1">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_2">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_3">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_4">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_5">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_6">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_7">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_8">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_9">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_10">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_11">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_12">0</td>
+                            <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
+                        </tr>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Ditangani / Dipulihkan</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_4">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_5">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_6">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_7">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_8">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_9">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_10">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_11">0</td>
+                            <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_12">0</td>
+                            <td class="p-2.5 text-right font-black text-emerald-900 bg-emerald-100/60" id="pemulihanDipulihkan_TOTAL">Rp 0</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -491,7 +492,6 @@
                     <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
                 </div>
 
-                <!-- FORM FIELDS DINAMIS (REVISI: MENU DISEPAKATI & DIPULIHKAN DIHAPUS DARI BANTUAN HUKUM NON-LITIGASI) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200" id="dynamicFieldsContainer">
                     <div id="fieldMou1" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor MoU</label>
@@ -547,33 +547,42 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP KHUSUS: INPUT PEMULIHAN KEUANGAN NEGARA (REVISI TOMBOL +) -->
+    <!-- MODAL POPUP: INPUT / EDIT PEMULIHAN KEUANGAN NEGARA -->
     <div id="modalPemulihan" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
-                <h3 class="font-bold text-sm flex items-center" id="pemulihanModalTitle">
-                    <i class="fa-solid fa-coins text-amber-300 mr-2"></i> Input Pemulihan Keuangan Negara
+                <h3 class="font-bold text-sm flex items-center">
+                    <i class="fa-solid fa-coins text-amber-300 mr-2"></i> Input Data Pemulihan Keuangan Negara
                 </h3>
                 <button onclick="closePemulihanModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <form id="formPemulihan" onsubmit="simpanPemulihanBulan(event)" class="p-5 space-y-4">
-                <input type="hidden" id="pemulihanBulanInput" value="1">
-
-                <div class="bg-tosca-50 p-3 rounded-xl border border-tosca-200">
-                    <p class="text-xs font-semibold text-tosca-900">
-                        Bulan: <span id="pemulihanBulanLabel" class="font-bold uppercase text-tosca-700">JANUARI</span>
-                    </p>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Masukkan total nominal uang yang disepakati & dipulihkan untuk bulan ini.</p>
+            <form id="formPemulihan" onsubmit="simpanPemulihanData(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bulan *</label>
+                    <select id="pemulihanBulanSelect" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                        <option value="1">Januari</option>
+                        <option value="2">Februari</option>
+                        <option value="3">Maret</option>
+                        <option value="4">April</option>
+                        <option value="5">Mei</option>
+                        <option value="6">Juni</option>
+                        <option value="7">Juli</option>
+                        <option value="8">Agustus</option>
+                        <option value="9">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11">November</option>
+                        <option value="12">Desember</option>
+                    </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-blue-900 mb-1">1. Nilai Disepakati (Rp)</label>
+                    <label class="block text-xs font-bold text-blue-900 mb-1">Yang Disepakati (Rp) *</label>
                     <input type="number" id="pemulihanDisepakatiInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-emerald-900 mb-1">2. Nilai Dipulihkan (Rp)</label>
+                    <label class="block text-xs font-bold text-emerald-900 mb-1">Yang Ditangani / Dipulihkan (Rp) *</label>
                     <input type="number" id="pemulihanDipulihkanInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
 
@@ -989,25 +998,10 @@
             toggleFormFields();
         }
 
-        // POP-UP PROSES MODAL PEMULIHAN KEUANGAN NEGARA (REVISI TOMBOL +)
-        window.openPemulihanModal = function(bulanNum) {
-            const selectEl = document.getElementById('filterTahun');
-            const tahunAktif = selectEl ? selectEl.value : '2026';
-            
-            document.getElementById('pemulihanBulanInput').value = bulanNum;
-            document.getElementById('pemulihanBulanLabel').innerText = `${NAMA_BULAN_LENGKAP[bulanNum]} ${tahunAktif}`;
-
-            const docCustomId = `${tahunAktif}_${bulanNum}`;
-            const existing = datasetPemulihan.find(x => x.firestoreId === docCustomId);
-
-            if (existing) {
-                document.getElementById('pemulihanDisepakatiInput').value = existing.disepakati || 0;
-                document.getElementById('pemulihanDipulihkanInput').value = existing.dipulihkan || 0;
-            } else {
-                document.getElementById('pemulihanDisepakatiInput').value = 0;
-                document.getElementById('pemulihanDipulihkanInput').value = 0;
-            }
-
+        // MODAL PEMULIHAN KEUANGAN NEGARA
+        window.openPemulihanModal = function() {
+            document.getElementById('pemulihanDisepakatiInput').value = 0;
+            document.getElementById('pemulihanDipulihkanInput').value = 0;
             document.getElementById('modalPemulihan').classList.remove('hidden');
         }
 
@@ -1016,7 +1010,7 @@
             document.getElementById('formPemulihan').reset();
         }
 
-        window.simpanPemulihanBulan = async function(e) {
+        window.simpanPemulihanData = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSavePemulihan');
             btn.disabled = true;
@@ -1025,7 +1019,7 @@
             try {
                 const selectEl = document.getElementById('filterTahun');
                 const tahunAktif = selectEl ? selectEl.value : '2026';
-                const bulanNum = parseInt(document.getElementById('pemulihanBulanInput').value);
+                const bulanNum = parseInt(document.getElementById('pemulihanBulanSelect').value);
                 const docCustomId = `${tahunAktif}_${bulanNum}`;
 
                 const disepakatiVal = parseFloat(document.getElementById('pemulihanDisepakatiInput').value) || 0;
@@ -1204,7 +1198,6 @@
             window.open(downloadUrl, '_blank');
         }
 
-        // TOGGLE FORM FIELDS (REVISI: PADA NON-LITIGASI DISEPAKATI & DIPULIHKAN DIHILANGKAN)
         window.toggleFormFields = function() {
             const kat = document.getElementById('inputKategori').value;
             const inputInstansi = document.getElementById('inputInstansi');
@@ -1268,7 +1261,6 @@
         }
         window.renderAll = renderAll;
 
-        // RENDER KARTU KPI (REVISI: TOTAL DISEPAKATI & DIPULIHKAN DIHITUNG DARI PEMULIHAN KEUANGAN NEGARA)
         function renderKPI(data) {
             let mou = 0;
             let skkLitigasi = 0, skkNonLitigasi = 0;
@@ -1294,7 +1286,6 @@
                 }
             });
 
-            // Ambil total nilai Keuangan dari Dataset Pemulihan
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
             const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahunAktif);
@@ -1313,13 +1304,12 @@
             document.getElementById('kpiDipulihkan').innerText = formatRp(totalDipulihkan);
             document.getElementById('kpiPertimbangan').innerText = pertimbangan;
             document.getElementById('kpiLA').innerText = `${la} LA`;
-            document.getElementById('kpiLO').innerText = `${LO} LO`;
+            document.getElementById('kpiLO').innerText = `${lo} LO`;
             document.getElementById('kpiPelayanan').innerText = pelayanan;
             document.getElementById('kpiThl').innerText = thl;
             document.getElementById('kpiPenegakan').innerText = penegakan;
         }
 
-        // RENDER TABEL PEMULIHAN KEUANGAN NEGARA (REVISI BARU)
         function renderPemulihanTable() {
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
@@ -1349,7 +1339,6 @@
             if (elTotalDis) elTotalDis.innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
             if (elTotalDip) elTotalDip.innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
 
-            // Update KPI secara langsung saat data pemulihan berubah
             const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
             renderKPI(dataTahun);
         }

@@ -62,7 +62,7 @@
                 background: white;
                 color: black;
             }
-            header, #modalForm, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, .no-print {
+            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, .no-print {
                 display: none !important;
             }
             .print-area {
@@ -91,7 +91,7 @@
         <div class="space-y-1.5 text-[11px]" id="ttDetailsBody"></div>
     </div>
 
-    <!-- POP-UP MEWAH LINGKARAN KATEGORI (REVISI POIN 1) -->
+    <!-- POP-UP MEWAH LINGKARAN KATEGORI -->
     <div id="pieLuxuryTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border p-3 max-w-xs w-64 border-tosca-500 z-50">
         <div class="flex items-center space-x-2 border-b pb-1.5 mb-1.5 border-slate-100">
             <span id="pieTtDot" class="w-3 h-3 rounded-full flex-shrink-0"></span>
@@ -169,7 +169,7 @@
                 <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
             </div>
 
-            <!-- KARTU KPI 2. BANTUAN HUKUM -->
+            <!-- KARTU KPI 2. BANTUAN HUKUM (DITAMBAHKAN NILAI DISEPAKATI & DIPULIHKAN DARI TABEL PEMULIHAN) -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-blue-500 transition">
                 <div class="flex items-center justify-between text-blue-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
@@ -237,7 +237,7 @@
                 </div>
             </div>
 
-            <!-- REVISI POIN 1: GRAFIK PROPORSI + POPUP MEWAH TOOLTIP PADA BANTUAN HUKUM LITIGASI DAN NON-LITIGASI -->
+            <!-- GRAFIK PROPORSI + POPUP MEWAH TOOLTIP -->
             <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between relative">
                 <div>
                     <div class="flex items-center justify-between mb-1">
@@ -251,16 +251,15 @@
                     </div>
                 </div>
 
-                <!-- LIST PERSENTASE DENGAN POPUP TOOLTIP MEWAH (REVISI POIN 1) -->
                 <div class="mt-3 pt-3 border-t border-slate-100 text-[11px] grid grid-cols-2 gap-x-2 gap-y-1.5" id="pieDetailsList">
                     <!-- Dynamic rendering -->
                 </div>
             </div>
         </div>
 
-        <!-- Section 3: Matriks Laporan Data Kegiatan DATUN -->
-        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 print-area">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 pb-3 border-b border-slate-100 gap-3 no-print">
+        <!-- Section 3: Matriks Laporan Data Kegiatan DATUN & PEMULIHAN KEUANGAN NEGARA -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-6 print-area">
+            <div class="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-slate-100 gap-3 no-print">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-table-cells text-tosca-600 mr-2"></i> Matriks Data Kegiatan DATUN (Per Bulan)
@@ -278,33 +277,102 @@
                 </div>
             </div>
 
-            <!-- TAMPILAN MODE 1: MATRIKS BULANAN (REVISI POIN 2 & 3: SUB HEADER 2 LEVEL & BARIS TOTAL) -->
-            <div id="containerMatrixView" class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-xs text-left excel-table border-collapse">
-                    <thead>
-                        <!-- HEADER TINGKAT 1 (REVISI POIN 3) -->
-                        <tr class="bg-tosca-700 text-white text-center font-bold">
-                            <th class="p-2 w-10" rowspan="2">NO.</th>
-                            <th class="p-2 w-28" rowspan="2">BULAN</th>
-                            <th class="p-2 min-w-[130px]" rowspan="2">1. MOU</th>
-                            <th class="p-2 border-b border-tosca-600" colspan="2">2. BANTUAN HUKUM</th>
-                            <th class="p-2 border-b border-tosca-600" colspan="2">3. PERTIMBANGAN HUKUM</th>
-                            <th class="p-2 min-w-[130px]" rowspan="2">4. PELAYANAN HUKUM</th>
-                            <th class="p-2 min-w-[130px]" rowspan="2">5. TINDAKAN HUKUM LAIN</th>
-                            <th class="p-2 min-w-[130px]" rowspan="2">6. PENEGAKAN HUKUM</th>
-                        </tr>
-                        <!-- HEADER TINGKAT 2 (SUB KATEGORI) -->
-                        <tr class="bg-tosca-800 text-white text-center font-semibold text-[11px]">
-                            <th class="p-1.5 min-w-[120px] bg-tosca-800/90">LITIGASI</th>
-                            <th class="p-1.5 min-w-[120px] bg-tosca-800/90">NON-LITIGASI</th>
-                            <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LA</th>
-                            <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LO</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bodyMatriks"></tbody>
-                    <!-- BARIS TOTAL DI BAWAH DESEMBER (REVISI POIN 2) -->
-                    <tfoot id="footMatriksTotal"></tfoot>
-                </table>
+            <!-- TAMPILAN MODE 1: MATRIKS BULANAN & TABEL PEMULIHAN KEUANGAN NEGARA -->
+            <div id="containerMatrixView" class="space-y-6">
+                
+                <!-- TABEL 1: MATRIKS DATA KEGIATAN -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs text-left excel-table border-collapse">
+                        <thead>
+                            <tr class="bg-tosca-700 text-white text-center font-bold">
+                                <th class="p-2 w-10" rowspan="2">NO.</th>
+                                <th class="p-2 w-28" rowspan="2">BULAN</th>
+                                <th class="p-2 min-w-[130px]" rowspan="2">1. MOU</th>
+                                <th class="p-2 border-b border-tosca-600" colspan="2">2. BANTUAN HUKUM</th>
+                                <th class="p-2 border-b border-tosca-600" colspan="2">3. PERTIMBANGAN HUKUM</th>
+                                <th class="p-2 min-w-[130px]" rowspan="2">4. PELAYANAN HUKUM</th>
+                                <th class="p-2 min-w-[130px]" rowspan="2">5. TINDAKAN HUKUM LAIN</th>
+                                <th class="p-2 min-w-[130px]" rowspan="2">6. PENEGAKAN HUKUM</th>
+                            </tr>
+                            <tr class="bg-tosca-800 text-white text-center font-semibold text-[11px]">
+                                <th class="p-1.5 min-w-[120px] bg-tosca-800/90">LITIGASI</th>
+                                <th class="p-1.5 min-w-[120px] bg-tosca-800/90">NON-LITIGASI</th>
+                                <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LA</th>
+                                <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyMatriks"></tbody>
+                        <tfoot id="footMatriksTotal"></tfoot>
+                    </table>
+                </div>
+
+                <!-- TABEL 2: TABEL PEMULIHAN KEUANGAN NEGARA (REVISI BARUSESUAI GAMBAR REVISI) -->
+                <div class="pt-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-coins text-amber-500 mr-2"></i> PEMULIHAN KEUANGAN NEGARA
+                        </h3>
+                        <span class="text-[11px] text-slate-500 italic">Klik tombol <b class="text-tosca-700 font-extrabold">(+)</b> di samping nama bulan untuk menginput / mengedit data disepakati & dipulihkan</span>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-xs text-left excel-table border-collapse">
+                            <thead>
+                                <tr class="bg-tosca-800 text-white text-center font-bold">
+                                    <th class="p-2.5 w-44">KATEGORI</th>
+                                    <th class="p-2 min-w-[90px]">JANUARI <button onclick="openPemulihanModal(1)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">FEB <button onclick="openPemulihanModal(2)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">MAR <button onclick="openPemulihanModal(3)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">APR <button onclick="openPemulihanModal(4)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">MEI <button onclick="openPemulihanModal(5)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">JUN <button onclick="openPemulihanModal(6)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">JUL <button onclick="openPemulihanModal(7)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">AGT <button onclick="openPemulihanModal(8)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">SEP <button onclick="openPemulihanModal(9)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">OKT <button onclick="openPemulihanModal(10)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">NOV <button onclick="openPemulihanModal(11)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2 min-w-[90px]">DES <button onclick="openPemulihanModal(12)" class="ml-1 text-emerald-300 hover:text-white font-extrabold px-1.5 py-0.5 bg-white/20 hover:bg-white/30 rounded shadow-sm text-[11px] no-print text-center">(+)</button></th>
+                                    <th class="p-2.5 min-w-[130px] bg-tosca-900">TOTAL (Rp.)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                                    <td class="p-2.5 font-bold text-blue-900 bg-blue-50/50">Yang Disepakati</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_1">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_2">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_3">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_4">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_5">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_6">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_7">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_8">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_9">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_10">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_11">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDisepakati_12">0</td>
+                                    <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
+                                </tr>
+                                <tr class="border-b border-slate-200 hover:bg-slate-50">
+                                    <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Dipulihkan</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_4">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_5">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_6">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_7">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_8">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_9">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_10">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_11">0</td>
+                                    <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_12">0</td>
+                                    <td class="p-2.5 text-right font-black text-emerald-900 bg-emerald-100/60" id="pemulihanDipulihkan_TOTAL">Rp 0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
             <!-- TAMPILAN MODE 2: LOG DETIL TABEL -->
@@ -364,7 +432,7 @@
 
     </main>
 
-    <!-- MODAL POPUP 1: FORM TAMBAH / EDIT -->
+    <!-- MODAL POPUP 1: FORM TAMBAH / EDIT KEGIATAN -->
     <div id="modalForm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
@@ -423,6 +491,7 @@
                     <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
                 </div>
 
+                <!-- FORM FIELDS DINAMIS (REVISI: MENU DISEPAKATI & DIPULIHKAN DIHAPUS DARI BANTUAN HUKUM NON-LITIGASI) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200" id="dynamicFieldsContainer">
                     <div id="fieldMou1" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor MoU</label>
@@ -439,14 +508,6 @@
                     <div id="fieldSkk2" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah SKK</label>
                         <input type="number" id="inputJumlahSkk" min="1" value="1" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
-                    </div>
-                    <div id="fieldSkk3" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Disepakati (Rp)</label>
-                        <input type="number" id="inputNilaiDisepakati" placeholder="0" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
-                    </div>
-                    <div id="fieldSkk4" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Dipulihkan (Rp)</label>
-                        <input type="number" id="inputNilaiDipulihkan" placeholder="0" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
                     <div id="fieldPelayanan1" class="hidden col-span-2">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Pelayanan (Orang/Layanan)</label>
@@ -480,6 +541,46 @@
                     <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
                     <button type="submit" id="btnSaveSubmit" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
                         <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Ke Cloud
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP KHUSUS: INPUT PEMULIHAN KEUANGAN NEGARA (REVISI TOMBOL +) -->
+    <div id="modalPemulihan" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center" id="pemulihanModalTitle">
+                    <i class="fa-solid fa-coins text-amber-300 mr-2"></i> Input Pemulihan Keuangan Negara
+                </h3>
+                <button onclick="closePemulihanModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="formPemulihan" onsubmit="simpanPemulihanBulan(event)" class="p-5 space-y-4">
+                <input type="hidden" id="pemulihanBulanInput" value="1">
+
+                <div class="bg-tosca-50 p-3 rounded-xl border border-tosca-200">
+                    <p class="text-xs font-semibold text-tosca-900">
+                        Bulan: <span id="pemulihanBulanLabel" class="font-bold uppercase text-tosca-700">JANUARI</span>
+                    </p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Masukkan total nominal uang yang disepakati & dipulihkan untuk bulan ini.</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-blue-900 mb-1">1. Nilai Disepakati (Rp)</label>
+                    <input type="number" id="pemulihanDisepakatiInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 mb-1">2. Nilai Dipulihkan (Rp)</label>
+                    <input type="number" id="pemulihanDipulihkanInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closePemulihanModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
+                    <button type="submit" id="btnSavePemulihan" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
+                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Keuangan
                     </button>
                 </div>
             </form>
@@ -644,7 +745,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -661,8 +762,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const colRef = collection(db, "kegiatan_datun");
+        const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
 
         let datasetKegiatan = [];
+        let datasetPemulihan = [];
         let chartBarInstance = null;
         let chartPieInstance = null;
         let chartCompareInstance = null;
@@ -671,7 +774,6 @@
         let currentLogPage = 1;
         const LOG_ITEMS_PER_PAGE = 20;
 
-        // WARNA & KEY KATEGORI (REVISI POIN 1: DIPECAN MENJADI LITIGASI & NON-LITIGASI UNTUK PIE / PROPORSI)
         const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#3B82F6', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -680,6 +782,7 @@
             initCharts();
         });
 
+        // SNAPSHOT FIRESTORE KEGIATAN
         onSnapshot(colRef, (snapshot) => {
             datasetKegiatan = [];
             snapshot.forEach((docSnap) => {
@@ -698,6 +801,15 @@
             document.getElementById('syncText').innerText = 'Koneksi Firestore Gagal';
             document.getElementById('firestoreErrorMessage').innerText = error.message;
             document.getElementById('firestoreErrorBanner').classList.remove('hidden');
+        });
+
+        // SNAPSHOT FIRESTORE PEMULIHAN KEUANGAN
+        onSnapshot(pemulihanColRef, (snapshot) => {
+            datasetPemulihan = [];
+            snapshot.forEach((docSnap) => {
+                datasetPemulihan.push({ firestoreId: docSnap.id, ...docSnap.data() });
+            });
+            renderPemulihanTable();
         });
 
         const toBase64 = file => new Promise((resolve, reject) => {
@@ -805,8 +917,6 @@
                     jangkaWaktu: document.getElementById('inputJangkaWaktu') ? document.getElementById('inputJangkaWaktu').value : '-',
                     noSkk: document.getElementById('inputNoSkk') ? document.getElementById('inputNoSkk').value : '-',
                     jumlahSkk: parseInt(document.getElementById('inputJumlahSkk') ? document.getElementById('inputJumlahSkk').value : 1),
-                    disepakati: parseFloat(document.getElementById('inputNilaiDisepakati') ? document.getElementById('inputNilaiDisepakati').value : 0),
-                    dipulihkan: parseFloat(document.getElementById('inputNilaiDipulihkan') ? document.getElementById('inputNilaiDipulihkan').value : 0),
                     jumlahPelayanan: parseInt(document.getElementById('inputJumlahPelayanan') ? document.getElementById('inputJumlahPelayanan').value : 1),
                     updatedAt: new Date().toISOString()
                 };
@@ -852,8 +962,6 @@
             } else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
                 document.getElementById('inputNoSkk').value = item.noSkk || '';
                 document.getElementById('inputJumlahSkk').value = item.jumlahSkk || 1;
-                if (document.getElementById('inputNilaiDisepakati')) document.getElementById('inputNilaiDisepakati').value = item.disepakati || 0;
-                if (document.getElementById('inputNilaiDipulihkan')) document.getElementById('inputNilaiDipulihkan').value = item.dipulihkan || 0;
             } else if (item.kategori === 'Pelayanan Hukum') {
                 if (document.getElementById('inputJumlahPelayanan')) document.getElementById('inputJumlahPelayanan').value = item.jumlahPelayanan || 1;
             }
@@ -880,6 +988,66 @@
             document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru`;
             toggleFormFields();
         }
+
+        // POP-UP PROSES MODAL PEMULIHAN KEUANGAN NEGARA (REVISI TOMBOL +)
+        window.openPemulihanModal = function(bulanNum) {
+            const selectEl = document.getElementById('filterTahun');
+            const tahunAktif = selectEl ? selectEl.value : '2026';
+            
+            document.getElementById('pemulihanBulanInput').value = bulanNum;
+            document.getElementById('pemulihanBulanLabel').innerText = `${NAMA_BULAN_LENGKAP[bulanNum]} ${tahunAktif}`;
+
+            const docCustomId = `${tahunAktif}_${bulanNum}`;
+            const existing = datasetPemulihan.find(x => x.firestoreId === docCustomId);
+
+            if (existing) {
+                document.getElementById('pemulihanDisepakatiInput').value = existing.disepakati || 0;
+                document.getElementById('pemulihanDipulihkanInput').value = existing.dipulihkan || 0;
+            } else {
+                document.getElementById('pemulihanDisepakatiInput').value = 0;
+                document.getElementById('pemulihanDipulihkanInput').value = 0;
+            }
+
+            document.getElementById('modalPemulihan').classList.remove('hidden');
+        }
+
+        window.closePemulihanModal = function() {
+            document.getElementById('modalPemulihan').classList.add('hidden');
+            document.getElementById('formPemulihan').reset();
+        }
+
+        window.simpanPemulihanBulan = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSavePemulihan');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...`;
+
+            try {
+                const selectEl = document.getElementById('filterTahun');
+                const tahunAktif = selectEl ? selectEl.value : '2026';
+                const bulanNum = parseInt(document.getElementById('pemulihanBulanInput').value);
+                const docCustomId = `${tahunAktif}_${bulanNum}`;
+
+                const disepakatiVal = parseFloat(document.getElementById('pemulihanDisepakatiInput').value) || 0;
+                const dipulihkanVal = parseFloat(document.getElementById('pemulihanDipulihkanInput').value) || 0;
+
+                await setDoc(doc(db, "pemulihan_keuangan_datun", docCustomId), {
+                    tahun: tahunAktif,
+                    bulan: bulanNum,
+                    disepakati: disepakatiVal,
+                    dipulihkan: dipulihkanVal,
+                    updatedAt: new Date().toISOString()
+                });
+
+                closePemulihanModal();
+            } catch (err) {
+                alert('Gagal menyimpan pemulihan keuangan: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Keuangan`;
+            }
+        }
+
         window.openExportModal = function() { document.getElementById('modalExport').classList.remove('hidden'); }
         window.closeExportModal = function() { document.getElementById('modalExport').classList.add('hidden'); }
         window.closePreviewModal = function() { 
@@ -1036,12 +1204,13 @@
             window.open(downloadUrl, '_blank');
         }
 
+        // TOGGLE FORM FIELDS (REVISI: PADA NON-LITIGASI DISEPAKATI & DIPULIHKAN DIHILANGKAN)
         window.toggleFormFields = function() {
             const kat = document.getElementById('inputKategori').value;
             const inputInstansi = document.getElementById('inputInstansi');
             const reqMark = document.getElementById('reqInstansiMark');
 
-            ['fieldMou1', 'fieldMou2', 'fieldSkk1', 'fieldSkk2', 'fieldSkk3', 'fieldSkk4', 'fieldPelayanan1'].forEach(id => {
+            ['fieldMou1', 'fieldMou2', 'fieldSkk1', 'fieldSkk2', 'fieldPelayanan1'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
 
@@ -1057,14 +1226,9 @@
             if (kat === 'MoU') {
                 document.getElementById('fieldMou1').classList.remove('hidden');
                 document.getElementById('fieldMou2').classList.remove('hidden');
-            } else if (kat === 'Bantuan Hukum Litigasi') {
+            } else if (kat === 'Bantuan Hukum Litigasi' || kat === 'Bantuan Hukum Non-Litigasi') {
                 document.getElementById('fieldSkk1').classList.remove('hidden');
                 document.getElementById('fieldSkk2').classList.remove('hidden');
-            } else if (kat === 'Bantuan Hukum Non-Litigasi') {
-                document.getElementById('fieldSkk1').classList.remove('hidden');
-                document.getElementById('fieldSkk2').classList.remove('hidden');
-                document.getElementById('fieldSkk3').classList.remove('hidden');
-                document.getElementById('fieldSkk4').classList.remove('hidden');
             }
         }
 
@@ -1099,14 +1263,15 @@
             renderKPI(dataTahun);
             renderCharts(dataTahun);
             renderMatriksView(dataTahun);
+            renderPemulihanTable();
             applyLogFilters();
         }
         window.renderAll = renderAll;
 
+        // RENDER KARTU KPI (REVISI: TOTAL DISEPAKATI & DIPULIHKAN DIHITUNG DARI PEMULIHAN KEUANGAN NEGARA)
         function renderKPI(data) {
             let mou = 0;
             let skkLitigasi = 0, skkNonLitigasi = 0;
-            let disepakati = 0, dipulihkan = 0;
             let pertimbangan = 0, la = 0, lo = 0, pelayanan = 0, thl = 0, penegakan = 0;
 
             data.forEach(item => {
@@ -1116,8 +1281,6 @@
                     skkLitigasi += (parseInt(item.jumlahSkk) || 1);
                 } else if (item.kategori === 'Bantuan Hukum Non-Litigasi') {
                     skkNonLitigasi += (parseInt(item.jumlahSkk) || 1);
-                    disepakati += (parseFloat(item.disepakati) || 0);
-                    dipulihkan += (parseFloat(item.dipulihkan) || 0);
                 } else if (item.kategori && item.kategori.includes('Pertimbangan')) {
                     pertimbangan++;
                     if (item.kategori.includes('LA')) la++;
@@ -1131,20 +1294,66 @@
                 }
             });
 
+            // Ambil total nilai Keuangan dari Dataset Pemulihan
+            const selectEl = document.getElementById('filterTahun');
+            const tahunAktif = selectEl ? selectEl.value : '2026';
+            const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahunAktif);
+
+            let totalDisepakati = 0;
+            let totalDipulihkan = 0;
+            pemulihanTahun.forEach(p => {
+                totalDisepakati += (parseFloat(p.disepakati) || 0);
+                totalDipulihkan += (parseFloat(p.dipulihkan) || 0);
+            });
+
             document.getElementById('kpiMou').innerText = mou;
             document.getElementById('kpiSkkLitigasi').innerText = `${skkLitigasi} SKK`;
             document.getElementById('kpiSkkNonLitigasi').innerText = `${skkNonLitigasi} SKK`;
-            document.getElementById('kpiDisepakati').innerText = formatRp(disepakati);
-            document.getElementById('kpiDipulihkan').innerText = formatRp(dipulihkan);
+            document.getElementById('kpiDisepakati').innerText = formatRp(totalDisepakati);
+            document.getElementById('kpiDipulihkan').innerText = formatRp(totalDipulihkan);
             document.getElementById('kpiPertimbangan').innerText = pertimbangan;
             document.getElementById('kpiLA').innerText = `${la} LA`;
-            document.getElementById('kpiLO').innerText = `${lo} LO`;
+            document.getElementById('kpiLO').innerText = `${LO} LO`;
             document.getElementById('kpiPelayanan').innerText = pelayanan;
             document.getElementById('kpiThl').innerText = thl;
             document.getElementById('kpiPenegakan').innerText = penegakan;
         }
 
-        // --- REVISI POIN 2 & 3: RENDER MATRIKS DENGAN BANTUAN HUKUM & PERTIMBANGAN HUKUM 2 SUB-KOLOM + BARIS TOTAL DI BAWAH DESEMBER ---
+        // RENDER TABEL PEMULIHAN KEUANGAN NEGARA (REVISI BARU)
+        function renderPemulihanTable() {
+            const selectEl = document.getElementById('filterTahun');
+            const tahunAktif = selectEl ? selectEl.value : '2026';
+            const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahunAktif);
+
+            let grandTotalDisepakati = 0;
+            let grandTotalDipulihkan = 0;
+
+            for (let i = 1; i <= 12; i++) {
+                const itemBulan = pemulihanTahun.find(x => parseInt(x.bulan) === i);
+                const dis = itemBulan ? (parseFloat(itemBulan.disepakati) || 0) : 0;
+                const dip = itemBulan ? (parseFloat(itemBulan.dipulihkan) || 0) : 0;
+
+                grandTotalDisepakati += dis;
+                grandTotalDipulihkan += dip;
+
+                const elDis = document.getElementById(`pemulihanDisepakati_${i}`);
+                const elDip = document.getElementById(`pemulihanDipulihkan_${i}`);
+
+                if (elDis) elDis.innerText = dis > 0 ? formatRp(dis) : '0';
+                if (elDip) elDip.innerText = dip > 0 ? formatRp(dip) : '0';
+            }
+
+            const elTotalDis = document.getElementById('pemulihanDisepakati_TOTAL');
+            const elTotalDip = document.getElementById('pemulihanDipulihkan_TOTAL');
+
+            if (elTotalDis) elTotalDis.innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
+            if (elTotalDip) elTotalDip.innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
+
+            // Update KPI secara langsung saat data pemulihan berubah
+            const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
+            renderKPI(dataTahun);
+        }
+
         function renderMatriksView(data) {
             const tbody = document.getElementById('bodyMatriks');
             const tfoot = document.getElementById('footMatriksTotal');
@@ -1153,7 +1362,6 @@
 
             const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-            // Akumulasi Total Keseluruhan Bulan per Kategori
             let totalMou = 0, totalLitigasi = 0, totalNonLitigasi = 0, totalLA = 0, totalLO = 0, totalPelayanan = 0, totalThl = 0, totalPenegakan = 0;
 
             namaBulan.forEach((blnName, index) => {
@@ -1173,7 +1381,6 @@
                 let countThl = getItemsCell(data, blnNum, ['Tindakan Hukum Lainnya']);
                 let countPenegakan = getItemsCell(data, blnNum, ['Penegakan Hukum']);
 
-                // Penambahan Total per Kolom Vertikal
                 totalMou += countMou.count;
                 totalLitigasi += countLitigasi.count;
                 totalNonLitigasi += countNonLitigasi.count;
@@ -1196,7 +1403,6 @@
                 tbody.appendChild(tr);
             });
 
-            // REVISI POIN 2: MEMBUAT BARIS TOTAL DI BAGIAN PALING BAWAH
             let totalFootRow = document.createElement('tr');
             totalFootRow.className = "bg-tosca-100/80 text-tosca-900 font-bold border-t-2 border-tosca-600 text-center text-xs";
             totalFootRow.innerHTML = `
@@ -1251,8 +1457,6 @@
                     jangkaWaktu: it.jangkaWaktu,
                     noSkk: it.noSkk,
                     jumlahSkk: it.jumlahSkk,
-                    disepakati: it.disepakati,
-                    dipulihkan: it.dipulihkan,
                     jumlahPelayanan: it.jumlahPelayanan,
                     uraian: it.uraian
                 }));
@@ -1302,8 +1506,6 @@
             if (data.jangkaWaktu && data.jangkaWaktu !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Masa Berlaku:</span> <span class="font-semibold text-slate-800">${data.jangkaWaktu}</span></div>`;
             if (data.noSkk && data.noSkk !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor SKK:</span> <span class="font-semibold text-slate-800">${data.noSkk}</span></div>`;
             if (data.jumlahSkk && data.jumlahSkk > 1) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah SKK:</span> <span class="font-semibold text-slate-800">${data.jumlahSkk} SKK</span></div>`;
-            if (data.disepakati && data.disepakati > 0) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nilai Disepakati:</span> <span class="font-bold text-blue-600">Rp ${formatRp(data.disepakati)}</span></div>`;
-            if (data.dipulihkan && data.dipulihkan > 0) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nilai Dipulihkan:</span> <span class="font-bold text-emerald-600">Rp ${formatRp(data.dipulihkan)}</span></div>`;
             if (data.uraian && data.uraian !== '-') bodyContent += `<div class="pt-1"><span class="text-slate-500 block text-[10px] mb-0.5">Uraian Ringkas:</span> <p class="text-slate-700 bg-slate-50 p-2 rounded-lg text-[10px] leading-relaxed border border-slate-100">${data.uraian}</p></div>`;
 
             if (!bodyContent) bodyContent = `<p class="text-slate-400 italic text-[10px]">Tidak ada informasi tambahan.</p>`;
@@ -1331,7 +1533,6 @@
             setTimeout(() => { card.classList.add('hidden'); }, 150);
         };
 
-        // FUNGSIONALITAS TOOLTIP LINGKARAN PROPORSI KATEGORI (REVISI POIN 1)
         window.showPieLuxuryTooltip = function(e, title, val, pct, color, desc) {
             const tt = document.getElementById('pieLuxuryTooltip');
             document.getElementById('pieTtDot').style.backgroundColor = color;
@@ -1414,7 +1615,7 @@
                 pageData.forEach((item, index) => {
                     let detail = '-';
                     if (item.kategori === 'MoU') detail = `Masa: ${item.jangkaWaktu}<br><span class="text-slate-400">${item.noMou}</span>`;
-                    else if (item.kategori && item.kategori.includes('Bantuan Hukum')) detail = `SKK: ${item.jumlahSkk} (${item.noSkk})<br>Dipulihkan: <span class="text-emerald-600 font-semibold">Rp ${formatRp(item.dipulihkan)}</span>`;
+                    else if (item.kategori && item.kategori.includes('Bantuan Hukum')) detail = `SKK: ${item.jumlahSkk} (${item.noSkk})`;
                     else if (item.kategori === 'Pelayanan Hukum') detail = `Jumlah: <span class="text-purple-600 font-bold">${item.jumlahPelayanan || 1} Layanan</span>`;
 
                     let tr = document.createElement('tr');
@@ -1535,7 +1736,6 @@
             });
         }
 
-        // --- RENDER GRAFIK PIE & TOOLTIP LIST MEWAH (REVISI POIN 1) ---
         function renderCharts(data) {
             let monthlyData = CATEGORY_KEYS.map(() => Array(12).fill(0));
 

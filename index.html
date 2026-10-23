@@ -531,6 +531,69 @@
             reader.onerror = error => reject(error);
         });
 
+function uploadFileToDrive(file) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    const base64Data = await toBase64(file);
+                    const base64String = base64Data.split(',')[1];
+                    
+                    let iframe = document.getElementById('hiddenGasIframe');
+                    if (!iframe) {
+                        iframe = document.createElement('iframe');
+                        iframe.id = 'hiddenGasIframe';
+                        iframe.name = 'hiddenGasIframe';
+                        iframe.style.display = 'none';
+                        document.body.appendChild(iframe);
+                    }
+                    
+                    let form = document.getElementById('hiddenGasForm');
+                    if (!form) {
+                        form = document.createElement('form');
+                        form.id = 'hiddenGasForm';
+                        form.method = 'POST';
+                        form.target = 'hiddenGasIframe';
+                        form.style.display = 'none';
+                        
+                        ['fileName', 'mimeType', 'fileBytes'].forEach(name => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = name;
+                            input.id = 'formInput_' + name;
+                            form.appendChild(input);
+                        });
+                        document.body.appendChild(form);
+                    }
+                    
+                    form.action = GAS_WEB_APP_URL;
+                    document.getElementById('formInput_fileName').value = file.name;
+                    document.getElementById('formInput_mimeType').value = file.type;
+                    document.getElementById('formInput_fileBytes').value = base64String;
+                    
+                    const messageListener = (event) => {
+                        if (event.data && (event.data.driveUrl || event.data.status)) {
+                            window.removeEventListener('message', messageListener);
+                            if (event.data.status === 'success' || event.data.driveUrl) {
+                                resolve(event.data.driveUrl);
+                            } else {
+                                reject(new Error(event.data.message || 'Gagal upload ke Drive'));
+                            }
+                        }
+                    };
+                    window.addEventListener('message', messageListener);
+                    
+                    form.submit();
+                    
+                    setTimeout(() => {
+                        window.removeEventListener('message', messageListener);
+                        reject(new Error('Waktu upload Google Drive habis (Timeout)'));
+                    }, 35000);
+                    
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        }
+
         window.tambahAtauUpdateKegiatan = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveSubmit');
@@ -548,33 +611,7 @@
                 const fileInput = document.getElementById('inputFileUpload');
                 if (fileInput.files.length > 0) {
                     const file = fileInput.files[0];
-                    const base64Data = await toBase64(file);
-                    
-                    // Mengirim data file ke Google Apps Script
-                    try {
-                        const response = await fetch(GAS_WEB_APP_URL, {
-                            method: 'POST',
-                            mode: 'cors',
-                            headers: {
-                                'Content-Type': 'text/plain;charset=utf-8',
-                            },
-                            body: JSON.stringify({
-                                fileName: file.name,
-                                mimeType: file.type,
-                                fileBytes: base64Data.split(',')[1]
-                            })
-                        });
-
-                        const result = await response.json();
-                        if (result && result.status === 'success') {
-                            driveLink = result.driveUrl;
-                        } else if (result && result.driveUrl) {
-                            driveLink = result.driveUrl;
-                        }
-                    } catch (fetchErr) {
-                        // Menangani pembatasan CORS browser secara aman saat file sukses terunggah ke Drive
-                        console.warn("Respon GAS terhalang CORS, namun proses unggah tetap dilanjutkan:", fetchErr);
-                    }
+                    driveLink = await uploadFileToDrive(file);
                 }
 
                 const tahunInput = document.getElementById('inputTahun').value.toString();

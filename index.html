@@ -56,7 +56,7 @@
                 background: white;
                 color: black;
             }
-            header, #modalForm, #modalExport, #modalPreview, .no-print {
+            header, #modalForm, #modalExport, #modalPreview, #firestoreErrorBanner, .no-print {
                 display: none !important;
             }
             .print-area {
@@ -79,11 +79,14 @@
     <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="bg-white/10 p-2 rounded-lg border border-white/20">
-                    <i class="fa-solid fa-scale-balanced text-xl text-tosca-200"></i>
+                <!-- Logo Aplikasi Baru Gambar DATUN Kejaksaan Negeri Padang -->
+                <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
+                    <img id="appLogo" src="https://lh3.googleusercontent.com/d/1_d2-R71m94m0g1d-Xo5_QJ8-Yy2S3L21=s300" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide">SI-DATUN KN PADANG</h1>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center">
+                        SI-DATUN KN PADANG
+                    </h1>
                     <p class="text-xs text-tosca-200 flex items-center">
                         <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
                         <span id="syncText">Menghubungkan ke Firestore...</span>
@@ -232,7 +235,7 @@
                     <h2 class="text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-table-cells text-tosca-600 mr-2"></i> Matriks Data Kegiatan DATUN (Per Bulan)
                     </h2>
-                    <p class="text-xs text-slate-500">Kolom dibagi berdasarkan Kategori Kegiatan dan Baris berdasarkan Bulan</p>
+                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi untuk melihat rincian detail singkat</p>
                 </div>
 
                 <div class="flex items-center space-x-2">
@@ -291,17 +294,19 @@
 
     </main>
 
-    <!-- MODAL POPUP 1: FORM TAMBAH KEGIATAN -->
+    <!-- MODAL POPUP 1: FORM TAMBAH / EDIT KEGIATAN -->
     <div id="modalForm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
-                <h3 class="font-bold text-sm flex items-center">
+                <h3 class="font-bold text-sm flex items-center" id="modalTitle">
                     <i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru
                 </h3>
                 <button onclick="closeModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <form id="formKegiatan" onsubmit="tambahKegiatan(event)" class="p-5 space-y-4">
+            <form id="formKegiatan" onsubmit="tambahAtauUpdateKegiatan(event)" class="p-5 space-y-4">
+                <input type="hidden" id="editDocId" value="">
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Kategori -->
                     <div>
@@ -382,10 +387,10 @@
                     </div>
                 </div>
 
-                <!-- Uraian Ringkas -->
+                <!-- Uraian Ringkas (TIDAK WAJIB DIISI / OPTIONAL) -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Uraian Ringkas Kegiatan *</label>
-                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum..." required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Uraian Ringkas Kegiatan <span class="text-slate-400 font-normal">(Opsional)</span></label>
+                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
                 <!-- LINK GOOGLE DRIVE BERKAS (TANPA FIREBASE STORAGE BERBAYAR) -->
@@ -497,7 +502,7 @@
     <!-- FIREBASE SDK & UNIFIED LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Configuration milik giat-datun-kn-padang
         const firebaseConfig = {
@@ -546,10 +551,11 @@
             document.getElementById('firestoreErrorBanner').classList.remove('hidden');
         });
 
-        // Simpan Data Ke Firestore
-        window.tambahKegiatan = async function(e) {
+        // Simpan / Update Data Ke Firestore
+        window.tambahAtauUpdateKegiatan = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSaveSubmit');
+            const docId = document.getElementById('editDocId').value;
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...`;
 
@@ -560,7 +566,7 @@
                     kategori: document.getElementById('inputKategori').value,
                     bulan: parseInt(document.getElementById('inputBulan').value),
                     instansi: document.getElementById('inputInstansi').value,
-                    uraian: document.getElementById('inputUraian').value,
+                    uraian: document.getElementById('inputUraian').value || '-', // Opsional
                     driveLink: document.getElementById('inputDriveLink').value.trim(),
                     noMou: document.getElementById('inputNoMou').value || '-',
                     jangkaWaktu: document.getElementById('inputJangkaWaktu').value || '-',
@@ -568,24 +574,62 @@
                     jumlahSkk: parseInt(document.getElementById('inputJumlahSkk').value) || 1,
                     disepakati: parseFloat(document.getElementById('inputNilaiDisepakati').value) || 0,
                     dipulihkan: parseFloat(document.getElementById('inputNilaiDipulihkan').value) || 0,
-                    createdAt: new Date().toISOString()
+                    updatedAt: new Date().toISOString()
                 };
 
-                await addDoc(colRef, item);
+                if (docId) {
+                    // Mode Update / Edit
+                    await updateDoc(doc(db, "kegiatan_datun", docId), item);
+                    alert('Data kegiatan berhasil diperbarui di Cloud Firestore!');
+                } else {
+                    // Mode Tambah Baru
+                    item.createdAt = new Date().toISOString();
+                    await addDoc(colRef, item);
+                    alert('Data baru berhasil disimpan di Cloud Firestore!');
+                }
+
                 document.getElementById('formKegiatan').reset();
+                document.getElementById('editDocId').value = '';
                 toggleFormFields();
                 closeModal();
                 
-                // Set Otomatis Filter ke Tahun Input Baru
                 updateYearFilterOptions(tahunInput);
                 renderAll();
-                alert('Data berhasil disimpan secara permanen di Cloud Firestore!');
             } catch (err) {
                 alert('Gagal menyimpan ke Cloud Firestore: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Ke Cloud`;
             }
+        };
+
+        // Buka Form Modal Dalam Mode Edit
+        window.editKegiatan = function(firestoreId) {
+            const item = datasetKegiatan.find(x => x.firestoreId === firestoreId);
+            if (!item) return;
+
+            document.getElementById('editDocId').value = item.firestoreId;
+            document.getElementById('inputKategori').value = item.kategori || '';
+            document.getElementById('inputBulan').value = item.bulan || 1;
+            document.getElementById('inputTahun').value = item.tahun || 2026;
+            document.getElementById('inputInstansi').value = item.instansi || '';
+            document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
+            document.getElementById('inputDriveLink').value = item.driveLink || '';
+
+            toggleFormFields();
+
+            if (item.kategori === 'MoU') {
+                document.getElementById('inputNoMou').value = item.noMou || '';
+                document.getElementById('inputJangkaWaktu').value = item.jangkaWaktu || '';
+            } else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
+                document.getElementById('inputNoSkk').value = item.noSkk || '';
+                document.getElementById('inputJumlahSkk').value = item.jumlahSkk || 1;
+                document.getElementById('inputNilaiDisepakati').value = item.disepakati || 0;
+                document.getElementById('inputNilaiDipulihkan').value = item.dipulihkan || 0;
+            }
+
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-tosca-200 mr-2"></i> Edit Data Kegiatan DATUN`;
+            openModal();
         };
 
         // Hapus Data Firestore
@@ -621,7 +665,7 @@
                         kategori: row['Kategori'] || 'Pelayanan Hukum',
                         bulan: parseInt(row['Bulan']) || 1,
                         instansi: row['Instansi'] || 'Instansi Umum',
-                        uraian: row['Uraian'] || 'Kegiatan Impor Excel',
+                        uraian: row['Uraian'] || '-',
                         driveLink: row['Link Drive'] || row['Link Google Drive'] || '',
                         noMou: row['No MoU'] || '-',
                         jangkaWaktu: row['Masa MoU'] || '-',
@@ -642,8 +686,16 @@
         };
 
         // Helper Modal Controls
-        window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); }
-        window.closeModal = function() { document.getElementById('modalForm').classList.add('hidden'); }
+        window.openModal = function() { 
+            document.getElementById('modalForm').classList.remove('hidden'); 
+        }
+        window.closeModal = function() { 
+            document.getElementById('modalForm').classList.add('hidden'); 
+            document.getElementById('formKegiatan').reset();
+            document.getElementById('editDocId').value = '';
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru`;
+            toggleFormFields();
+        }
         window.openExportModal = function() { document.getElementById('modalExport').classList.remove('hidden'); }
         window.closeExportModal = function() { document.getElementById('modalExport').classList.add('hidden'); }
         window.closePreviewModal = function() { 
@@ -792,13 +844,28 @@
             });
         }
 
+        // DENGAN FITUR TOOLTIP DEATAIL HOOVER PADA NAMA INSTANSI
         function getItemsCell(data, bulan, keys) {
             const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
 
             let text = filtered.map((it, idx) => {
-                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none"><b>${idx+1}.</b> ${it.instansi}`;
+                let detailInfo = [];
+                if (it.noMou && it.noMou !== '-') detailInfo.push(`No. MoU: ${it.noMou}`);
+                if (it.jangkaWaktu && it.jangkaWaktu !== '-') detailInfo.push(`Masa: ${it.jangkaWaktu}`);
+                if (it.noSkk && it.noSkk !== '-') detailInfo.push(`No. SKK: ${it.noSkk}`);
+                if (it.jumlahSkk && it.jumlahSkk > 1) detailInfo.push(`Jml SKK: ${it.jumlahSkk}`);
+                if (it.disepakati && it.disepakati > 0) detailInfo.push(`Disepakati: Rp ${formatRp(it.disepakati)}`);
+                if (it.dipulihkan && it.dipulihkan > 0) detailInfo.push(`Dipulihkan: Rp ${formatRp(it.dipulihkan)}`);
+                if (it.uraian && it.uraian !== '-') detailInfo.push(`Uraian: ${it.uraian}`);
+
+                let tooltipText = detailInfo.length > 0 ? detailInfo.join(' &#10;• ') : 'Tidak ada rincian tambahan';
+
+                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none group relative">`;
+                t += `<span class="cursor-help font-semibold text-slate-800 hover:text-tosca-700 underline decoration-dotted decoration-tosca-400" title="${tooltipText}"><b>${idx+1}.</b> ${it.instansi}</span>`;
+                
                 if (it.dipulihkan > 0) t += `<br><span class="text-emerald-600 font-bold text-[10px]">Rp ${formatRp(it.dipulihkan)}</span>`;
+                
                 if (it.driveLink) {
                     t += `<div class="flex items-center space-x-2 mt-1">
                             <button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
@@ -837,7 +904,7 @@
                     <td class="p-2.5"><span class="px-2 py-1 rounded bg-tosca-100 text-tosca-800 font-semibold text-[10px]">${item.kategori}</span></td>
                     <td class="p-2.5 font-medium text-slate-800">${item.instansi}</td>
                     <td class="p-2.5 text-[11px]">${detail}</td>
-                    <td class="p-2.5 text-[11px] text-slate-600 max-w-xs">${item.uraian}</td>
+                    <td class="p-2.5 text-[11px] text-slate-600 max-w-xs">${item.uraian || '-'}</td>
                     <td class="p-2.5">
                         ${item.driveLink ? `
                             <div class="flex items-center space-x-2">
@@ -848,7 +915,11 @@
                         ` : '-'}
                     </td>
                     <td class="p-2.5 text-center no-print">
-                        <button onclick="hapusKegiatan('${item.firestoreId}')" class="text-rose-500 hover:text-rose-700 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editKegiatan('${item.firestoreId}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold p-1" title="Edit Data"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                            <span class="text-slate-300">|</span>
+                            <button onclick="hapusKegiatan('${item.firestoreId}')" class="text-rose-500 hover:text-rose-700 text-xs p-1" title="Hapus Data"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);

@@ -163,7 +163,7 @@
             <a href="https://console.firebase.google.com/" target="_blank" class="bg-rose-600 text-white px-3 py-1 rounded font-semibold text-[11px] hover:bg-rose-700">Cek Rules Firebase</a>
         </div>
 
-        <!-- REVISI POIN 1: DIBUAT SATU KOTAK UTAMA SUMMARY / RINGKASAN DENGAN SUB-TEKS DINAMIS -->
+        <!-- SUMMARY / RINGKASAN WADAH UTAMA -->
         <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4 no-print">
             <div class="border-b border-slate-100 pb-2">
                 <h2 class="text-sm font-extrabold text-slate-800 tracking-wide uppercase flex items-center">
@@ -184,7 +184,6 @@
                     <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
                 </div>
 
-                <!-- KARTU KPI 2. BANTUAN HUKUM (Teks Non-Litigasi tetap hitam) -->
                 <div class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-blue-500 transition">
                     <div class="flex items-center justify-between text-blue-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
@@ -200,7 +199,6 @@
                     </div>
                 </div>
 
-                <!-- KARTU KPI 3. PERTIMBANGAN HUKUM -->
                 <div class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-amber-500 transition">
                     <div class="flex items-center justify-between text-amber-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">3. Pertimbangan</span>
@@ -379,8 +377,8 @@
             </div>
         </div>
 
-        <!-- Section 4: TABEL PEMULIHAN KEUANGAN NEGARA -->
-        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-4">
+        <!-- Section 4: TABEL PEMULIHAN KEUANGAN NEGARA & GRAFIK GARIS TREN KEUANGAN -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
                 <div>
                     <h2 class="text-base font-bold text-slate-800 flex items-center">
@@ -449,6 +447,58 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- GRAFIK GARIS KEUANGAN ALA WEB DASBOR KEUANGAN (NEW FEATURE) -->
+            <div class="pt-4 border-t border-slate-100 space-y-4 no-print">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-chart-line text-blue-600 mr-2"></i> Grafik Garis Tren Pemulihan Keuangan Negara
+                        </h3>
+                        <p class="text-xs text-slate-500">Visualisasi fluktuasi perbandingan nilai disepakati vs realisasi dipulihkan (Per Bulan)</p>
+                    </div>
+
+                    <!-- KONTROL NAVIGASI GARIS -->
+                    <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+                        <button id="btnLineAll" onclick="filterFinanceLine('all')" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition">Semua Garis</button>
+                        <button id="btnLineDisepakati" onclick="filterFinanceLine('disepakati')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Disepakati</button>
+                        <button id="btnLineDipulihkan" onclick="filterFinanceLine('dipulihkan')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Dipulihkan</button>
+                    </div>
+                </div>
+
+                <!-- CARDS RINGKASAN CAPAIAN REALISASI -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Total Disepakati</span>
+                            <div class="text-base font-black text-blue-900" id="chartTotalDisepakatiCard">Rp 0</div>
+                        </div>
+                        <i class="fa-solid fa-handshake text-blue-400 text-xl"></i>
+                    </div>
+
+                    <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Dipulihkan</span>
+                            <div class="text-base font-black text-emerald-900" id="chartTotalDipulihkanCard">Rp 0</div>
+                        </div>
+                        <i class="fa-solid fa-vault text-emerald-400 text-xl"></i>
+                    </div>
+
+                    <div class="bg-tosca-50/50 border border-tosca-200 rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-tosca-700">Rasio Capaian Pemulihan</span>
+                            <div class="text-base font-black text-tosca-900" id="chartRasioCapaianCard">0.0%</div>
+                        </div>
+                        <i class="fa-solid fa-percent text-tosca-400 text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- WADAH CANVAS GRAFIK GARIS KEUANGAN -->
+                <div class="h-72 bg-slate-50/50 p-3 rounded-2xl border border-slate-200 relative">
+                    <canvas id="chartFinanceLine"></canvas>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -798,12 +848,12 @@
         let chartBarInstance = null;
         let chartPieInstance = null;
         let chartCompareInstance = null;
+        let chartFinanceLineInstance = null; // INSTANSI GRAFIK GARIS KEUANGAN
 
         let filteredLogData = [];
         let currentLogPage = 1;
         const LOG_ITEMS_PER_PAGE = 20;
 
-        // REVISI POIN 2: WARNA BANTUAN HUKUM NON-LITIGASI DITETAPKAN MENJADI HIJAU SAGE LEMBUT (#84A98C)
         const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#84A98C', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -1287,7 +1337,6 @@
             let skkLitigasi = 0, skkNonLitigasi = 0;
             let pertimbangan = 0, la = 0, lo = 0, pelayanan = 0, thl = 0, penegakan = 0;
 
-            // KONTROL RENTANG BULAN UNTUK SUB-TEKS HEADER KOTAK RINGKASAN
             let filledMonths = data.map(item => parseInt(item.bulan)).filter(b => b >= 1 && b <= 12);
             if (filledMonths.length > 0) {
                 const minBln = Math.min(...filledMonths);
@@ -1349,10 +1398,16 @@
             let grandTotalDisepakati = 0;
             let grandTotalDipulihkan = 0;
 
+            let disepakatiArr = Array(12).fill(0);
+            let dipulihkanArr = Array(12).fill(0);
+
             for (let i = 1; i <= 12; i++) {
                 const itemBulan = pemulihanTahun.find(x => parseInt(x.bulan) === i);
                 const dis = itemBulan ? (parseFloat(itemBulan.disepakati) || 0) : 0;
                 const dip = itemBulan ? (parseFloat(itemBulan.dipulihkan) || 0) : 0;
+
+                disepakatiArr[i-1] = dis;
+                dipulihkanArr[i-1] = dip;
 
                 grandTotalDisepakati += dis;
                 grandTotalDipulihkan += dip;
@@ -1370,8 +1425,150 @@
             if (elTotalDis) elTotalDis.innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
             if (elTotalDip) elTotalDip.innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
 
+            // UPDATE RINGKASAN CARDS GRAFIK GARIS KEUANGAN
+            document.getElementById('chartTotalDisepakatiCard').innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
+            document.getElementById('chartTotalDipulihkanCard').innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
+            const rasio = grandTotalDisepakati > 0 ? ((grandTotalDipulihkan / grandTotalDisepakati) * 100).toFixed(1) + '%' : '0.0%';
+            document.getElementById('chartRasioCapaianCard').innerText = rasio;
+
+            // RENDER / UPDATE GRAFIK GARIS KEUANGAN ALA DASHBOARD KEUANGAN
+            renderFinanceLineChart(disepakatiArr, dipulihkanArr);
+
             const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
             renderKPI(dataTahun);
+        }
+
+        function renderFinanceLineChart(disepakatiData, dipulihkanData) {
+            const ctx = document.getElementById('chartFinanceLine').getContext('2d');
+
+            if (chartFinanceLineInstance) {
+                chartFinanceLineInstance.destroy();
+            }
+
+            // DUA GRADIENT MEWAH UNTUK AREA BAWAH GARIS KEUANGAN
+            const gradBlue = ctx.createLinearGradient(0, 0, 0, 300);
+            gradBlue.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
+            gradBlue.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
+
+            const gradEmerald = ctx.createLinearGradient(0, 0, 0, 300);
+            gradEmerald.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+            gradEmerald.addColorStop(1, 'rgba(16, 185, 129, 0.00)');
+
+            chartFinanceLineInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    datasets: [
+                        {
+                            label: 'Yang Disepakati',
+                            data: disepakatiData,
+                            borderColor: '#2563EB',
+                            backgroundColor: gradBlue,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#FFFFFF',
+                            pointBorderColor: '#2563EB',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Yang Ditangani / Dipulihkan',
+                            data: dipulihkanData,
+                            borderColor: '#10B981',
+                            backgroundColor: gradEmerald,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#FFFFFF',
+                            pointBorderColor: '#10B981',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.90)',
+                            titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: '700' },
+                            bodyFont: { family: 'Plus Jakarta Sans', size: 11 },
+                            padding: 10,
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed.y !== null) {
+                                        label += 'Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1e9) return 'Rp ' + (value / 1e9).toFixed(1) + ' M';
+                                    if (value >= 1e6) return 'Rp ' + (value / 1e6).toFixed(0) + ' Jt';
+                                    return 'Rp ' + value;
+                                },
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.filterFinanceLine = function(mode) {
+            if (!chartFinanceLineInstance) return;
+
+            const btnAll = document.getElementById('btnLineAll');
+            const btnDis = document.getElementById('btnLineDisepakati');
+            const btnDip = document.getElementById('btnLineDipulihkan');
+
+            btnAll.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+            btnDis.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+            btnDip.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+
+            if (mode === 'all') {
+                btnAll.className = "px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition font-bold";
+                chartFinanceLineInstance.setDatasetVisibility(0, true);
+                chartFinanceLineInstance.setDatasetVisibility(1, true);
+            } else if (mode === 'disepakati') {
+                btnDis.className = "px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-sm transition font-bold";
+                chartFinanceLineInstance.setDatasetVisibility(0, true);
+                chartFinanceLineInstance.setDatasetVisibility(1, false);
+            } else if (mode === 'dipulihkan') {
+                btnDip.className = "px-2.5 py-1 rounded-lg bg-white text-emerald-700 shadow-sm transition font-bold";
+                chartFinanceLineInstance.setDatasetVisibility(0, false);
+                chartFinanceLineInstance.setDatasetVisibility(1, true);
+            }
+            chartFinanceLineInstance.update();
         }
 
         function renderMatriksView(data) {

@@ -157,13 +157,17 @@
                 <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
             </div>
 
+            <!-- KARTU KPI 2. BANTUAN HUKUM (LITIGASI & NON-LITIGASI) -->
             <div class="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200 hover:border-blue-500 transition">
                 <div class="flex items-center justify-between text-blue-700 mb-1">
                     <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
                     <i class="fa-solid fa-gavel text-blue-500"></i>
                 </div>
-                <div class="text-2xl font-black text-slate-800" id="kpiBantuanHukum">0 <span class="text-xs font-normal text-slate-500">SKK</span></div>
-                <div class="text-[10px] text-slate-500 mt-1 space-y-0.5">
+                <div class="text-xs font-semibold text-slate-700 space-y-0.5 my-1">
+                    <div>Litigasi: <span class="font-black text-blue-800 text-sm" id="kpiSkkLitigasi">0 SKK</span></div>
+                    <div>Non-Litigasi: <span class="font-black text-blue-800 text-sm" id="kpiSkkNonLitigasi">0 SKK</span></div>
+                </div>
+                <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-100 space-y-0.5">
                     <div class="text-blue-600 font-medium">Disepakati: <span id="kpiDisepakati">Rp 0</span></div>
                     <div class="text-emerald-600 font-semibold">Dipulihkan: <span id="kpiDipulihkan">Rp 0</span></div>
                 </div>
@@ -417,48 +421,83 @@
         </div>
     </div>
 
-    <!-- MODAL PERBANDINGAN DATA -->
+    <!-- MODAL PERBANDINGAN DATA (ANTAR TAHUN & ANTAR BULAN) -->
     <div id="modalCompare" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden border border-slate-200 flex flex-col max-h-[92vh]">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center">
                     <i class="fa-solid fa-chart-line text-tosca-200 mr-2"></i> Perbandingan Data & Statistik Kegiatan DATUN
                 </h3>
                 <button onclick="closeCompareModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
             <div class="p-5 overflow-y-auto space-y-4">
-                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <!-- KONTROL PILIHAN MODE PERBANDINGAN -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                     <div>
-                        <span class="text-xs font-bold text-slate-700 block">Pilih Tahun Pembanding</span>
-                        <p class="text-[10px] text-slate-500">Menganalisis perbandingan volume kegiatan antar kategori</p>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Jenis Komparasi</label>
+                        <select id="compareType" onchange="toggleCompareMode()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none">
+                            <option value="tahun">Komparasi Antar Tahun</option>
+                            <option value="bulan">Komparasi Antar Bulan</option>
+                        </select>
                     </div>
-                    <select id="compareYearSelect" onchange="updateCompareData()" class="text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none">
-                        <!-- Options generated dynamically -->
-                    </select>
+
+                    <div id="containerCompareYear" class="md:col-span-2 grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Tahun Pertama</label>
+                            <select id="compareYear1" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Tahun Kedua</label>
+                            <select id="compareYear2" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none"></select>
+                        </div>
+                    </div>
+
+                    <div id="containerCompareMonth" class="md:col-span-2 hidden grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Tahun</label>
+                            <select id="compareMonthYear" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bulan Pertama</label>
+                            <select id="compareMonth1" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none">
+                                <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bulan Kedua</label>
+                            <select id="compareMonth2" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none">
+                                <option value="1">Januari</option><option value="2" selected>Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- GRAFIK & STATISTIK KOMPARASI -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <h4 class="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Ringkasan Kategori Utama</h4>
+                        <h4 class="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Kesimpulan Perubahan</h4>
                         <div id="compareSummaryStats" class="space-y-2 text-xs">
                             <!-- Populated dynamically -->
                         </div>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center">
-                        <h4 class="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider self-start">Grafik Komparasi Kategori</h4>
-                        <div class="w-full h-48">
+                    <div class="lg:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center">
+                        <h4 class="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider self-start">Grafik Komparasi Berdampingan</h4>
+                        <div class="w-full h-52">
                             <canvas id="chartCompareModal"></canvas>
                         </div>
                     </div>
                 </div>
 
+                <!-- TABEL DETAIL KOMPARASI -->
                 <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
                     <table class="w-full text-xs text-left border-collapse">
                         <thead>
                             <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                                 <th class="p-2.5">Kategori Bidang DATUN</th>
-                                <th class="p-2.5 text-center">Jumlah Kegiatan / Volume</th>
-                                <th class="p-2.5 text-right">Persentase dari Total</th>
+                                <th class="p-2.5 text-center" id="thPeriod1">Periode 1</th>
+                                <th class="p-2.5 text-center" id="thPeriod2">Periode 2</th>
+                                <th class="p-2.5 text-right">Selisih / Tren</th>
                             </tr>
                         </thead>
                         <tbody id="compareTableBody">
@@ -467,6 +506,7 @@
                     </table>
                 </div>
             </div>
+
             <div class="bg-slate-50 px-5 py-3 border-t border-slate-200 flex justify-end">
                 <button type="button" onclick="closeCompareModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs rounded-lg transition">Tutup</button>
             </div>
@@ -571,6 +611,7 @@
 
         const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
+        const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
@@ -783,80 +824,137 @@
             document.getElementById('previewIframe').src = '';
         }
 
-        // FITUR PERBANDINGAN DATA MODAL
+        // --- FITUR PERBANDINGAN DATA ---
         window.openCompareModal = function() {
-            const select = document.getElementById('compareYearSelect');
             const years = Array.from(new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
-            select.innerHTML = '';
+            
+            const sel1 = document.getElementById('compareYear1');
+            const sel2 = document.getElementById('compareYear2');
+            const selMonthYr = document.getElementById('compareMonthYear');
+
+            sel1.innerHTML = ''; sel2.innerHTML = ''; selMonthYr.innerHTML = '';
             years.forEach(yr => {
-                const opt = document.createElement('option');
-                opt.value = yr;
-                opt.textContent = `Tahun ${yr}`;
-                select.appendChild(opt);
+                sel1.appendChild(new Option(`Tahun ${yr}`, yr));
+                sel2.appendChild(new Option(`Tahun ${yr}`, yr));
+                selMonthYr.appendChild(new Option(`Tahun ${yr}`, yr));
             });
+
+            if (years.length > 1) {
+                sel2.value = years[1];
+            }
+
             document.getElementById('modalCompare').classList.remove('hidden');
-            updateCompareData();
+            toggleCompareMode();
         }
+
         window.closeCompareModal = function() {
             document.getElementById('modalCompare').classList.add('hidden');
         }
 
+        window.toggleCompareMode = function() {
+            const mode = document.getElementById('compareType').value;
+            const containerYear = document.getElementById('containerCompareYear');
+            const containerMonth = document.getElementById('containerCompareMonth');
+
+            if (mode === 'tahun') {
+                containerYear.classList.remove('hidden');
+                containerMonth.classList.add('hidden');
+            } else {
+                containerYear.classList.add('hidden');
+                containerMonth.classList.remove('hidden');
+            }
+            updateCompareData();
+        }
+
         window.updateCompareData = function() {
-            const yr = document.getElementById('compareYearSelect').value;
-            const dataYr = datasetKegiatan.filter(x => x.tahun === yr);
+            const mode = document.getElementById('compareType').value;
+            let counts1 = [0,0,0,0,0,0];
+            let counts2 = [0,0,0,0,0,0];
+            let labelP1 = '', labelP2 = '';
 
-            let counts = [0, 0, 0, 0, 0, 0];
-            dataYr.forEach(it => {
-                if (it.kategori === 'MoU') counts[0]++;
-                else if (it.kategori && it.kategori.includes('Bantuan Hukum')) counts[1]++;
-                else if (it.kategori && it.kategori.includes('Pertimbangan')) counts[2]++;
-                else if (it.kategori === 'Pelayanan Hukum') counts[3] += (it.jumlahPelayanan || 1);
-                else if (it.kategori === 'Tindakan Hukum Lainnya') counts[4]++;
-                else if (it.kategori === 'Penegakan Hukum') counts[5]++;
-            });
+            const helperCount = (itemList) => {
+                let c = [0,0,0,0,0,0];
+                itemList.forEach(it => {
+                    if (it.kategori === 'MoU') c[0]++;
+                    else if (it.kategori && it.kategori.includes('Bantuan Hukum')) c[1] += (it.jumlahSkk || 1);
+                    else if (it.kategori && it.kategori.includes('Pertimbangan')) c[2]++;
+                    else if (it.kategori === 'Pelayanan Hukum') c[3] += (it.jumlahPelayanan || 1);
+                    else if (it.kategori === 'Tindakan Hukum Lainnya') c[4]++;
+                    else if (it.kategori === 'Penegakan Hukum') c[5]++;
+                });
+                return c;
+            };
 
-            const total = counts.reduce((a, b) => a + b, 0);
+            if (mode === 'tahun') {
+                const y1 = document.getElementById('compareYear1').value;
+                const y2 = document.getElementById('compareYear2').value;
+                labelP1 = `Tahun ${y1}`;
+                labelP2 = `Tahun ${y2}`;
 
-            // Summary stats
+                counts1 = helperCount(datasetKegiatan.filter(x => x.tahun === y1));
+                counts2 = helperCount(datasetKegiatan.filter(x => x.tahun === y2));
+            } else {
+                const yr = document.getElementById('compareMonthYear').value;
+                const m1 = parseInt(document.getElementById('compareMonth1').value);
+                const m2 = parseInt(document.getElementById('compareMonth2').value);
+                labelP1 = `${NAMA_BULAN_LENGKAP[m1]} ${yr}`;
+                labelP2 = `${NAMA_BULAN_LENGKAP[m2]} ${yr}`;
+
+                counts1 = helperCount(datasetKegiatan.filter(x => x.tahun === yr && parseInt(x.bulan) === m1));
+                counts2 = helperCount(datasetKegiatan.filter(x => x.tahun === yr && parseInt(x.bulan) === m2));
+            }
+
+            document.getElementById('thPeriod1').innerText = labelP1;
+            document.getElementById('thPeriod2').innerText = labelP2;
+
             let statsHtml = '';
+            let tableHtml = '';
+
             CATEGORY_KEYS.forEach((cat, idx) => {
+                const diff = counts2[idx] - counts1[idx];
+                let trendIcon = diff > 0 ? '<i class="fa-solid fa-arrow-trend-up text-emerald-600"></i> +' + diff : (diff < 0 ? '<i class="fa-solid fa-arrow-trend-down text-rose-600"></i> ' + diff : '<span class="text-slate-400">0 (Stabil)</span>');
+
                 statsHtml += `<div class="flex justify-between items-center border-b border-slate-200 pb-1">
                     <span class="font-medium text-slate-600">${idx+1}. ${cat}</span>
-                    <span class="font-bold text-slate-800">${counts[idx]} Kegiatan</span>
+                    <span class="font-bold text-slate-800">${counts1[idx]} ➔ ${counts2[idx]}</span>
                 </div>`;
-            });
-            document.getElementById('compareSummaryStats').innerHTML = statsHtml;
 
-            // Table body
-            let tableHtml = '';
-            CATEGORY_KEYS.forEach((cat, idx) => {
-                const pct = total > 0 ? ((counts[idx] / total) * 100).toFixed(1) : 0;
                 tableHtml += `<tr class="border-b border-slate-200 hover:bg-slate-50">
                     <td class="p-2.5 font-medium text-slate-800 flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-2" style="background-color: ${CATEGORY_COLORS[idx]}"></span>${cat}</td>
-                    <td class="p-2.5 text-center font-bold text-slate-700">${counts[idx]}</td>
-                    <td class="p-2.5 text-right font-semibold text-tosca-700">${pct}%</td>
+                    <td class="p-2.5 text-center font-bold text-slate-700">${counts1[idx]}</td>
+                    <td class="p-2.5 text-center font-bold text-slate-800">${counts2[idx]}</td>
+                    <td class="p-2.5 text-right font-semibold">${trendIcon}</td>
                 </tr>`;
             });
+
+            document.getElementById('compareSummaryStats').innerHTML = statsHtml;
             document.getElementById('compareTableBody').innerHTML = tableHtml;
 
-            // Render modal chart
             const ctx = document.getElementById('chartCompareModal').getContext('2d');
             if (chartCompareInstance) chartCompareInstance.destroy();
             chartCompareInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['MoU', 'Bantuan H.', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'],
-                    datasets: [{
-                        label: `Volume Kegiatan ${yr}`,
-                        data: counts,
-                        backgroundColor: CATEGORY_COLORS,
-                        borderRadius: 6
-                    }]
+                    datasets: [
+                        {
+                            label: labelP1,
+                            data: counts1,
+                            backgroundColor: '#0D9488',
+                            borderRadius: 4
+                        },
+                        {
+                            label: labelP2,
+                            data: counts2,
+                            backgroundColor: '#2563EB',
+                            borderRadius: 4
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
@@ -952,28 +1050,38 @@
         }
         window.renderAll = renderAll;
 
+        // --- RENDER KPI (BANTUAN HUKUM LITIGASI VS NON-LITIGASI DENGAN JUMLAH SKK AKURAT) ---
         function renderKPI(data) {
-            let mou = 0, skkTotal = 0, disepakati = 0, dipulihkan = 0;
+            let mou = 0;
+            let skkLitigasi = 0, skkNonLitigasi = 0;
+            let disepakati = 0, dipulihkan = 0;
             let pertimbangan = 0, la = 0, lo = 0, pelayanan = 0, thl = 0, penegakan = 0;
 
             data.forEach(item => {
-                if (item.kategori === 'MoU') mou++;
-                else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
-                    skkTotal += item.jumlahSkk || 1;
-                    disepakati += item.disepakati || 0;
-                    dipulihkan += item.dipulihkan || 0;
+                if (item.kategori === 'MoU') {
+                    mou++;
+                } else if (item.kategori === 'Bantuan Hukum Litigasi') {
+                    skkLitigasi += (parseInt(item.jumlahSkk) || 1);
+                } else if (item.kategori === 'Bantuan Hukum Non-Litigasi') {
+                    skkNonLitigasi += (parseInt(item.jumlahSkk) || 1);
+                    disepakati += (parseFloat(item.disepakati) || 0);
+                    dipulihkan += (parseFloat(item.dipulihkan) || 0);
                 } else if (item.kategori && item.kategori.includes('Pertimbangan')) {
                     pertimbangan++;
                     if (item.kategori.includes('LA')) la++;
                     if (item.kategori.includes('LO')) lo++;
                 } else if (item.kategori === 'Pelayanan Hukum') {
-                    pelayanan += (item.jumlahPelayanan || 1);
-                } else if (item.kategori === 'Tindakan Hukum Lainnya') thl++;
-                else if (item.kategori === 'Penegakan Hukum') penegakan++;
+                    pelayanan += (parseInt(item.jumlahPelayanan) || 1);
+                } else if (item.kategori === 'Tindakan Hukum Lainnya') {
+                    thl++;
+                } else if (item.kategori === 'Penegakan Hukum') {
+                    penegakan++;
+                }
             });
 
             document.getElementById('kpiMou').innerText = mou;
-            document.getElementById('kpiBantuanHukum').innerHTML = `${skkTotal} <span class="text-xs font-normal text-slate-500">SKK</span>`;
+            document.getElementById('kpiSkkLitigasi').innerText = `${skkLitigasi} SKK`;
+            document.getElementById('kpiSkkNonLitigasi').innerText = `${skkNonLitigasi} SKK`;
             document.getElementById('kpiDisepakati').innerText = formatRp(disepakati);
             document.getElementById('kpiDipulihkan').innerText = formatRp(dipulihkan);
             document.getElementById('kpiPertimbangan').innerText = pertimbangan;
@@ -1031,14 +1139,14 @@
                 };
 
                 if (it.kategori.includes('Bantuan Hukum')) {
-                    katTheme = { name: 'Bantuan Hukum', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
-                    totalCountInCell += 1;
+                    katTheme = { name: it.kategori.includes('Litigasi') ? 'Bantuan Hukum (Litigasi)' : 'Bantuan Hukum (Non-Litigasi)', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
+                    totalCountInCell += (parseInt(it.jumlahSkk) || 1);
                 } else if (it.kategori.includes('Pertimbangan')) {
                     katTheme = { name: 'Pertimbangan', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
                     totalCountInCell += 1;
                 } else if (it.kategori === 'Pelayanan Hukum') {
                     katTheme = { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' };
-                    totalCountInCell += (it.jumlahPelayanan || 1);
+                    totalCountInCell += (parseInt(it.jumlahPelayanan) || 1);
                 } else if (it.kategori === 'Tindakan Hukum Lainnya') {
                     katTheme = { name: 'Tindakan Hukum Lain', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' };
                     totalCountInCell += 1;
@@ -1201,7 +1309,6 @@
         }
 
         function initCharts() {
-            // STACKED BAR CHART BERDASARKAN WARNA KATEGORI
             const ctxBar = document.getElementById('chartGiatBar').getContext('2d');
             chartBarInstance = new Chart(ctxBar, {
                 type: 'bar',
@@ -1246,7 +1353,6 @@
         }
 
         function renderCharts(data) {
-            // Mengisi data per bulan untuk 6 kategori berbeda pada stacked bar chart
             let monthlyData = CATEGORY_KEYS.map(() => Array(12).fill(0));
 
             data.forEach(x => {
@@ -1262,7 +1368,9 @@
 
                     if (catIdx !== -1) {
                         if (x.kategori === 'Pelayanan Hukum') {
-                            monthlyData[catIdx][b - 1] += (x.jumlahPelayanan || 1);
+                            monthlyData[catIdx][b - 1] += (parseInt(x.jumlahPelayanan) || 1);
+                        } else if (x.kategori.includes('Bantuan Hukum')) {
+                            monthlyData[catIdx][b - 1] += (parseInt(x.jumlahSkk) || 1);
                         } else {
                             monthlyData[catIdx][b - 1]++;
                         }
@@ -1278,9 +1386,9 @@
             let c = [0, 0, 0, 0, 0, 0];
             data.forEach(x => {
                 if (x.kategori === 'MoU') c[0]++;
-                else if (x.kategori && x.kategori.includes('Bantuan Hukum')) c[1]++;
+                else if (x.kategori && x.kategori.includes('Bantuan Hukum')) c[1] += (parseInt(x.jumlahSkk) || 1);
                 else if (x.kategori && x.kategori.includes('Pertimbangan')) c[2]++;
-                else if (x.kategori === 'Pelayanan Hukum') c[3] += (x.jumlahPelayanan || 1);
+                else if (x.kategori === 'Pelayanan Hukum') c[3] += (parseInt(x.jumlahPelayanan) || 1);
                 else if (x.kategori === 'Tindakan Hukum Lainnya') c[4]++;
                 else if (x.kategori === 'Penegakan Hukum') c[5]++;
             });

@@ -59,6 +59,21 @@
             z-index: 9999;
         }
 
+        /* EFEK TRANSISI MEWAH DAN ELEGAN SAAT GANTI TAHUN / HALAMAN */
+        .luxury-page-transition {
+            animation: luxuryFadeSlide 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes luxuryFadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(10px) scale(0.995);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
         @media print {
             @page {
                 size: legal landscape;
@@ -165,8 +180,8 @@
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow">
+    <!-- Main Container with Luxury Page Transition Wrapper -->
+    <main id="mainPageContainer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow luxury-page-transition">
 
         <div id="firestoreErrorBanner" class="hidden bg-rose-100 border border-rose-300 text-rose-800 p-3 rounded-xl text-xs flex items-center justify-between no-print">
             <div class="flex items-center space-x-2">
@@ -1227,15 +1242,22 @@
             }
         }
 
+        // PEMBARUAN: RENTANG TAHUN DINAMIS (TAHUN SEBELUMNYA DAN BERIKUTNYA OTOMATIS TERSEDIA)
         function updateYearFilterOptions(selectYear = null) {
             const selectEl = document.getElementById('filterTahun');
-            const years = Array.from(new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
-
-            if (years.length === 0) {
-                years.push(new Date().getFullYear().toString());
+            const currentYearNum = new Date().getFullYear(); // 2026
+            
+            // Kumpulkan tahun yang ada di dataset
+            let yearSet = new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : currentYearNum.toString()));
+            
+            // Tambahkan rentang tahun secara dinamis (misal 3 tahun ke belakang hingga 4 tahun ke depan: 2023 s.d. 2030)
+            for (let y = currentYearNum - 3; y <= currentYearNum + 4; y++) {
+                yearSet.add(y.toString());
             }
 
-            const currentSelected = selectYear || selectEl.value || years[0];
+            const years = Array.from(yearSet).sort().reverse();
+            const currentSelected = selectYear || selectEl.value || currentYearNum.toString();
+
             selectEl.innerHTML = '';
             years.forEach(yr => {
                 const opt = document.createElement('option');
@@ -1248,10 +1270,17 @@
         }
         window.updateYearFilterOptions = updateYearFilterOptions;
 
+        // FUNGSI RENDER UTAMA DENGAN EFEK TRANSISI MEWAH
         function renderAll() {
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
             document.getElementById('chartYearBadge').innerText = `Tahun ${tahunAktif}`;
+
+            // Picu efek animasi transisi mewah saat berganti tahun / halaman
+            const mainContainer = document.getElementById('mainPageContainer');
+            mainContainer.classList.remove('luxury-page-transition');
+            void mainContainer.offsetWidth; // Trigger reflow
+            mainContainer.classList.add('luxury-page-transition');
 
             const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI-DATUN - Kejaksaan Negeri Padang</title>
+    <title>Datun App - Kejaksaan Negeri Padang</title>
 
     <!-- FAVICON TAB BROWSER -->
     <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
@@ -220,7 +220,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-sm sm:text-lg leading-tight tracking-wide flex items-center">
-                        SI-DATUN KN PADANG
+                        GIAT DATUN KN PADANG
                     </h1>
                     <p class="text-[11px] sm:text-xs text-tosca-200 flex items-center">
                         <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
@@ -315,8 +315,8 @@
                     </div>
                     <div class="text-xl sm:text-2xl font-black text-slate-800" id="kpiPertimbangan">0</div>
                     <div class="text-[10px] text-slate-600 mt-1 space-y-0.5 font-medium">
-                        <div>LA : <span id="kpiLA" class="font-bold text-amber-800">0</span></div>
-                        <div>LO : <span id="kpiLO" class="font-bold text-amber-800">0</span></div>
+                        <div>Legal Assistance : <span id="kpiLA" class="font-bold text-amber-800">0</span></div>
+                        <div>Legal Opinion    : <span id="kpiLO" class="font-bold text-amber-800">0</span></div>
                     </div>
                 </div>
 
@@ -437,7 +437,7 @@
                     <p class="text-xs text-slate-500">Rekapitulasi nilai disepakati dan ditangani/dipulihkan per bulan</p>
                 </div>
                 <button onclick="openPemulihanModal()" class="no-print bg-tosca-600 hover:bg-tosca-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition self-start sm:self-auto">
-                    <i class="fa-solid fa-plus mr-1.5"></i> (+) Input Data Pemulihan
+                    <i class="fa-solid fa-plus mr-1.5"></i> Input Data Pemulihan
                 </button>
             </div>
 
@@ -479,7 +479,7 @@
                             <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
                         </tr>
                         <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Ditangani / Dipulihkan</td>
+                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Dipulihkan</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
@@ -2499,7 +2499,7 @@
 
                 // 1. Title Block
                 ws.mergeCells('A1:J1');
-                ws.getCell('A1').value = `LAPORAN DASBOR REKAPITULASI SI-DATUN KEJAKSAAN NEGERI PADANG`;
+                ws.getCell('A1').value = `LAPORAN DASBOR REKAPITULASI GIAT DATUN KEJAKSAAN NEGERI PADANG`;
                 ws.getCell('A1').font = fontTitle;
                 ws.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
                 ws.getCell('A1').fill = titleFill;
@@ -2590,7 +2590,7 @@
                 });
 
                 const rDis = ["Yang Disepakati"];
-                const rDip = ["Yang Ditangani / Dipulihkan"];
+                const rDip = ["Yang Dipulihkan"];
                 let totalDis = 0, totalDip = 0;
 
                 for (let i = 1; i <= 12; i++) {

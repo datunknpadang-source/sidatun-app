@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI-DATUN - Kejaksaan Negeri Padang</title>
+    <title>Datun App - Kejaksaan Negeri Padang</title>
 
     <!-- FAVICON TAB BROWSER -->
     <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
@@ -59,44 +59,22 @@
             z-index: 9999;
         }
 
-        /* EFEK TRANSISI MEWAH DAN ELEGAN SAAT GANTI TAHUN / HALAMAN */
         .luxury-page-transition {
             animation: luxuryFadeSlide 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes luxuryFadeSlide {
-            0% {
-                opacity: 0;
-                transform: translateY(10px) scale(0.995);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            0% { opacity: 0; transform: translateY(10px) scale(0.995); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @media print {
-            @page {
-                size: legal landscape;
-                margin: 10mm;
-            }
-            body {
-                background: white;
-                color: black;
-            }
-            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #floatingChatWidget, .no-print {
+            @page { size: legal landscape; margin: 10mm; }
+            body { background: white; color: black; }
+            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #floatingChatWidget, #floatingMonthReminder, .no-print {
                 display: none !important;
             }
-            .print-area {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-            }
-            table {
-                width: 100% !important;
-                font-size: 10px !important;
-            }
+            .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
+            table { width: 100% !important; font-size: 10px !important; }
         }
     </style>
 </head>
@@ -107,22 +85,24 @@
         created by bby
     </div>
 
+    <!-- PENGINGAT MELAYANG MINIMALIS DATA BELUM DIISI (BULAN BERJALAN) -->
+    <div id="floatingMonthReminder" class="hidden fixed top-20 right-4 sm:right-6 z-40 bg-amber-50 border border-amber-300 text-amber-900 px-3.5 py-2 rounded-xl shadow-lg flex items-center space-x-2.5 text-xs animate-pulse no-print max-w-xs sm:max-w-sm">
+        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm flex-shrink-0"></i>
+        <div class="flex-grow">
+            <span class="font-bold" id="reminderMonthText">Bulan ini</span> belum ada data yang diinput!
+        </div>
+        <button onclick="document.getElementById('floatingMonthReminder').classList.add('hidden')" class="text-amber-700 hover:text-amber-900 ml-1 flex-shrink-0"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
     <!-- FLOATING LIVE CHAT WIDGET DI SUDUT KANAN BAWAH -->
     <div id="floatingChatWidget" class="fixed bottom-5 right-6 z-50 no-print">
-        <!-- Tombol Toggle Chat -->
         <button id="chatToggleBtn" onclick="toggleChatWindow()" class="relative bg-tosca-700 hover:bg-tosca-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105 active:scale-95 border-2 border-white">
             <i class="fa-solid fa-comments text-lg"></i>
-            
-            <!-- Indikator User Aktif / Online pada Logo Chat -->
             <span id="chatOnlineBadge" class="absolute top-0 left-0 bg-emerald-500 w-3.5 h-3.5 rounded-full border-2 border-white animate-pulse hidden" title="Ada pengguna lain sedang aktif"></span>
-            
-            <!-- Badge Jumlah Pesan Belum Dibaca -->
             <span id="chatBadgeCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
         </button>
 
-        <!-- Kotak Jendela Chat -->
-        <div id="chatWindowBox" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[420px] transition-all duration-200">
-            <!-- Header Chat -->
+        <div id="chatWindowBox" class="hidden absolute bottom-16 right-0 w-80 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[420px] transition-all duration-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <div id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
@@ -132,18 +112,15 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <!-- Tombol Bersihkan Seluruh Chat (Database & Layar) -->
                     <button onclick="clearAllChatDatabase()" title="Bersihkan Seluruh Chat" class="text-white/80 hover:text-rose-300 text-xs p-1 transition"><i class="fa-solid fa-trash-can"></i></button>
                     <button onclick="toggleChatWindow()" class="text-white/70 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
 
-            <!-- Daftar Pesan Chat -->
             <div id="chatMessagesList" class="flex-grow p-3 overflow-y-auto space-y-2.5 bg-slate-50 text-xs custom-scrollbar">
                 <div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>
             </div>
 
-            <!-- Preview File / Lampiran Sebelum Terkirim -->
             <div id="chatFilePreviewBox" class="hidden px-3 py-1.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
                 <div class="flex items-center space-x-2 truncate">
                     <i class="fa-solid fa-file text-tosca-600"></i>
@@ -152,24 +129,19 @@
                 <button type="button" onclick="cancelChatFileUpload()" class="text-rose-500 text-xs hover:text-rose-700"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- Form Kirim Pesan -->
             <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex flex-col space-y-1.5">
                 <input type="hidden" id="chatEditingDocId" value="">
                 <div class="flex items-center space-x-2">
-                    <!-- Kolom Nama Terkunci / Bisa Diubah via Klik -->
                     <input type="text" id="chatNickInput" placeholder="Nama Anda (Klik untuk ubah)..." onclick="handleNickClick()" readonly required class="w-full text-xs bg-slate-200 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800 cursor-pointer" title="Klik untuk mengubah nama">
                     <span id="chatEditBadge" class="hidden text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded border border-amber-300 flex-shrink-0">Edit</span>
                 </div>
 
                 <div class="flex items-center space-x-1.5">
-                    <!-- Input Universal File / Lampiran -->
                     <input type="file" id="chatFileInput" class="hidden" onchange="handleChatFileSelect(event)">
-                    <button type="button" onclick="document.getElementById('chatFileInput').click()" title="Lampirkan Berkas (Word, Excel, PDF, dll)" class="text-slate-500 hover:text-tosca-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition">
+                    <button type="button" onclick="document.getElementById('chatFileInput').click()" title="Lampirkan Berkas" class="text-slate-500 hover:text-tosca-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition">
                         <i class="fa-solid fa-paperclip text-xs"></i>
                     </button>
-
                     <input type="text" id="chatMsgInput" placeholder="Ketik pesan..." class="flex-grow text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
-                    
                     <button type="button" id="btnCancelEditChat" onclick="cancelChatEdit()" class="hidden bg-slate-200 text-slate-700 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition hover:bg-slate-300" title="Batal Edit">
                         <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
@@ -181,7 +153,7 @@
         </div>
     </div>
 
-    <!-- POP-UP TOOLTIP KHUSUS KARTU KATEGORI SUMMARY/RINGKASAN -->
+    <!-- POP-UP TOOLTIP KATEGORI SUMMARY -->
     <div id="kpiCategoryTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-xs w-72 backdrop-blur-md">
         <div class="flex items-center space-x-2 border-b pb-2 mb-2" id="kpiTtHeader">
             <span id="kpiTtBadge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border"></span>
@@ -194,7 +166,7 @@
         </div>
     </div>
 
-    <!-- FLOATING CARD TOOLTIP UTAMA (MATRIKS) -->
+    <!-- FLOATING CARD TOOLTIP UTAMA -->
     <div id="customTooltipCard" onmouseenter="keepCustomTooltip()" onmouseleave="hideCustomTooltip()" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-sm w-80 backdrop-blur-md">
         <div class="flex items-center justify-between border-b pb-2 mb-2.5" id="ttHeaderContainer">
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" id="ttBadge">MoU</span>
@@ -205,7 +177,7 @@
         <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-end space-x-2" id="ttActionFooter"></div>
     </div>
 
-    <!-- POP-UP MEWAH LINGKARAN KATEGORI (CHARTS) -->
+    <!-- POP-UP LINGKARAN KATEGORI (CHARTS) -->
     <div id="pieLuxuryTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border p-3 max-w-xs w-64 border-tosca-500 z-50">
         <div class="flex items-center space-x-2 border-b pb-1.5 mb-1.5 border-slate-100">
             <span id="pieTtDot" class="w-3 h-3 rounded-full flex-shrink-0"></span>
@@ -220,47 +192,49 @@
 
     <!-- Top Navigation Header -->
     <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
-                    <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-10 w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center">
-                        SI-DATUN KN PADANG
-                    </h1>
-                    <p class="text-xs text-tosca-200 flex items-center">
-                        <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
-                        <span id="syncText">Menghubungkan ke Firestore...</span>
-                    </p>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:h-16 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center justify-between w-full sm:w-auto space-x-3">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
+                        <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm sm:text-lg leading-tight tracking-wide flex items-center">
+                            GIAT DATUN KN PADANG
+                        </h1>
+                        <p class="text-[11px] sm:text-xs text-tosca-200 flex items-center">
+                            <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
+                            <span id="syncText">Menghubungkan ke Firestore...</span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2.5">
-                <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20">
+            <div class="flex items-center flex-wrap justify-center sm:justify-end gap-2 w-full sm:w-auto">
+                <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 text-xs">
                     <i class="fa-regular fa-calendar text-xs text-tosca-200 mr-2"></i>
-                    <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-sm font-semibold text-white focus:outline-none cursor-pointer">
+                    <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer">
                         <option value="2026" class="text-slate-800">Tahun 2026</option>
                     </select>
                 </div>
 
-                <button onclick="openModal()" class="bg-white text-tosca-800 hover:bg-tosca-50 font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition transform active:scale-95">
+                <button onclick="openModal()" class="bg-white text-tosca-800 hover:bg-tosca-50 font-bold text-xs px-3 py-2 rounded-lg shadow-sm flex items-center transition transform active:scale-95">
                     <i class="fa-solid fa-plus mr-1.5 text-tosca-600"></i> Tambah Kegiatan
                 </button>
 
-                <button onclick="openCompareModal()" class="bg-tosca-600 hover:bg-tosca-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg shadow-sm flex items-center transition">
-                    <i class="fa-solid fa-chart-line mr-1.5"></i> Bandingkan Data
+                <button onclick="openCompareModal()" class="bg-tosca-600 hover:bg-tosca-500 text-white text-xs font-semibold px-3 py-2 rounded-lg shadow-sm flex items-center transition">
+                    <i class="fa-solid fa-chart-line mr-1.5"></i> Bandingkan
                 </button>
 
-                <button onclick="openExportModal()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3.5 py-2 rounded-lg border border-white/20 flex items-center transition">
-                    <i class="fa-solid fa-file-export mr-1.5 text-blue-300"></i> Ekspor Data
+                <button onclick="openExportModal()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 flex items-center transition">
+                    <i class="fa-solid fa-file-export mr-1.5 text-blue-300"></i> Ekspor
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Container with Luxury Page Transition Wrapper -->
-    <main id="mainPageContainer" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-grow luxury-page-transition">
+    <!-- Main Container -->
+    <main id="mainPageContainer" class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-5 flex-grow luxury-page-transition w-full">
 
         <div id="firestoreErrorBanner" class="hidden bg-rose-100 border border-rose-300 text-rose-800 p-3 rounded-xl text-xs flex items-center justify-between no-print">
             <div class="flex items-center space-x-2">
@@ -273,106 +247,114 @@
         </div>
 
         <!-- SUMMARY / RINGKASAN WADAH UTAMA -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4 no-print">
-            <div class="border-b border-slate-100 pb-2">
-                <h2 class="text-sm font-extrabold text-slate-800 tracking-wide uppercase flex items-center">
-                    <i class="fa-solid fa-chart-pie text-tosca-600 mr-2"></i> SUMMARY / RINGKASAN
-                </h2>
-                <p class="text-xs text-slate-500 mt-0.5" id="summarySubText">
-                    Giat DATUN yang sedang terisi dari bulan Januari s.d. Desember
-                </p>
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-4 no-print">
+            <div class="border-b border-slate-100 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-sm font-extrabold text-slate-800 tracking-wide uppercase flex items-center">
+                        <i class="fa-solid fa-chart-pie text-tosca-600 mr-2"></i> SUMMARY / RINGKASAN
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5" id="summarySubText">
+                        Giat DATUN yang sedang terisi dari bulan Januari s.d. Desember
+                    </p>
+                </div>
+                
+                <!-- WIDGET TANGGAL & JAM DIGITAL REAL-TIME (SESUAI PERMINTAAN GAMBAR) -->
+                <div id="digitalClockWidget" class="flex items-center space-x-2 bg-tosca-50/80 border border-tosca-200 px-3 py-1.5 rounded-xl shadow-sm text-xs font-semibold text-tosca-900 self-start sm:self-auto">
+                    <i class="fa-regular fa-clock text-tosca-600"></i>
+                    <span id="realtimeClockDisplay">Memuat Waktu...</span>
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <div onmouseenter="showKpiTooltip(event, 'mou')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-tosca-500 transition cursor-pointer">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div onmouseenter="showKpiTooltip(event, 'mou')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3 border border-slate-200 hover:border-tosca-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-tosca-700 mb-1">
-                        <span class="text-xs font-bold uppercase tracking-wider">1. MoU</span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider">1. MoU</span>
                         <i class="fa-solid fa-file-contract text-tosca-500"></i>
                     </div>
-                    <div class="text-2xl font-black text-slate-800" id="kpiMou">0</div>
+                    <div class="text-xl sm:text-2xl font-black text-slate-800" id="kpiMou">0</div>
                     <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
                 </div>
 
-                <div onmouseenter="showKpiTooltip(event, 'bantuan_hukum')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-blue-500 transition cursor-pointer">
+                <div onmouseenter="showKpiTooltip(event, 'bantuan_hukum')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3 border border-slate-200 hover:border-blue-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-blue-700 mb-1">
-                        <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
                         <i class="fa-solid fa-gavel text-blue-500"></i>
                     </div>
-                    <div class="text-xs font-semibold text-slate-700 space-y-0.5 my-1">
-                        <div>Litigasi: <span class="font-black text-blue-800 text-sm" id="kpiSkkLitigasi">0 SKK</span></div>
-                        <div class="text-slate-800">Non-Litigasi: <span class="font-black text-sage-600 text-sm" id="kpiSkkNonLitigasi">0 SKK</span></div>
+                    <div class="text-[11px] font-semibold text-slate-700 space-y-0.5 my-1">
+                        <div>Litigasi: <span class="font-black text-blue-800 text-xs sm:text-sm" id="kpiSkkLitigasi">0 SKK</span></div>
+                        <div class="text-slate-800">Non-Litigasi: <span class="font-black text-sage-600 text-xs sm:text-sm" id="kpiSkkNonLitigasi">0 SKK</span></div>
                     </div>
-                    <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-200 space-y-0.5">
-                        <div class="text-blue-600 font-medium">Disepakati: <span id="kpiDisepakati">Rp 0</span></div>
-                        <div class="text-emerald-600 font-semibold">Dipulihkan: <span id="kpiDipulihkan">Rp 0</span></div>
+                    <div class="text-[9px] sm:text-[10px] text-slate-500 pt-1 border-t border-slate-200 space-y-0.5 truncate">
+                        <div class="text-blue-600 font-medium truncate">Disepakati: <span id="kpiDisepakati">Rp 0</span></div>
+                        <div class="text-emerald-600 font-semibold truncate">Dipulihkan: <span id="kpiDipulihkan">Rp 0</span></div>
                     </div>
                 </div>
 
-                <div onmouseenter="showKpiTooltip(event, 'pertimbangan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-amber-500 transition cursor-pointer">
+                <div onmouseenter="showKpiTooltip(event, 'pertimbangan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3 border border-slate-200 hover:border-amber-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-amber-700 mb-1">
-                        <span class="text-xs font-bold uppercase tracking-wider">3. Pertimbangan</span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider">3. Pertimbangan</span>
                         <i class="fa-solid fa-balance-scale text-amber-500"></i>
                     </div>
-                    <div class="text-2xl font-black text-slate-800" id="kpiPertimbangan">0</div>
+                    <div class="text-xl sm:text-2xl font-black text-slate-800" id="kpiPertimbangan">0</div>
                     <div class="text-[10px] text-slate-600 mt-1 space-y-0.5 font-medium">
-                        <div>Legal Assistance : <span id="kpiLA" class="font-bold text-amber-800">0</span></div>
-                        <div>Legal Opinion : <span id="kpiLO" class="font-bold text-amber-800">0</span></div>
+                        <div>LA : <span id="kpiLA" class="font-bold text-amber-800">0</span></div>
+                        <div>LO : <span id="kpiLO" class="font-bold text-amber-800">0</span></div>
                     </div>
                 </div>
 
-                <div onmouseenter="showKpiTooltip(event, 'pelayanan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-purple-500 transition cursor-pointer">
+                <div onmouseenter="showKpiTooltip(event, 'pelayanan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3 border border-slate-200 hover:border-purple-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-purple-700 mb-1">
-                        <span class="text-xs font-bold uppercase tracking-wider">4. Pelayanan</span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider">4. Pelayanan</span>
                         <i class="fa-solid fa-handshake-angle text-purple-500"></i>
                     </div>
-                    <div class="text-2xl font-black text-slate-800" id="kpiPelayanan">0</div>
+                    <div class="text-xl sm:text-2xl font-black text-slate-800" id="kpiPelayanan">0</div>
                     <p class="text-[10px] text-slate-500 mt-1">Konsultasi / Layanan</p>
                 </div>
 
-                <div onmouseenter="showKpiTooltip(event, 'thl')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-teal-500 transition cursor-pointer">
+                <div onmouseenter="showKpiTooltip(event, 'thl')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3 border border-slate-200 hover:border-teal-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-teal-700 mb-1">
-                        <span class="text-xs font-bold uppercase tracking-wider">5. THL</span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider">5. THL</span>
                         <i class="fa-solid fa-shield-halved text-teal-500"></i>
                     </div>
-                    <div class="text-2xl font-black text-slate-800" id="kpiThl">0</div>
-                    <p class="text-[10px] text-slate-500 mt-1">Tindakan Hukum Lain</p>
+                    <div class="text-xl sm:text-2xl font-black text-slate-800" id="kpiThl">0</div>
+                    <p class="text-[10px] text-slate-500 mt-1">Tindakan Lain</p>
                 </div>
 
-                <div onmouseenter="showKpiTooltip(event, 'penegakan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-rose-500 transition cursor-pointer">
+                <div onmouseenter="showKpiTooltip(event, 'penegakan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3 border border-slate-200 hover:border-rose-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-rose-700 mb-1">
-                        <span class="text-xs font-bold uppercase tracking-wider">6. Penegakan</span>
+                        <span class="text-[11px] font-bold uppercase tracking-wider">6. Penegakan</span>
                         <i class="fa-solid fa-user-shield text-rose-500"></i>
                     </div>
-                    <div class="text-2xl font-black text-slate-800" id="kpiPenegakan">0</div>
+                    <div class="text-xl sm:text-2xl font-black text-slate-800" id="kpiPenegakan">0</div>
                     <p class="text-[10px] text-slate-500 mt-1">Penegakan Hukum</p>
                 </div>
             </div>
         </div>
 
         <!-- Section 2: Visualisasi Grafik Ganda -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-            <div class="lg:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 no-print">
+            <div class="lg:col-span-2 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200">
                 <div class="flex items-center justify-between mb-3">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-800">Tren Rekapitulasi Kegiatan Per Bulan</h2>
-                        <p class="text-xs text-slate-500">Frekuensi berdasarkan warna masing-masing kategori kegiatan</p>
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-800">Tren Rekapitulasi Kegiatan Per Bulan</h2>
+                        <p class="text-[11px] text-slate-500">Frekuensi berdasarkan warna masing-masing kategori</p>
                     </div>
-                    <span class="bg-tosca-50 text-tosca-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-tosca-200" id="chartYearBadge">Tahun 2026</span>
+                    <span class="bg-tosca-50 text-tosca-700 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-tosca-200" id="chartYearBadge">Tahun 2026</span>
                 </div>
-                <div class="h-64">
+                <div class="h-56 sm:h-64">
                     <canvas id="chartGiatBar"></canvas>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between relative">
+            <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <h2 class="text-sm font-bold text-slate-800">Proporsi Kategori DATUN</h2>
-                        <span class="text-[11px] font-bold text-tosca-800 bg-tosca-50 px-2.5 py-0.5 rounded-full border border-tosca-200" id="pieTotalLabel">Total: 0</span>
+                        <h2 class="text-xs sm:text-sm font-bold text-slate-800">Proporsi Kategori DATUN</h2>
+                        <span class="text-[10px] font-bold text-tosca-800 bg-tosca-50 px-2 py-0.5 rounded-full border border-tosca-200" id="pieTotalLabel">Total: 0</span>
                     </div>
-                    <p class="text-xs text-slate-500 mb-3">Arahkan kursor pada item bawah untuk melihat nama lengkap</p>
+                    <p class="text-[11px] text-slate-500 mb-3">Arahkan kursor pada item bawah untuk melihat detail</p>
                     
-                    <div class="h-40 flex items-center justify-center">
+                    <div class="h-36 sm:h-40 flex items-center justify-center">
                         <canvas id="chartGiatPie"></canvas>
                     </div>
                 </div>
@@ -382,19 +364,19 @@
         </div>
 
         <!-- Section 3: Matriks Laporan Data Kegiatan DATUN -->
-        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-6 print-area">
-            <div class="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-slate-100 gap-3 no-print">
+        <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-5 print-area">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3 no-print">
                 <div>
-                    <h2 class="text-base font-bold text-slate-800 flex items-center">
+                    <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-table-cells text-tosca-600 mr-2"></i> Matriks Data Kegiatan DATUN (Per Bulan)
                     </h2>
-                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada nama instansi untuk melihat rincian & tombol edit cepat</p>
+                    <p class="text-xs text-slate-500">Arahkan kursor (*hover*) pada instansi untuk melihat rincian & tombol edit</p>
                 </div>
             </div>
 
             <div id="containerMatrixView" class="space-y-6">
                 <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-xs text-left excel-table border-collapse">
+                    <table class="w-full text-xs text-left excel-table border-collapse min-w-[900px]">
                         <thead>
                             <tr class="bg-tosca-700 text-white text-center font-bold">
                                 <th class="p-2 w-10" rowspan="2">NO.</th>
@@ -407,10 +389,10 @@
                                 <th class="p-2 min-w-[130px]" rowspan="2">6. PENEGAKAN HUKUM</th>
                             </tr>
                             <tr class="bg-tosca-800 text-white text-center font-semibold text-[11px]">
-                                <th class="p-1.5 min-w-[120px] bg-tosca-800/90">LITIGASI</th>
-                                <th class="p-1.5 min-w-[120px] bg-tosca-800/90">NON-LITIGASI</th>
-                                <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LA</th>
-                                <th class="p-1.5 min-w-[110px] bg-tosca-800/90">LO</th>
+                                <th class="p-1.5 min-w-[110px]">LITIGASI</th>
+                                <th class="p-1.5 min-w-[110px]">NON-LITIGASI</th>
+                                <th class="p-1.5 min-w-[100px]">LA</th>
+                                <th class="p-1.5 min-w-[100px]">LO</th>
                             </tr>
                         </thead>
                         <tbody id="bodyMatriks"></tbody>
@@ -420,38 +402,38 @@
             </div>
         </div>
 
-        <!-- Section 4: TABEL PEMULIHAN KEUANGAN NEGARA & GRAFIK GARIS TREN KEUANGAN -->
-        <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-6">
+        <!-- Section 4: TABEL PEMULIHAN KEUANGAN NEGARA & GRAFIK -->
+        <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
                 <div>
-                    <h2 class="text-base font-bold text-slate-800 flex items-center">
+                    <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
                         <i class="fa-solid fa-coins text-amber-500 mr-2"></i> TABEL PEMULIHAN KEUANGAN NEGARA
                     </h2>
-                    <p class="text-xs text-slate-500">Rekapitulasi nilai yang disepakati dan ditangani/dipulihkan per bulan</p>
+                    <p class="text-xs text-slate-500">Rekapitulasi nilai disepakati dan ditangani/dipulihkan per bulan</p>
                 </div>
-                <button onclick="openPemulihanModal()" class="no-print bg-tosca-600 hover:bg-tosca-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition">
+                <button onclick="openPemulihanModal()" class="no-print bg-tosca-600 hover:bg-tosca-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition self-start sm:self-auto">
                     <i class="fa-solid fa-plus mr-1.5"></i> (+) Input Data Pemulihan
                 </button>
             </div>
 
             <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-xs text-left excel-table border-collapse">
+                <table class="w-full text-xs text-left excel-table border-collapse min-w-[950px]">
                     <thead>
                         <tr class="bg-tosca-800 text-white text-center font-bold">
-                            <th class="p-2.5 w-44">KATEGORI</th>
-                            <th class="p-2 min-w-[90px]">JANUARI</th>
-                            <th class="p-2 min-w-[90px]">FEB</th>
-                            <th class="p-2 min-w-[90px]">MAR</th>
-                            <th class="p-2 min-w-[90px]">APR</th>
-                            <th class="p-2 min-w-[90px]">MEI</th>
-                            <th class="p-2 min-w-[90px]">JUN</th>
-                            <th class="p-2 min-w-[90px]">JUL</th>
-                            <th class="p-2 min-w-[90px]">AGT</th>
-                            <th class="p-2 min-w-[90px]">SEP</th>
-                            <th class="p-2 min-w-[90px]">OKT</th>
-                            <th class="p-2 min-w-[90px]">NOV</th>
-                            <th class="p-2 min-w-[90px]">DES</th>
-                            <th class="p-2.5 min-w-[130px] bg-tosca-900">TOTAL (Rp.)</th>
+                            <th class="p-2.5 w-40">KATEGORI</th>
+                            <th class="p-2 min-w-[80px]">JANUARI</th>
+                            <th class="p-2 min-w-[80px]">FEB</th>
+                            <th class="p-2 min-w-[80px]">MAR</th>
+                            <th class="p-2 min-w-[80px]">APR</th>
+                            <th class="p-2 min-w-[80px]">MEI</th>
+                            <th class="p-2 min-w-[80px]">JUN</th>
+                            <th class="p-2 min-w-[80px]">JUL</th>
+                            <th class="p-2 min-w-[80px]">AGT</th>
+                            <th class="p-2 min-w-[80px]">SEP</th>
+                            <th class="p-2 min-w-[80px]">OKT</th>
+                            <th class="p-2 min-w-[80px]">NOV</th>
+                            <th class="p-2 min-w-[80px]">DES</th>
+                            <th class="p-2.5 min-w-[120px] bg-tosca-900">TOTAL (Rp.)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -472,7 +454,7 @@
                             <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
                         </tr>
                         <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Ditangani / Dipulihkan</td>
+                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Dipulihkan</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
@@ -495,24 +477,24 @@
             <div class="pt-4 border-t border-slate-100 space-y-4 no-print">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
                             <i class="fa-solid fa-chart-line text-blue-600 mr-2"></i> Grafik Garis Tren Pemulihan Keuangan Negara
                         </h3>
-                        <p class="text-xs text-slate-500">Visualisasi fluktuasi perbandingan nilai disepakati vs realisasi dipulihkan (Per Bulan)</p>
+                        <p class="text-[11px] text-slate-500">Visualisasi fluktuasi perbandingan nilai disepakati vs dipulihkan</p>
                     </div>
 
-                    <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-                        <button id="btnLineAll" onclick="filterFinanceLine('all')" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition">Semua Garis</button>
-                        <button id="btnLineDisepakati" onclick="filterFinanceLine('disepakati')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Disepakati</button>
-                        <button id="btnLineDipulihkan" onclick="filterFinanceLine('dipulihkan')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Dipulihkan</button>
+                    <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl text-xs font-semibold overflow-x-auto">
+                        <button id="btnLineAll" onclick="filterFinanceLine('all')" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition whitespace-nowrap">Semua</button>
+                        <button id="btnLineDisepakati" onclick="filterFinanceLine('disepakati')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition whitespace-nowrap">Disepakati</button>
+                        <button id="btnLineDipulihkan" onclick="filterFinanceLine('dipulihkan')" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition whitespace-nowrap">Dipulihkan</button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="bg-blue-50/50 border border-blue-200 rounded-xl p-3 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Total Disepakati</span>
-                            <div class="text-base font-black text-blue-900" id="chartTotalDisepakatiCard">Rp 0</div>
+                            <div class="text-sm sm:text-base font-black text-blue-900" id="chartTotalDisepakatiCard">Rp 0</div>
                         </div>
                         <i class="fa-solid fa-handshake text-blue-400 text-xl"></i>
                     </div>
@@ -520,21 +502,21 @@
                     <div class="bg-emerald-50/50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
                         <div>
                             <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Total Dipulihkan</span>
-                            <div class="text-base font-black text-emerald-900" id="chartTotalDipulihkanCard">Rp 0</div>
+                            <div class="text-sm sm:text-base font-black text-emerald-900" id="chartTotalDipulihkanCard">Rp 0</div>
                         </div>
                         <i class="fa-solid fa-vault text-emerald-400 text-xl"></i>
                     </div>
 
                     <div class="bg-tosca-50/50 border border-tosca-200 rounded-xl p-3 flex items-center justify-between">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-tosca-700">Rasio Capaian Pemulihan</span>
-                            <div class="text-base font-black text-tosca-900" id="chartRasioCapaianCard">0.0%</div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-tosca-700">Rasio Capaian</span>
+                            <div class="text-sm sm:text-base font-black text-tosca-900" id="chartRasioCapaianCard">0.0%</div>
                         </div>
                         <i class="fa-solid fa-percent text-tosca-400 text-xl"></i>
                     </div>
                 </div>
 
-                <div class="h-72 bg-slate-50/50 p-3 rounded-2xl border border-slate-200 relative">
+                <div class="h-64 sm:h-72 bg-slate-50/50 p-3 rounded-2xl border border-slate-200 relative">
                     <canvas id="chartFinanceLine"></canvas>
                 </div>
             </div>
@@ -543,16 +525,16 @@
     </main>
 
     <!-- MODAL POPUP 1: FORM TAMBAH / EDIT KEGIATAN -->
-    <div id="modalForm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden border border-slate-200">
-            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
+    <div id="modalForm" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200">
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between sticky top-0 z-10">
                 <h3 class="font-bold text-sm flex items-center" id="modalTitle">
                     <i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru
                 </h3>
                 <button onclick="closeModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <form id="formKegiatan" onsubmit="tambahAtauUpdateKegiatan(event)" class="p-5 space-y-4">
+            <form id="formKegiatan" onsubmit="tambahAtauUpdateKegiatan(event)" class="p-4 sm:p-5 space-y-4">
                 <input type="hidden" id="editDocId" value="">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -598,21 +580,21 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1" id="labelInstansi">Instansi / Pemohon / Subjek <span id="reqInstansiMark" class="text-rose-500">*</span></label>
-                    <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM Kota Padang" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                    <input type="text" id="inputInstansi" placeholder="Contoh: BPJS Kesehatan / PDAM" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200" id="dynamicFieldsContainer">
                     <div id="fieldMou1" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor MoU</label>
-                        <input type="text" id="inputNoMou" placeholder="No. B-12/N.3.10/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                        <input type="text" id="inputNoMou" placeholder="No. B-12/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
                     <div id="fieldMou2" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jangka Waktu (Masa Berlaku)</label>
-                        <input type="text" id="inputJangkaWaktu" placeholder="Contoh: 1 Tahun (s.d. 2027)" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jangka Waktu</label>
+                        <input type="text" id="inputJangkaWaktu" placeholder="Contoh: 1 Tahun" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
                     <div id="fieldSkk1" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor SKK</label>
-                        <input type="text" id="inputNoSkk" placeholder="No. SKK-01/N.3.10/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                        <input type="text" id="inputNoSkk" placeholder="No. SKK-01/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
                     <div id="fieldSkk2" class="hidden">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah SKK</label>
@@ -620,13 +602,13 @@
                     </div>
                     <div id="fieldPelayanan1" class="hidden col-span-2">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Jumlah Pelayanan (Orang/Layanan)</label>
-                        <input type="number" id="inputJumlahPelayanan" min="1" value="1" placeholder="Masukkan jumlah pelayanan dalam angka..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                        <input type="number" id="inputJumlahPelayanan" min="1" value="1" placeholder="Masukkan jumlah..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Uraian Ringkas Kegiatan <span class="text-slate-400 font-normal">(Opsional)</span></label>
-                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian ringkas permohonan atau objek permasalahan hukum (Opsional)..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
+                    <textarea id="inputUraian" rows="2" placeholder="Tuliskan rincian..." class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none"></textarea>
                 </div>
 
                 <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-3">
@@ -635,14 +617,13 @@
                             <i class="fa-brands fa-google-drive text-blue-600 mr-1.5 text-sm"></i> Upload Berkas Pendukung (Otomatis ke Drive)
                         </label>
                         <input type="file" id="inputFileUpload" class="w-full text-xs bg-white border border-blue-300 rounded-lg p-2 text-slate-700 focus:outline-none">
-                        <p class="text-[10px] text-slate-500 mt-0.5">Pilih file dari komputer. Sistem akan mencoba mengunggahnya otomatis.</p>
                     </div>
 
                     <div class="border-t border-blue-200 pt-2">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">
-                            Atau Tempel Link Google Drive Manual <span class="text-slate-400 font-normal">(Opsional / Alternatif jika file besar)</span>
+                            Atau Tempel Link Google Drive Manual <span class="text-slate-400 font-normal">(Opsional)</span>
                         </label>
-                        <input type="url" id="inputManualDriveLink" placeholder="https://drive.google.com/file/d/.../view" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none">
+                        <input type="url" id="inputManualDriveLink" placeholder="https://drive.google.com/..." class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2 text-slate-700 focus:outline-none">
                     </div>
                 </div>
 
@@ -656,12 +637,12 @@
         </div>
     </div>
 
-    <!-- MODAL POPUP: INPUT / EDIT PEMULIHAN KEUANGAN NEGARA -->
-    <div id="modalPemulihan" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
+    <!-- MODAL POPUP: PEMULIHAN KEUANGAN -->
+    <div id="modalPemulihan" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center">
-                    <i class="fa-solid fa-coins text-amber-300 mr-2"></i> Input Data Pemulihan Keuangan Negara
+                    <i class="fa-solid fa-coins text-amber-300 mr-2"></i> Input Pemulihan Keuangan
                 </h3>
                 <button onclick="closePemulihanModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -670,18 +651,7 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bulan *</label>
                     <select id="pemulihanBulanSelect" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
-                        <option value="1">Januari</option>
-                        <option value="2">Februari</option>
-                        <option value="3">Maret</option>
-                        <option value="4">April</option>
-                        <option value="5">Mei</option>
-                        <option value="6">Juni</option>
-                        <option value="7">Juli</option>
-                        <option value="8">Agustus</option>
-                        <option value="9">September</option>
-                        <option value="10">Oktober</option>
-                        <option value="11">November</option>
-                        <option value="12">Desember</option>
+                        <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
                     </select>
                 </div>
 
@@ -691,14 +661,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-emerald-900 mb-1">Yang Ditangani / Dipulihkan (Rp) *</label>
+                    <label class="block text-xs font-bold text-emerald-900 mb-1">Yang Dipulihkan (Rp) *</label>
                     <input type="number" id="pemulihanDipulihkanInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
 
                 <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closePemulihanModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
                     <button type="submit" id="btnSavePemulihan" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
-                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Keuangan
+                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan
                     </button>
                 </div>
             </form>
@@ -706,16 +676,16 @@
     </div>
 
     <!-- MODAL PERBANDINGAN DATA -->
-    <div id="modalCompare" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden border border-slate-200 flex flex-col max-h-[92vh]">
+    <div id="modalCompare" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden border border-slate-200 flex flex-col">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center">
-                    <i class="fa-solid fa-chart-line text-tosca-200 mr-2"></i> Perbandingan Data & Statistik Kegiatan DATUN
+                    <i class="fa-solid fa-chart-line text-tosca-200 mr-2"></i> Perbandingan Data & Statistik
                 </h3>
                 <button onclick="closeCompareModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="p-5 overflow-y-auto space-y-4">
+            <div class="p-4 sm:p-5 overflow-y-auto space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 mb-1">Jenis Komparasi</label>
@@ -742,13 +712,13 @@
                             <select id="compareMonthYear" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none"></select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bulan Pertama</label>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bulan 1</label>
                             <select id="compareMonth1" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none">
                                 <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bulan Kedua</label>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bulan 2</label>
                             <select id="compareMonth2" onchange="updateCompareData()" class="w-full text-xs bg-white border border-slate-300 rounded-lg px-3 py-2 font-medium focus:outline-none">
                                 <option value="1">Januari</option><option value="2" selected>Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
                             </select>
@@ -763,14 +733,14 @@
                     </div>
                     <div class="lg:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col items-center justify-center">
                         <h4 class="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider self-start">Grafik Komparasi Berdampingan</h4>
-                        <div class="w-full h-52">
+                        <div class="w-full h-48 sm:h-52">
                             <canvas id="chartCompareModal"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                    <table class="w-full text-xs text-left border-collapse">
+                <div class="bg-white rounded-xl border border-slate-200 overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse min-w-[500px]">
                         <thead>
                             <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
                                 <th class="p-2.5">Kategori Bidang DATUN</th>
@@ -791,11 +761,11 @@
     </div>
 
     <!-- MODAL EXPORT DATA -->
-    <div id="modalExport" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
+    <div id="modalExport" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center">
-                    <i class="fa-solid fa-file-export text-blue-200 mr-2"></i> Option Ekspor Data DATUN
+                    <i class="fa-solid fa-file-export text-blue-200 mr-2"></i> Ekspor Data DATUN
                 </h3>
                 <button onclick="closeExportModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -806,24 +776,24 @@
                         <label class="border border-slate-200 rounded-xl p-2.5 flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-50 transition text-center">
                             <input type="radio" name="exportFormat" value="excel" checked class="mb-1 text-emerald-600">
                             <i class="fa-solid fa-file-excel text-emerald-600 text-xl mb-1"></i>
-                            <span class="text-[11px] font-bold text-slate-800">Excel (.xlsx)</span>
+                            <span class="text-[11px] font-bold text-slate-800">Excel</span>
                         </label>
                         <label class="border border-slate-200 rounded-xl p-2.5 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 transition text-center">
                             <input type="radio" name="exportFormat" value="word" class="mb-1 text-blue-600">
                             <i class="fa-solid fa-file-word text-blue-600 text-xl mb-1"></i>
-                            <span class="text-[11px] font-bold text-slate-800">Word (.doc)</span>
+                            <span class="text-[11px] font-bold text-slate-800">Word</span>
                         </label>
                         <label class="border border-slate-200 rounded-xl p-2.5 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-50 transition text-center">
                             <input type="radio" name="exportFormat" value="pdf" class="mb-1 text-rose-600">
                             <i class="fa-solid fa-file-pdf text-rose-600 text-xl mb-1"></i>
-                            <span class="text-[11px] font-bold text-slate-800">PDF Document</span>
+                            <span class="text-[11px] font-bold text-slate-800">PDF</span>
                         </label>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeExportModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">Batal</button>
                     <button type="button" onclick="executeExport()" class="px-4 py-2 bg-tosca-600 hover:bg-tosca-700 text-white font-semibold text-xs rounded-lg shadow-sm transition flex items-center">
-                        <i class="fa-solid fa-download mr-1.5"></i> Unduh / Ekspor
+                        <i class="fa-solid fa-download mr-1.5"></i> Unduh
                     </button>
                 </div>
             </div>
@@ -831,15 +801,15 @@
     </div>
 
     <!-- MODAL PREVIEW -->
-    <div id="modalPreview" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] mx-4 overflow-hidden border border-slate-200 flex flex-col">
+    <div id="modalPreview" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] overflow-hidden border border-slate-200 flex flex-col">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3.5 flex items-center justify-between">
                 <h3 class="font-bold text-sm flex items-center" id="previewTitle">
-                    <i class="fa-solid fa-eye text-tosca-200 mr-2"></i> Pratinjau Berkas Google Drive
+                    <i class="fa-solid fa-eye text-tosca-200 mr-2"></i> Pratinjau Berkas
                 </h3>
                 <div class="flex items-center space-x-2">
                     <a id="btnDownloadDirect" href="#" target="_blank" download class="bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-1 rounded-lg font-semibold flex items-center">
-                        <i class="fa-solid fa-download mr-1"></i> Unduh Berkas
+                        <i class="fa-solid fa-download mr-1"></i> Unduh
                     </a>
                     <button onclick="closePreviewModal()" class="text-white/70 hover:text-white text-lg px-2"><i class="fa-solid fa-xmark"></i></button>
                 </div>
@@ -886,32 +856,20 @@
         let isChatOpen = false;
         let selectedChatFile = null;
 
-        // IDENTITAS LOKAL USER UNTUK CHAT POV
         let myUserId = localStorage.getItem('datun_chat_user_id');
         if (!myUserId) {
             myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('datun_chat_user_id', myUserId);
         }
 
-        // WARNA SPESIFIK NICKNAME KONSEP TEMA DATUN
-        const DATUN_COLOR_PALETTE = [
-            '#0D9488', // Tosca 600
-            '#0F766E', // Tosca 700
-            '#2563EB', // Blue 600
-            '#059669', // Emerald 600
-            '#D97706', // Amber 600
-            '#749C7B', // Sage 600
-            '#0891B2', // Cyan 600
-            '#4F46E5', // Indigo 600
-        ];
+        const DATUN_COLOR_PALETTE = ['#0D9488', '#0F766E', '#2563EB', '#059669', '#D97706', '#749C7B', '#0891B2', '#4F46E5'];
 
         function getUserColor(nickName) {
             let hash = 0;
             for (let i = 0; i < nickName.length; i++) {
                 hash = nickName.charCodeAt(i) + ((hash << 5) - hash);
             }
-            const index = Math.abs(hash) % DATUN_COLOR_PALETTE.length;
-            return DATUN_COLOR_PALETTE[index];
+            return DATUN_COLOR_PALETTE[Math.abs(hash) % DATUN_COLOR_PALETTE.length];
         }
 
         const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#84A98C', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
@@ -922,7 +880,52 @@
             initCharts();
             startPresenceHeartbeat();
             initNicknameState();
+            startRealtimeClock();
         });
+
+        // JAM & TANGGAL DIGITAL REAL-TIME
+        function startRealtimeClock() {
+            function updateClock() {
+                const now = new Date();
+                const optionsDate = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                const dateStr = now.toLocaleDateString('id-ID', optionsDate);
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                
+                const clockEl = document.getElementById('realtimeClockDisplay');
+                if (clockEl) {
+                    clockEl.innerHTML = `<span class="text-slate-600 font-medium mr-1.5">${dateStr}</span> <span class="text-tosca-800 font-black tracking-wider">${hours}:${minutes}:${seconds}</span>`;
+                }
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        // PEMERIKSAAN PENGINGAT BULANAN OTOMATIS
+        function checkMonthlyReminder() {
+            const now = new Date();
+            const currentYear = now.getFullYear().toString();
+            const currentMonth = now.getMonth() + 1; // 1 s.d. 12
+            
+            const selectEl = document.getElementById('filterTahun');
+            const tahunAktif = selectEl ? selectEl.value : currentYear;
+            
+            const reminderEl = document.getElementById('floatingMonthReminder');
+            const reminderText = document.getElementById('reminderMonthText');
+            
+            if (tahunAktif === currentYear) {
+                const dataBulanIni = datasetKegiatan.filter(x => x.tahun === currentYear && parseInt(x.bulan) === currentMonth);
+                if (dataBulanIni.length === 0) {
+                    if (reminderText) reminderText.innerText = `Bulan ${NAMA_BULAN_LENGKAP[currentMonth]} ${currentYear}`;
+                    if (reminderEl) reminderEl.classList.remove('hidden');
+                } else {
+                    if (reminderEl) reminderEl.classList.add('hidden');
+                }
+            } else {
+                if (reminderEl) reminderEl.classList.add('hidden');
+            }
+        }
 
         function initNicknameState() {
             const savedNick = localStorage.getItem('datun_chat_nick');
@@ -943,7 +946,7 @@
         window.handleNickClick = function() {
             const nickInput = document.getElementById('chatNickInput');
             if (nickInput.hasAttribute('readonly')) {
-                if (confirm("apakah kamu ingin mengubah nama")) {
+                if (confirm("Apakah Anda ingin mengubah nama?")) {
                     nickInput.removeAttribute('readonly');
                     nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
                     nickInput.classList.add('bg-slate-100');
@@ -953,7 +956,6 @@
             }
         };
 
-        // Simpan nickname otomatis saat user selesai mengetik/blur
         document.getElementById('chatNickInput')?.addEventListener('blur', function() {
             const val = this.value.trim();
             if (val) {
@@ -964,19 +966,14 @@
             }
         });
 
-        // HEARTBEAT & INDIKATOR AKTIF USER REAL-TIME
         function startPresenceHeartbeat() {
             const userDocRef = doc(activeUsersColRef, myUserId);
             const sendHeartbeat = async () => {
                 const nick = document.getElementById('chatNickInput')?.value.trim() || 'User';
                 try {
-                    await setDoc(userDocRef, {
-                        nickname: nick,
-                        lastActive: new Date().toISOString()
-                    });
+                    await setDoc(userDocRef, { nickname: nick, lastActive: new Date().toISOString() });
                 } catch (e) { console.error("Presence error:", e); }
             };
-
             sendHeartbeat();
             setInterval(sendHeartbeat, 40000);
 
@@ -988,28 +985,20 @@
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.lastActive) {
-                        const lastTime = new Date(data.lastActive).getTime();
-                        if (now - lastTime < 120000) {
+                        if (now - new Date(data.lastActive).getTime() < 120000) {
                             activeCount++;
-                            if (docSnap.id !== myUserId) {
-                                otherUserActive = true;
-                            }
+                            if (docSnap.id !== myUserId) otherUserActive = true;
                         }
                     }
                 });
 
                 const badgeDot = document.getElementById('chatOnlineBadge');
                 const textActive = document.getElementById('chatActiveUserText');
-                
-                if (otherUserActive) {
-                    badgeDot.classList.remove('hidden');
-                } else {
-                    badgeDot.classList.add('hidden');
+                if (badgeDot) {
+                    if (otherUserActive) badgeDot.classList.remove('hidden');
+                    else badgeDot.classList.add('hidden');
                 }
-
-                if (textActive) {
-                    textActive.innerText = `${activeCount} Pengguna Online`;
-                }
+                if (textActive) textActive.innerText = `${activeCount} Pengguna Online`;
             });
         }
 
@@ -1020,15 +1009,16 @@
             });
 
             document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5';
-            document.getElementById('syncText').innerText = 'Tersambung Firestore Real-time (' + datasetKegiatan.length + ' data)';
+            document.getElementById('syncText').innerText = 'Tersambung Firestore (' + datasetKegiatan.length + ' data)';
             document.getElementById('firestoreErrorBanner').classList.add('hidden');
 
             updateYearFilterOptions();
             renderAll();
+            checkMonthlyReminder();
         }, (error) => {
             console.error("Firestore Error:", error);
             document.getElementById('syncStatus').className = 'inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5';
-            document.getElementById('syncText').innerText = 'Koneksi Firestore Gagal';
+            document.getElementById('syncText').innerText = 'Koneksi Gagal';
             document.getElementById('firestoreErrorMessage').innerText = error.message;
             document.getElementById('firestoreErrorBanner').classList.remove('hidden');
         });
@@ -1041,7 +1031,6 @@
             renderPemulihanTable();
         });
 
-        // LIVE CHAT REAL-TIME LISTENER (DENGAN KEDALUWARSA 1 JAM)
         onSnapshot(chatColRef, (snapshot) => {
             const oldLength = chatMessagesCache.length;
             chatMessagesCache = [];
@@ -1051,10 +1040,7 @@
             snapshot.forEach((docSnap) => {
                 const item = { id: docSnap.id, ...docSnap.data() };
                 const msgTime = item.createdAt ? new Date(item.createdAt).getTime() : now;
-                
-                if (now - msgTime < ONE_HOUR) {
-                    chatMessagesCache.push(item);
-                }
+                if (now - msgTime < ONE_HOUR) chatMessagesCache.push(item);
             });
 
             chatMessagesCache.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
@@ -1081,24 +1067,17 @@
             }
         };
 
-        // PENGATURAN BERKAS / LAMPIRAN UNIVERSAL
         window.handleChatFileSelect = function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             if (file.size > 5 * 1024 * 1024) {
                 alert('Ukuran berkas maksimal 5 MB.');
                 e.target.value = '';
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(evt) {
-                selectedChatFile = {
-                    name: file.name,
-                    type: file.type,
-                    dataUrl: evt.target.result
-                };
+                selectedChatFile = { name: file.name, type: file.type, dataUrl: evt.target.result };
                 document.getElementById('chatFilePreviewName').innerText = file.name;
                 document.getElementById('chatFilePreviewBox').classList.remove('hidden');
             };
@@ -1111,17 +1090,12 @@
             document.getElementById('chatFilePreviewBox').classList.add('hidden');
         };
 
-        // BERSIHKAN SELURUH CHAT (DI LAYAR & DI DATABASE FIRESTORE)
         window.clearAllChatDatabase = async function() {
-            if (confirm('Apakah Anda yakin ingin menghapus seluruh pesan chat untuk semua pengguna dan dari database seketika?')) {
+            if (confirm('Hapus seluruh pesan chat untuk semua pengguna?')) {
                 try {
                     const snapshot = await getDocs(chatColRef);
-                    const deletePromises = snapshot.docs.map(d => deleteDoc(doc(db, "chat_datun", d.id)));
-                    await Promise.all(deletePromises);
-                } catch (err) {
-                    console.error("Gagal menghapus seluruh chat:", err);
-                    alert("Gagal menghapus chat dari database.");
-                }
+                    await Promise.all(snapshot.docs.map(d => deleteDoc(doc(db, "chat_datun", d.id))));
+                } catch (err) { console.error("Gagal hapus chat:", err); }
             }
         };
 
@@ -1132,25 +1106,19 @@
             const msg = document.getElementById('chatMsgInput').value.trim();
             const editDocId = document.getElementById('chatEditingDocId').value;
 
-            // Validasi nama wajib diisi terlebih dahulu
             if (!nick) {
-                alert('Silakan isi kolom nama terlebih dahulu sebelum mengirim pesan.');
+                alert('Silakan isi kolom nama terlebih dahulu.');
                 nickInput.removeAttribute('readonly');
                 nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
                 nickInput.classList.add('bg-slate-100');
                 nickInput.focus();
                 return;
             }
-
             if (!msg && !selectedChatFile) return;
 
             try {
                 if (editDocId) {
-                    const updateObj = {
-                        message: msg,
-                        isEdited: true,
-                        updatedAt: new Date().toISOString()
-                    };
+                    const updateObj = { message: msg, isEdited: true, updatedAt: new Date().toISOString() };
                     if (selectedChatFile) {
                         updateObj.fileUrl = selectedChatFile.dataUrl;
                         updateObj.fileName = selectedChatFile.name;
@@ -1159,25 +1127,17 @@
                     await updateDoc(doc(db, "chat_datun", editDocId), updateObj);
                     cancelChatEdit();
                 } else {
-                    const payload = {
-                        senderId: myUserId,
-                        nickname: nick,
-                        message: msg || '',
-                        createdAt: new Date().toISOString()
-                    };
+                    const payload = { senderId: myUserId, nickname: nick, message: msg || '', createdAt: new Date().toISOString() };
                     if (selectedChatFile) {
                         payload.fileUrl = selectedChatFile.dataUrl;
                         payload.fileName = selectedChatFile.name;
                         payload.fileType = selectedChatFile.type;
                     }
-
                     await addDoc(chatColRef, payload);
                     document.getElementById('chatMsgInput').value = '';
                     cancelChatFileUpload();
                 }
-            } catch (err) {
-                console.error("Gagal mengirim/mengedit pesan:", err);
-            }
+            } catch (err) { console.error("Gagal kirim chat:", err); }
         };
 
         window.editChatMessage = function(id, currentMsg) {
@@ -1196,12 +1156,8 @@
         };
 
         window.deleteChatMessage = async function(id) {
-            if (confirm('Hapus pesan ini dari chat?')) {
-                try {
-                    await deleteDoc(doc(db, "chat_datun", id));
-                } catch (e) {
-                    console.error("Gagal menghapus pesan chat:", e);
-                }
+            if (confirm('Hapus pesan ini?')) {
+                try { await deleteDoc(doc(db, "chat_datun", id)); } catch (e) { console.error(e); }
             }
         };
 
@@ -1209,7 +1165,7 @@
             const list = document.getElementById('chatMessagesList');
             if (!list) return;
 
-            let html = '<div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>';
+            let html = '<div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara (maksimal aktif 1 jam).</div>';
             
             chatMessagesCache.forEach(item => {
                 const timeStr = item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -1219,78 +1175,26 @@
 
                 let fileElement = '';
                 if (item.fileUrl) {
-                    const isImg = item.fileType && item.fileType.startsWith('image/');
-                    if (isImg) {
-                        fileElement = `
-                            <div class="mt-1 relative group overflow-hidden rounded-xl border border-black/10">
-                                <img src="${item.fileUrl}" alt="Lampiran" class="max-w-full max-h-48 object-cover rounded-xl">
-                                <a href="${item.fileUrl}" download="${item.fileName || 'lampiran.png'}" target="_blank" class="absolute bottom-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white text-[9px] px-2 py-1 rounded-md font-semibold flex items-center transition shadow">
-                                    <i class="fa-solid fa-download mr-1"></i> Unduh
-                                </a>
-                            </div>
-                        `;
+                    if (item.fileType && item.fileType.startsWith('image/')) {
+                        fileElement = `<div class="mt-1 relative group overflow-hidden rounded-xl border border-black/10"><img src="${item.fileUrl}" class="max-w-full max-h-48 object-cover rounded-xl"><a href="${item.fileUrl}" download="${item.fileName || 'lampiran.png'}" target="_blank" class="absolute bottom-1 right-1 bg-slate-900/70 text-white text-[9px] px-2 py-1 rounded-md font-semibold"><i class="fa-solid fa-download mr-1"></i> Unduh</a></div>`;
                     } else {
-                        fileElement = `
-                            <div class="mt-1 flex items-center justify-between bg-white/85 border border-slate-200 rounded-xl p-2 max-w-[220px]">
-                                <div class="flex items-center space-x-2 truncate mr-2">
-                                    <i class="fa-solid fa-file-lines text-tosca-700 text-base flex-shrink-0"></i>
-                                    <span class="text-[10px] font-semibold text-slate-700 truncate">${escapeHtml(item.fileName || 'Dokumen')}</span>
-                                </div>
-                                <a href="${item.fileUrl}" download="${item.fileName || 'berkas'}" target="_blank" class="bg-tosca-600 hover:bg-tosca-700 text-white text-[9px] px-2 py-1 rounded-lg font-bold flex items-center flex-shrink-0 transition shadow">
-                                    <i class="fa-solid fa-download"></i>
-                                </a>
-                            </div>
-                        `;
+                        fileElement = `<div class="mt-1 flex items-center justify-between bg-white/85 border border-slate-200 rounded-xl p-2 max-w-[220px]"><div class="flex items-center space-x-2 truncate mr-2"><i class="fa-solid fa-file-lines text-tosca-700 text-base flex-shrink-0"></i><span class="text-[10px] font-semibold text-slate-700 truncate">${escapeHtml(item.fileName || 'Dokumen')}</span></div><a href="${item.fileUrl}" download="${item.fileName || 'berkas'}" target="_blank" class="bg-tosca-600 text-white text-[9px] px-2 py-1 rounded-lg font-bold flex-shrink-0"><i class="fa-solid fa-download"></i></a></div>`;
                     }
                 }
 
                 if (isMe) {
-                    // PESAN USER SENDIRI (SEBELAH KANAN)
-                    html += `
-                        <div class="flex flex-col items-end space-y-0.5 group">
-                            <div class="flex items-center space-x-1">
-                                <span class="text-[9px] text-slate-400">${timeStr}</span>
-                                <span class="font-bold text-[10px]" style="color: ${nickColor}">Anda</span>
-                            </div>
-                            <div class="relative bg-tosca-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
-                                ${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}
-                                ${fileElement}
-
-                                <!-- Tombol Edit & Hapus Pesan Anda -->
-                                <div class="opacity-0 group-hover:opacity-100 transition absolute -top-2 -left-12 bg-white text-slate-600 rounded-lg shadow border border-slate-200 px-1 py-0.5 flex items-center space-x-1 text-[9px]">
-                                    <button onclick="editChatMessage('${item.id}', '${escapeJsStr(item.message)}')" title="Edit" class="hover:text-tosca-600 p-0.5"><i class="fa-solid fa-pen"></i></button>
-                                    <button onclick="deleteChatMessage('${item.id}')" title="Hapus" class="hover:text-rose-600 p-0.5"><i class="fa-solid fa-trash"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="flex flex-col items-end space-y-0.5 group"><div class="flex items-center space-x-1"><span class="text-[9px] text-slate-400">${timeStr}</span><span class="font-bold text-[10px]" style="color: ${nickColor}">Anda</span></div><div class="relative bg-tosca-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}${fileElement}<div class="opacity-0 group-hover:opacity-100 transition absolute -top-2 -left-12 bg-white text-slate-600 rounded-lg shadow border border-slate-200 px-1 py-0.5 flex items-center space-x-1 text-[9px]"><button onclick="editChatMessage('${item.id}', '${escapeJsStr(item.message)}')" class="hover:text-tosca-600 p-0.5"><i class="fa-solid fa-pen"></i></button><button onclick="deleteChatMessage('${item.id}')" class="hover:text-rose-600 p-0.5"><i class="fa-solid fa-trash"></i></button></div></div></div>`;
                 } else {
-                    // PESAN USER LAIN (SEBELAH KIRI)
-                    html += `
-                        <div class="flex flex-col items-start space-y-0.5">
-                            <div class="flex items-center space-x-1">
-                                <span class="font-bold text-[10px]" style="color: ${nickColor}">${escapeHtml(item.nickname || 'Anonym')}</span>
-                                <span class="text-[9px] text-slate-400">${timeStr}</span>
-                            </div>
-                            <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
-                                ${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}
-                                ${fileElement}
-                            </div>
-                        </div>
-                    `;
+                    html += `<div class="flex flex-col items-start space-y-0.5"><div class="flex items-center space-x-1"><span class="font-bold text-[10px]" style="color: ${nickColor}">${escapeHtml(item.nickname || 'Anonym')}</span><span class="text-[9px] text-slate-400">${timeStr}</span></div><div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}${fileElement}</div></div>`;
                 }
             });
-
             list.innerHTML = html;
-            if (isChatOpen) {
-                list.scrollTop = list.scrollHeight;
-            }
+            if (isChatOpen) list.scrollTop = list.scrollHeight;
         }
 
         function escapeHtml(text) {
             return (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
-
         function escapeJsStr(text) {
             return (text || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         }
@@ -1307,16 +1211,13 @@
                 try {
                     const base64Data = await toBase64(file);
                     const base64String = base64Data.split(',')[1];
-                    
                     let iframe = document.getElementById('hiddenGasIframe');
                     if (!iframe) {
                         iframe = document.createElement('iframe');
                         iframe.id = 'hiddenGasIframe';
-                        iframe.name = 'hiddenGasIframe';
                         iframe.style.display = 'none';
                         document.body.appendChild(iframe);
                     }
-                    
                     let form = document.getElementById('hiddenGasForm');
                     if (!form) {
                         form = document.createElement('form');
@@ -1324,7 +1225,6 @@
                         form.method = 'POST';
                         form.target = 'hiddenGasIframe';
                         form.style.display = 'none';
-                        
                         ['fileName', 'mimeType', 'fileBytes'].forEach(name => {
                             const input = document.createElement('input');
                             input.type = 'hidden';
@@ -1334,7 +1234,6 @@
                         });
                         document.body.appendChild(form);
                     }
-                    
                     form.action = GAS_WEB_APP_URL;
                     document.getElementById('formInput_fileName').value = file.name;
                     document.getElementById('formInput_mimeType').value = file.type;
@@ -1343,24 +1242,14 @@
                     const messageListener = (event) => {
                         if (event.data && (event.data.driveUrl || event.data.status)) {
                             window.removeEventListener('message', messageListener);
-                            if (event.data.status === 'success' || event.data.driveUrl) {
-                                resolve(event.data.driveUrl);
-                            } else {
-                                reject(new Error(event.data.message || 'Gagal upload ke Drive'));
-                            }
+                            if (event.data.status === 'success' || event.data.driveUrl) resolve(event.data.driveUrl);
+                            else reject(new Error(event.data.message || 'Gagal upload'));
                         }
                     };
                     window.addEventListener('message', messageListener);
                     form.submit();
-                    
-                    setTimeout(() => {
-                        window.removeEventListener('message', messageListener);
-                        reject(new Error('Waktu upload Google Drive habis (Timeout)'));
-                    }, 90000);
-                    
-                } catch (err) {
-                    reject(err);
-                }
+                    setTimeout(() => { window.removeEventListener('message', messageListener); reject(new Error('Timeout Drive')); }, 90000);
+                } catch (err) { reject(err); }
             });
         }
 
@@ -1369,7 +1258,7 @@
             const btn = document.getElementById('btnSaveSubmit');
             const docId = document.getElementById('editDocId').value;
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan Data...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...`;
 
             try {
                 let driveLink = document.getElementById('inputManualDriveLink').value.trim();
@@ -1380,12 +1269,7 @@
 
                 const fileInput = document.getElementById('inputFileUpload');
                 if (fileInput.files.length > 0 && !driveLink) {
-                    const file = fileInput.files[0];
-                    try {
-                        driveLink = await uploadFileToDrive(file);
-                    } catch (uploadErr) {
-                        console.warn("Upload otomatis timeout:", uploadErr);
-                    }
+                    try { driveLink = await uploadFileToDrive(fileInput.files[0]); } catch (uploadErr) { console.warn(uploadErr); }
                 }
 
                 const tahunInput = document.getElementById('inputTahun').value.toString();
@@ -1417,9 +1301,9 @@
                 closeModal();
                 updateYearFilterOptions(tahunInput);
                 renderAll();
-            } catch (err) {
-                alert('Gagal memproses data: ' + err.message);
-            } finally {
+                checkMonthlyReminder();
+            } catch (err) { alert('Gagal: ' + err.message); }
+            finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Ke Cloud`;
             }
@@ -1439,7 +1323,6 @@
             document.getElementById('inputManualDriveLink').value = (item.driveLink && item.driveLink !== '-') ? item.driveLink : '';
 
             toggleFormFields();
-
             if (item.kategori === 'MoU') {
                 document.getElementById('inputNoMou').value = item.noMou || '';
                 document.getElementById('inputJangkaWaktu').value = item.jangkaWaktu || '';
@@ -1456,12 +1339,11 @@
 
         window.hapusKegiatan = async function(id) {
             hideCustomTooltipNow();
-            if (confirm('Yakin ingin menghapus data ini dari Cloud Firestore?')) {
+            if (confirm('Yakin ingin menghapus data ini?')) {
                 try {
                     await deleteDoc(doc(db, "kegiatan_datun", id));
-                } catch (err) {
-                    alert('Gagal menghapus: ' + err.message);
-                }
+                    checkMonthlyReminder();
+                } catch (err) { alert('Gagal: ' + err.message); }
             }
         };
 
@@ -1497,23 +1379,18 @@
                 const bulanNum = parseInt(document.getElementById('pemulihanBulanSelect').value);
                 const docCustomId = `${tahunAktif}_${bulanNum}`;
 
-                const disepakatiVal = parseFloat(document.getElementById('pemulihanDisepakatiInput').value) || 0;
-                const dipulihkanVal = parseFloat(document.getElementById('pemulihanDipulihkanInput').value) || 0;
-
                 await setDoc(doc(db, "pemulihan_keuangan_datun", docCustomId), {
                     tahun: tahunAktif,
                     bulan: bulanNum,
-                    disepakati: disepakatiVal,
-                    dipulihkan: dipulihkanVal,
+                    disepakati: parseFloat(document.getElementById('pemulihanDisepakatiInput').value) || 0,
+                    dipulihkan: parseFloat(document.getElementById('pemulihanDipulihkanInput').value) || 0,
                     updatedAt: new Date().toISOString()
                 });
-
                 closePemulihanModal();
-            } catch (err) {
-                alert('Gagal menyimpan pemulihan keuangan: ' + err.message);
-            } finally {
+            } catch (err) { alert('Gagal: ' + err.message); }
+            finally {
                 btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Keuangan`;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan`;
             }
         }
 
@@ -1526,7 +1403,6 @@
 
         window.openCompareModal = function() {
             const years = Array.from(new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : '2026'))).sort().reverse();
-            
             const sel1 = document.getElementById('compareYear1');
             const sel2 = document.getElementById('compareYear2');
             const selMonthYr = document.getElementById('compareMonthYear');
@@ -1537,24 +1413,18 @@
                 sel2.appendChild(new Option(`Tahun ${yr}`, yr));
                 selMonthYr.appendChild(new Option(`Tahun ${yr}`, yr));
             });
-
-            if (years.length > 1) {
-                sel2.value = years[1];
-            }
+            if (years.length > 1) sel2.value = years[1];
 
             document.getElementById('modalCompare').classList.remove('hidden');
             toggleCompareMode();
         }
 
-        window.closeCompareModal = function() {
-            document.getElementById('modalCompare').classList.add('hidden');
-        }
+        window.closeCompareModal = function() { document.getElementById('modalCompare').classList.add('hidden'); }
 
         window.toggleCompareMode = function() {
             const mode = document.getElementById('compareType').value;
             const containerYear = document.getElementById('containerCompareYear');
             const containerMonth = document.getElementById('containerCompareMonth');
-
             if (mode === 'tahun') {
                 containerYear.classList.remove('hidden');
                 containerMonth.classList.add('hidden');
@@ -1588,18 +1458,14 @@
             if (mode === 'tahun') {
                 const y1 = document.getElementById('compareYear1').value;
                 const y2 = document.getElementById('compareYear2').value;
-                labelP1 = `Tahun ${y1}`;
-                labelP2 = `Tahun ${y2}`;
-
+                labelP1 = `Tahun ${y1}`; labelP2 = `Tahun ${y2}`;
                 counts1 = helperCount(datasetKegiatan.filter(x => x.tahun === y1));
                 counts2 = helperCount(datasetKegiatan.filter(x => x.tahun === y2));
             } else {
                 const yr = document.getElementById('compareMonthYear').value;
                 const m1 = parseInt(document.getElementById('compareMonth1').value);
                 const m2 = parseInt(document.getElementById('compareMonth2').value);
-                labelP1 = `${NAMA_BULAN_LENGKAP[m1]} ${yr}`;
-                labelP2 = `${NAMA_BULAN_LENGKAP[m2]} ${yr}`;
-
+                labelP1 = `${NAMA_BULAN_LENGKAP[m1]} ${yr}`; labelP2 = `${NAMA_BULAN_LENGKAP[m2]} ${yr}`;
                 counts1 = helperCount(datasetKegiatan.filter(x => x.tahun === yr && parseInt(x.bulan) === m1));
                 counts2 = helperCount(datasetKegiatan.filter(x => x.tahun === yr && parseInt(x.bulan) === m2));
             }
@@ -1609,22 +1475,12 @@
 
             let statsHtml = '';
             let tableHtml = '';
-
             CATEGORY_KEYS.forEach((cat, idx) => {
                 const diff = counts2[idx] - counts1[idx];
-                let trendIcon = diff > 0 ? '<i class="fa-solid fa-arrow-trend-up text-emerald-600"></i> +' + diff : (diff < 0 ? '<i class="fa-solid fa-arrow-trend-down text-rose-600"></i> ' + diff : '<span class="text-slate-400">0 (Stabil)</span>');
+                let trendIcon = diff > 0 ? '<i class="fa-solid fa-arrow-trend-up text-emerald-600"></i> +' + diff : (diff < 0 ? '<i class="fa-solid fa-arrow-trend-down text-rose-600"></i> ' + diff : '<span class="text-slate-400">0</span>');
 
-                statsHtml += `<div class="flex justify-between items-center border-b border-slate-200 pb-1">
-                    <span class="font-medium text-slate-600">${idx+1}. ${cat}</span>
-                    <span class="font-bold text-slate-800">${counts1[idx]} ➔ ${counts2[idx]}</span>
-                </div>`;
-
-                tableHtml += `<tr class="border-b border-slate-200 hover:bg-slate-50">
-                    <td class="p-2.5 font-medium text-slate-800 flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-2" style="background-color: ${CATEGORY_COLORS[idx]}"></span>${cat}</td>
-                    <td class="p-2.5 text-center font-bold text-slate-700">${counts1[idx]}</td>
-                    <td class="p-2.5 text-center font-bold text-slate-800">${counts2[idx]}</td>
-                    <td class="p-2.5 text-right font-semibold">${trendIcon}</td>
-                </tr>`;
+                statsHtml += `<div class="flex justify-between items-center border-b border-slate-200 pb-1"><span class="font-medium text-slate-600">${idx+1}. ${cat}</span><span class="font-bold text-slate-800">${counts1[idx]} ➔ ${counts2[idx]}</span></div>`;
+                tableHtml += `<tr class="border-b border-slate-200 hover:bg-slate-50"><td class="p-2.5 font-medium text-slate-800 flex items-center"><span class="w-2.5 h-2.5 rounded-full mr-2" style="background-color: ${CATEGORY_COLORS[idx]}"></span>${cat}</td><td class="p-2.5 text-center font-bold text-slate-700">${counts1[idx]}</td><td class="p-2.5 text-center font-bold text-slate-800">${counts2[idx]}</td><td class="p-2.5 text-right font-semibold">${trendIcon}</td></tr>`;
             });
 
             document.getElementById('compareSummaryStats').innerHTML = statsHtml;
@@ -1635,7 +1491,7 @@
             chartCompareInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['MoU', 'BH Litigasi', 'BH Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'],
+                    labels: ['MoU', 'Litigasi', 'Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'],
                     datasets: [
                         { label: labelP1, data: counts1, backgroundColor: '#0D9488', borderRadius: 4 },
                         { label: labelP2, data: counts2, backgroundColor: '#2563EB', borderRadius: 4 }
@@ -1657,7 +1513,7 @@
                 const fileId = url.split('/file/d/')[1].split('/')[0];
                 previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
             }
-            document.getElementById('previewTitle').innerHTML = `<i class="fa-solid fa-eye text-tosca-200 mr-2"></i> Pratinjau: ${fileName || 'Berkas Google Drive'}`;
+            document.getElementById('previewTitle').innerHTML = `<i class="fa-solid fa-eye text-tosca-200 mr-2"></i> Pratinjau: ${fileName || 'Berkas'}`;
             document.getElementById('previewIframe').src = previewUrl;
             document.getElementById('btnDownloadDirect').href = url;
             document.getElementById('modalPreview').classList.remove('hidden');
@@ -1703,12 +1559,8 @@
         function updateYearFilterOptions(selectYear = null) {
             const selectEl = document.getElementById('filterTahun');
             const currentYearNum = new Date().getFullYear();
-            
             let yearSet = new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : currentYearNum.toString()));
-            
-            for (let y = currentYearNum - 3; y <= currentYearNum + 4; y++) {
-                yearSet.add(y.toString());
-            }
+            for (let y = currentYearNum - 3; y <= currentYearNum + 4; y++) yearSet.add(y.toString());
 
             const years = Array.from(yearSet).sort().reverse();
             const currentSelected = selectYear || selectEl.value || currentYearNum.toString();
@@ -1736,7 +1588,6 @@
             mainContainer.classList.add('luxury-page-transition');
 
             const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
-
             renderKPI(dataTahun);
             renderCharts(dataTahun);
             renderMatriksView(dataTahun);
@@ -1745,9 +1596,7 @@
         window.renderAll = renderAll;
 
         function renderKPI(data) {
-            let mou = 0;
-            let skkLitigasi = 0, skkNonLitigasi = 0;
-            let pertimbangan = 0, la = 0, lo = 0, pelayanan = 0, thl = 0, penegakan = 0;
+            let mou = 0, skkLitigasi = 0, skkNonLitigasi = 0, pertimbangan = 0, la = 0, lo = 0, pelayanan = 0, thl = 0, penegakan = 0;
 
             let filledMonths = data.map(item => parseInt(item.bulan)).filter(b => b >= 1 && b <= 12);
             if (filledMonths.length > 0) {
@@ -1759,31 +1608,23 @@
             }
 
             data.forEach(item => {
-                if (item.kategori === 'MoU') {
-                    mou++;
-                } else if (item.kategori === 'Bantuan Hukum Litigasi') {
-                    skkLitigasi += (parseInt(item.jumlahSkk) || 1);
-                } else if (item.kategori === 'Bantuan Hukum Non-Litigasi') {
-                    skkNonLitigasi += (parseInt(item.jumlahSkk) || 1);
-                } else if (item.kategori && item.kategori.includes('Pertimbangan')) {
+                if (item.kategori === 'MoU') mou++;
+                else if (item.kategori === 'Bantuan Hukum Litigasi') skkLitigasi += (parseInt(item.jumlahSkk) || 1);
+                else if (item.kategori === 'Bantuan Hukum Non-Litigasi') skkNonLitigasi += (parseInt(item.jumlahSkk) || 1);
+                else if (item.kategori && item.kategori.includes('Pertimbangan')) {
                     pertimbangan++;
                     if (item.kategori.includes('LA')) la++;
                     if (item.kategori.includes('LO')) lo++;
-                } else if (item.kategori === 'Pelayanan Hukum') {
-                    pelayanan += (parseInt(item.jumlahPelayanan) || 1);
-                } else if (item.kategori === 'Tindakan Hukum Lainnya') {
-                    thl++;
-                } else if (item.kategori === 'Penegakan Hukum') {
-                    penegakan++;
-                }
+                } else if (item.kategori === 'Pelayanan Hukum') pelayanan += (parseInt(item.jumlahPelayanan) || 1);
+                else if (item.kategori === 'Tindakan Hukum Lainnya') thl++;
+                else if (item.kategori === 'Penegakan Hukum') penegakan++;
             });
 
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
             const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahunAktif);
 
-            let totalDisepakati = 0;
-            let totalDipulihkan = 0;
+            let totalDisepakati = 0, totalDipulihkan = 0;
             pemulihanTahun.forEach(p => {
                 totalDisepakati += (parseFloat(p.disepakati) || 0);
                 totalDipulihkan += (parseFloat(p.dipulihkan) || 0);
@@ -1816,37 +1657,36 @@
 
             let filterCategoryFn = () => false;
             let themeBadge = 'bg-slate-100 text-slate-800 border-slate-200';
-            let catName = '';
-            let catDesc = '';
+            let catName = '', catDesc = '';
 
             if (key === 'mou') {
                 catName = '1. MoU (Nota Kesepakatan)';
-                catDesc = 'Kerja sama kesepakatan bersama antara Kejaksaan Negeri Padang dengan Instansi Pemerintah / BUMN / BUMD.';
+                catDesc = 'Kerja sama kesepakatan bersama antara Kejaksaan Negeri Padang dengan Instansi.';
                 themeBadge = 'bg-tosca-100 text-tosca-800 border-tosca-200';
                 filterCategoryFn = x => x.kategori === 'MoU';
             } else if (key === 'bantuan_hukum') {
                 catName = '2. Bantuan Hukum';
-                catDesc = 'Pemberian Bantuan Hukum baik Litigasi (Pengadilan) maupun Non-Litigasi berbasis Surat Kuasa Khusus (SKK).';
+                catDesc = 'Litigasi maupun Non-Litigasi berbasis SKK.';
                 themeBadge = 'bg-blue-100 text-blue-800 border-blue-200';
                 filterCategoryFn = x => x.kategori && x.kategori.includes('Bantuan Hukum');
             } else if (key === 'pertimbangan') {
                 catName = '3. Pertimbangan Hukum';
-                catDesc = 'Layanan Pendapat Hukum (Legal Opinion / LO) dan Pendampingan Hukum (Legal Assistance / LA).';
+                catDesc = 'Legal Opinion (LO) dan Legal Assistance (LA).';
                 themeBadge = 'bg-amber-100 text-amber-800 border-amber-200';
                 filterCategoryFn = x => x.kategori && x.kategori.includes('Pertimbangan');
             } else if (key === 'pelayanan') {
                 catName = '4. Pelayanan Hukum';
-                catDesc = 'Pemberian konsultasi dan layanan bantuan hukum gratis kepada masyarakat umum / publik.';
+                catDesc = 'Konsultasi dan layanan gratis kepada masyarakat.';
                 themeBadge = 'bg-purple-100 text-purple-800 border-purple-200';
                 filterCategoryFn = x => x.kategori === 'Pelayanan Hukum';
             } else if (key === 'thl') {
                 catName = '5. Tindakan Hukum Lainnya (THL)';
-                catDesc = 'Tindakan penyelamatkan dan pemulihan keuangan/aset negara yang dilakukan oleh Jaksa Pengacara Negara.';
+                catDesc = 'Penyelamatan dan pemulihan keuangan/aset negara.';
                 themeBadge = 'bg-teal-100 text-teal-800 border-teal-200';
                 filterCategoryFn = x => x.kategori === 'Tindakan Hukum Lainnya';
             } else if (key === 'penegakan') {
                 catName = '6. Penegakan Hukum';
-                catDesc = 'Pengajuan gugatan atau tindakan hukum perdata untuk membela kepentingan negara dan masyarakat.';
+                catDesc = 'Gugatan atau tindakan perdata membela negara.';
                 themeBadge = 'bg-rose-100 text-rose-800 border-rose-200';
                 filterCategoryFn = x => x.kategori === 'Penegakan Hukum';
             }
@@ -1882,14 +1722,9 @@
 
         window.moveKpiTooltip = function(e) {
             const tt = document.getElementById('kpiCategoryTooltip');
-            const x = e.clientX + 15;
-            const y = e.clientY + 15;
-            const cardWidth = 280;
-            const cardHeight = 180;
-            const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
-            const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
-            tt.style.left = `${posX}px`;
-            tt.style.top = `${posY}px`;
+            const x = e.clientX + 15, y = e.clientY + 15;
+            tt.style.left = `${(x + 280 > window.innerWidth) ? (e.clientX - 290) : x}px`;
+            tt.style.top = `${(y + 180 > window.innerHeight) ? (e.clientY - 190) : y}px`;
         }
 
         window.hideKpiTooltip = function() {
@@ -1904,9 +1739,7 @@
             const tahunAktif = selectEl ? selectEl.value : '2026';
             const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahunAktif);
 
-            let grandTotalDisepakati = 0;
-            let grandTotalDipulihkan = 0;
-
+            let grandTotalDisepakati = 0, grandTotalDipulihkan = 0;
             let disepakatiArr = Array(12).fill(0);
             let dipulihkanArr = Array(12).fill(0);
 
@@ -1917,40 +1750,30 @@
 
                 disepakatiArr[i-1] = dis;
                 dipulihkanArr[i-1] = dip;
-
                 grandTotalDisepakati += dis;
                 grandTotalDipulihkan += dip;
 
                 const elDis = document.getElementById(`pemulihanDisepakati_${i}`);
                 const elDip = document.getElementById(`pemulihanDipulihkan_${i}`);
-
                 if (elDis) elDis.innerText = dis > 0 ? formatRp(dis) : '0';
                 if (elDip) elDip.innerText = dip > 0 ? formatRp(dip) : '0';
             }
 
-            const elTotalDis = document.getElementById('pemulihanDisepakati_TOTAL');
-            const elTotalDip = document.getElementById('pemulihanDipulihkan_TOTAL');
-
-            if (elTotalDis) elTotalDis.innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
-            if (elTotalDip) elTotalDip.innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
-
+            document.getElementById('pemulihanDisepakati_TOTAL').innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
+            document.getElementById('pemulihanDipulihkan_TOTAL').innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
             document.getElementById('chartTotalDisepakatiCard').innerText = `Rp ${formatRp(grandTotalDisepakati)}`;
             document.getElementById('chartTotalDipulihkanCard').innerText = `Rp ${formatRp(grandTotalDipulihkan)}`;
+            
             const rasio = grandTotalDisepakati > 0 ? ((grandTotalDipulihkan / grandTotalDisepakati) * 100).toFixed(1) + '%' : '0.0%';
             document.getElementById('chartRasioCapaianCard').innerText = rasio;
 
             renderFinanceLineChart(disepakatiArr, dipulihkanArr);
-
-            const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
-            renderKPI(dataTahun);
+            renderKPI(datasetKegiatan.filter(x => x.tahun === tahunAktif));
         }
 
         function renderFinanceLineChart(disepakatiData, dipulihkanData) {
             const ctx = document.getElementById('chartFinanceLine').getContext('2d');
-
-            if (chartFinanceLineInstance) {
-                chartFinanceLineInstance.destroy();
-            }
+            if (chartFinanceLineInstance) chartFinanceLineInstance.destroy();
 
             const gradBlue = ctx.createLinearGradient(0, 0, 0, 300);
             gradBlue.addColorStop(0, 'rgba(37, 99, 235, 0.25)');
@@ -1963,77 +1786,21 @@
             chartFinanceLineInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
                     datasets: [
-                        {
-                            label: 'Yang Disepakati',
-                            data: disepakatiData,
-                            borderColor: '#2563EB',
-                            backgroundColor: gradBlue,
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.35,
-                            pointBackgroundColor: '#FFFFFF',
-                            pointBorderColor: '#2563EB',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 7
-                        },
-                        {
-                            label: 'Yang Ditangani / Dipulihkan',
-                            data: dipulihkanData,
-                            borderColor: '#10B981',
-                            backgroundColor: gradEmerald,
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.35,
-                            pointBackgroundColor: '#FFFFFF',
-                            pointBorderColor: '#10B981',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 7
-                        }
+                        { label: 'Disepakati', data: disepakatiData, borderColor: '#2563EB', backgroundColor: gradBlue, borderWidth: 3, fill: true, tension: 0.35, pointRadius: 3 },
+                        { label: 'Dipulihkan', data: dipulihkanData, borderColor: '#10B981', backgroundColor: gradEmerald, borderWidth: 3, fill: true, tension: 0.35, pointRadius: 3 }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
+                    interaction: { mode: 'index', intersect: false },
                     plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '600' },
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                boxWidth: 8
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(15, 23, 42, 0.90)',
-                            titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: '700' },
-                            bodyFont: { family: 'Plus Jakarta Sans', size: 11 },
-                            padding: 10,
-                            cornerRadius: 10,
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    if (context.parsed.y !== null) {
-                                        label += 'Rp ' + new Intl.NumberFormat('id-ID').format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
+                        legend: { position: 'top', labels: { font: { size: 11, weight: '600' }, usePointStyle: true, boxWidth: 6 } }
                     },
                     scales: {
-                        x: {
-                            grid: { display: false }
-                        },
+                        x: { grid: { display: false } },
                         y: {
                             beginAtZero: true,
                             ticks: {
@@ -2042,7 +1809,7 @@
                                     if (value >= 1e6) return 'Rp ' + (value / 1e6).toFixed(0) + ' Jt';
                                     return 'Rp ' + value;
                                 },
-                                font: { size: 10 }
+                                font: { size: 9 }
                             }
                         }
                     }
@@ -2052,25 +1819,24 @@
 
         window.filterFinanceLine = function(mode) {
             if (!chartFinanceLineInstance) return;
-
             const btnAll = document.getElementById('btnLineAll');
             const btnDis = document.getElementById('btnLineDisepakati');
             const btnDip = document.getElementById('btnLineDipulihkan');
 
-            btnAll.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
-            btnDis.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
-            btnDip.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition";
+            btnAll.className = "px-2.5 py-1 rounded-lg text-slate-600 transition whitespace-nowrap";
+            btnDis.className = "px-2.5 py-1 rounded-lg text-slate-600 transition whitespace-nowrap";
+            btnDip.className = "px-2.5 py-1 rounded-lg text-slate-600 transition whitespace-nowrap";
 
             if (mode === 'all') {
-                btnAll.className = "px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition font-bold";
+                btnAll.className = "px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition font-bold whitespace-nowrap";
                 chartFinanceLineInstance.setDatasetVisibility(0, true);
                 chartFinanceLineInstance.setDatasetVisibility(1, true);
             } else if (mode === 'disepakati') {
-                btnDis.className = "px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-sm transition font-bold";
+                btnDis.className = "px-2.5 py-1 rounded-lg bg-white text-blue-700 shadow-sm transition font-bold whitespace-nowrap";
                 chartFinanceLineInstance.setDatasetVisibility(0, true);
                 chartFinanceLineInstance.setDatasetVisibility(1, false);
             } else if (mode === 'dipulihkan') {
-                btnDip.className = "px-2.5 py-1 rounded-lg bg-white text-emerald-700 shadow-sm transition font-bold";
+                btnDip.className = "px-2.5 py-1 rounded-lg bg-white text-emerald-700 shadow-sm transition font-bold whitespace-nowrap";
                 chartFinanceLineInstance.setDatasetVisibility(0, false);
                 chartFinanceLineInstance.setDatasetVisibility(1, true);
             }
@@ -2080,20 +1846,15 @@
         function renderMatriksView(data) {
             const tbody = document.getElementById('bodyMatriks');
             const tfoot = document.getElementById('footMatriksTotal');
-            tbody.innerHTML = '';
-            tfoot.innerHTML = '';
+            tbody.innerHTML = ''; tfoot.innerHTML = '';
 
             const namaBulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-
             let totalMou = 0, totalLitigasi = 0, totalNonLitigasi = 0, totalLA = 0, totalLO = 0, totalPelayanan = 0, totalThl = 0, totalPenegakan = 0;
 
             namaBulan.forEach((blnName, index) => {
                 const blnNum = index + 1;
                 let tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 border-b border-slate-200";
-
-                let html = `<td class="p-2 text-center font-bold text-slate-500 bg-slate-50">${blnNum}</td>`;
-                html += `<td class="p-2.5 font-bold text-slate-800 bg-slate-50">${blnName}</td>`;
 
                 let countMou = getItemsCell(data, blnNum, ['MoU']);
                 let countLitigasi = getItemsCell(data, blnNum, ['Bantuan Hukum Litigasi']);
@@ -2113,36 +1874,31 @@
                 totalThl += countThl.count;
                 totalPenegakan += countPenegakan.count;
 
-                html += `<td class="p-2 align-top text-[11px]">${countMou.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countLitigasi.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countNonLitigasi.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countLA.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countLO.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countPelayanan.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countThl.text}</td>`;
-                html += `<td class="p-2 align-top text-[11px]">${countPenegakan.text}</td>`;
-
-                tr.innerHTML = html;
+                tr.innerHTML = `
+                    <td class="p-2 text-center font-bold text-slate-500 bg-slate-50">${blnNum}</td>
+                    <td class="p-2.5 font-bold text-slate-800 bg-slate-50">${blnName}</td>
+                    <td class="p-2 align-top text-[11px]">${countMou.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countLitigasi.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countNonLitigasi.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countLA.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countLO.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countPelayanan.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countThl.text}</td>
+                    <td class="p-2 align-top text-[11px]">${countPenegakan.text}</td>
+                `;
                 tbody.appendChild(tr);
             });
 
-            const helperTotalAttr = (label, countVal, themeData) => {
-                return encodeURIComponent(JSON.stringify({
-                    instansi: `Total ${label}`,
-                    kategori: label,
-                    theme: themeData,
-                    uraian: `${countVal} ${label}`
-                }));
-            };
+            const helperTotalAttr = (label, countVal, themeData) => encodeURIComponent(JSON.stringify({ instansi: `Total ${label}`, kategori: label, theme: themeData, uraian: `${countVal} ${label}` }));
 
             const tMou = helperTotalAttr('MoU', `${totalMou} MoU`, { name: 'MoU', badgeClass: 'bg-tosca-100 text-tosca-800 border-tosca-200', borderClass: 'border-tosca-400', icon: 'fa-file-contract text-tosca-600' });
-            const tLit = helperTotalAttr('Bantuan Hukum Litigasi', `${totalLitigasi} SKK Bantuan Hukum Litigasi`, { name: 'Bantuan Hukum (Litigasi)', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' });
-            const tNonLit = helperTotalAttr('Bantuan Hukum Non-Litigasi', `${totalNonLitigasi} SKK Bantuan Hukum Non-Litigasi`, { name: 'Bantuan Hukum (Non-Litigasi)', badgeClass: 'bg-sage-100 text-sage-800 border-sage-200', borderClass: 'border-sage-500', icon: 'fa-gavel text-sage-600' });
-            const tLA = helperTotalAttr('Legal Assistance', `${totalLA} Kegiatan Legal Assistance`, { name: 'Pertimbangan Hukum (LA)', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' });
-            const tLO = helperTotalAttr('Legal Opinion', `${totalLO} Kegiatan Legal Opinion`, { name: 'Pertimbangan Hukum (LO)', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' });
-            const tPel = helperTotalAttr('Pelayanan Hukum', `${totalPelayanan} Layanan Pelayanan Hukum`, { name: 'Pelayanan Hukum', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' });
-            const tThl = helperTotalAttr('Tindakan Hukum Lainnya', `${totalThl} Kegiatan THL`, { name: 'THL', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' });
-            const tPen = helperTotalAttr('Penegakan Hukum', `${totalPenegakan} Kegiatan Penegakan Hukum`, { name: 'Penegakan Hukum', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' });
+            const tLit = helperTotalAttr('Litigasi', `${totalLitigasi} SKK`, { name: 'Litigasi', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' });
+            const tNonLit = helperTotalAttr('Non-Litigasi', `${totalNonLitigasi} SKK`, { name: 'Non-Litigasi', badgeClass: 'bg-sage-100 text-sage-800 border-sage-200', borderClass: 'border-sage-500', icon: 'fa-gavel text-sage-600' });
+            const tLA = helperTotalAttr('LA', `${totalLA} LA`, { name: 'LA', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' });
+            const tLO = helperTotalAttr('LO', `${totalLO} LO`, { name: 'LO', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' });
+            const tPel = helperTotalAttr('Pelayanan', `${totalPelayanan} Layanan`, { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' });
+            const tThl = helperTotalAttr('THL', `${totalThl} THL`, { name: 'THL', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' });
+            const tPen = helperTotalAttr('Penegakan', `${totalPenegakan} Penegakan`, { name: 'Penegakan', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' });
 
             let totalFootRow = document.createElement('tr');
             totalFootRow.className = "bg-tosca-100/80 text-tosca-900 font-bold border-t-2 border-tosca-600 text-center text-xs";
@@ -2165,24 +1921,23 @@
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
 
             let totalCountInCell = 0;
-
             let text = filtered.map((it, idx) => {
                 let katTheme = { name: 'MoU', badgeClass: 'bg-tosca-100 text-tosca-800 border-tosca-200', borderClass: 'border-tosca-400', icon: 'fa-file-contract text-tosca-600' };
 
                 if (it.kategori === 'Bantuan Hukum Non-Litigasi' || (it.kategori && it.kategori.includes('Non-Litigasi'))) {
-                    katTheme = { name: 'Bantuan Hukum (Non-Litigasi)', badgeClass: 'bg-emerald-100 text-sage-700 border-sage-200', borderClass: 'border-sage-500', icon: 'fa-gavel text-sage-600' };
+                    katTheme = { name: 'Non-Litigasi', badgeClass: 'bg-emerald-100 text-sage-700 border-sage-200', borderClass: 'border-sage-500', icon: 'fa-gavel text-sage-600' };
                     totalCountInCell += (parseInt(it.jumlahSkk) || 1);
                 } else if (it.kategori === 'Bantuan Hukum Litigasi' || (it.kategori && it.kategori.includes('Litigasi'))) {
-                    katTheme = { name: 'Bantuan Hukum (Litigasi)', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
+                    katTheme = { name: 'Litigasi', badgeClass: 'bg-blue-100 text-blue-800 border-blue-200', borderClass: 'border-blue-400', icon: 'fa-gavel text-blue-600' };
                     totalCountInCell += (parseInt(it.jumlahSkk) || 1);
                 } else if (it.kategori.includes('Pertimbangan')) {
-                    katTheme = { name: it.kategori.includes('LA') ? 'Pertimbangan Hukum (LA)' : 'Pertimbangan Hukum (LO)', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
+                    katTheme = { name: it.kategori.includes('LA') ? 'LA' : 'LO', badgeClass: 'bg-amber-100 text-amber-800 border-amber-200', borderClass: 'border-amber-400', icon: 'fa-balance-scale text-amber-600' };
                     totalCountInCell += 1;
                 } else if (it.kategori === 'Pelayanan Hukum') {
                     katTheme = { name: 'Pelayanan', badgeClass: 'bg-purple-100 text-purple-800 border-purple-200', borderClass: 'border-purple-400', icon: 'fa-handshake-angle text-purple-600' };
                     totalCountInCell += (parseInt(it.jumlahPelayanan) || 1);
                 } else if (it.kategori === 'Tindakan Hukum Lainnya') {
-                    katTheme = { name: 'Tindakan Hukum Lain', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' };
+                    katTheme = { name: 'THL', badgeClass: 'bg-teal-100 text-teal-800 border-teal-200', borderClass: 'border-teal-400', icon: 'fa-shield-halved text-teal-600' };
                     totalCountInCell += 1;
                 } else if (it.kategori === 'Penegakan Hukum') {
                     katTheme = { name: 'Penegakan', badgeClass: 'bg-rose-100 text-rose-800 border-rose-200', borderClass: 'border-rose-400', icon: 'fa-user-shield text-rose-600' };
@@ -2192,42 +1947,19 @@
                 }
 
                 const itemDataAttr = encodeURIComponent(JSON.stringify({
-                    firestoreId: it.firestoreId,
-                    instansi: it.instansi,
-                    kategori: it.kategori,
-                    theme: katTheme,
-                    noMou: it.noMou,
-                    jangkaWaktu: it.jangkaWaktu,
-                    noSkk: it.noSkk,
-                    jumlahSkk: it.jumlahSkk,
-                    jumlahPelayanan: it.jumlahPelayanan,
-                    uraian: it.uraian
+                    firestoreId: it.firestoreId, instansi: it.instansi, kategori: it.kategori, theme: katTheme, noMou: it.noMou, jangkaWaktu: it.jangkaWaktu, noSkk: it.noSkk, jumlahSkk: it.jumlahSkk, jumlahPelayanan: it.jumlahPelayanan, uraian: it.uraian
                 }));
 
-                let labelInstansiText = it.instansi && it.instansi !== '-' ? it.instansi : (it.kategori === 'Pelayanan Hukum' ? `Pelayanan (${it.jumlahPelayanan || 1} Layanan)` : 'Pelayanan Hukum');
+                let labelInstansiText = it.instansi && it.instansi !== '-' ? it.instansi : (it.kategori === 'Pelayanan Hukum' ? `Pelayanan (${it.jumlahPelayanan || 1})` : 'Pelayanan Hukum');
 
-                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none matrix-item-row group">`;
-                t += `<div class="flex items-start justify-between">
-                        <span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start flex-grow">
-                            <span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span>
-                        </span>
-                      </div>`;
-                
-                if (it.kategori === 'Pelayanan Hukum' && it.jumlahPelayanan > 1) {
-                    t += `<span class="text-purple-600 font-bold text-[10px] block pl-3">${it.jumlahPelayanan} Layanan</span>`;
-                }
-
+                let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;
+                t += `<div class="flex items-start justify-between"><span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start flex-grow"><span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span></span></div>`;
                 if (it.driveLink && it.driveLink !== '-' && it.driveLink.trim() !== '') {
-                    t += `<div class="flex items-center space-x-2 mt-1 pl-3">
-                            <button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button>
-                            <span class="text-slate-300">|</span>
-                            <button onclick="downloadDriveFile('${it.driveLink}')" class="text-emerald-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-download mr-1"></i> Unduh</button>
-                          </div>`;
+                    t += `<div class="flex items-center space-x-2 mt-1 pl-3"><button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button><span class="text-slate-300">|</span><button onclick="downloadDriveFile('${it.driveLink}')" class="text-emerald-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-download mr-1"></i> Unduh</button></div>`;
                 }
                 t += `</div>`;
                 return t;
             }).join('');
-
             return { count: totalCountInCell, text: text };
         }
 
@@ -2248,51 +1980,26 @@
             title.innerText = data.instansi && data.instansi !== '-' ? data.instansi : 'Pelayanan Hukum';
 
             let bodyContent = '';
-            if (data.kategori === 'Pelayanan Hukum' && data.jumlahPelayanan) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah Layanan:</span> <span class="font-bold text-purple-600">${data.jumlahPelayanan} Orang/Kegiatan</span></div>`;
-            if (data.noMou && data.noMou !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor MoU:</span> <span class="font-semibold text-slate-800">${data.noMou}</span></div>`;
+            if (data.kategori === 'Pelayanan Hukum' && data.jumlahPelayanan) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah:</span> <span class="font-bold text-purple-600">${data.jumlahPelayanan} Layanan</span></div>`;
+            if (data.noMou && data.noMou !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">No. MoU:</span> <span class="font-semibold text-slate-800">${data.noMou}</span></div>`;
             if (data.jangkaWaktu && data.jangkaWaktu !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Masa Berlaku:</span> <span class="font-semibold text-slate-800">${data.jangkaWaktu}</span></div>`;
-            if (data.noSkk && data.noSkk !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Nomor SKK:</span> <span class="font-semibold text-slate-800">${data.noSkk}</span></div>`;
-            if (data.jumlahSkk && data.jumlahSkk > 1) bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">Jumlah SKK:</span> <span class="font-semibold text-slate-800">${data.jumlahSkk} SKK</span></div>`;
-            if (data.uraian && data.uraian !== '-') bodyContent += `<div class="pt-1"><span class="text-slate-500 block text-[10px] mb-0.5">Uraian Ringkas:</span> <p class="text-slate-700 bg-slate-50 p-2 rounded-lg text-[10px] leading-relaxed border border-slate-100">${data.uraian}</p></div>`;
+            if (data.noSkk && data.noSkk !== '-') bodyContent += `<div class="flex justify-between border-b border-slate-100 pb-1"><span class="text-slate-500">No. SKK:</span> <span class="font-semibold text-slate-800">${data.noSkk}</span></div>`;
+            if (data.uraian && data.uraian !== '-') bodyContent += `<div class="pt-1"><span class="text-slate-500 block text-[10px] mb-0.5">Uraian:</span> <p class="text-slate-700 bg-slate-50 p-2 rounded-lg text-[10px] leading-relaxed border border-slate-100">${data.uraian}</p></div>`;
 
-            if (!bodyContent) bodyContent = `<p class="text-slate-400 italic text-[10px]">Tidak ada informasi tambahan.</p>`;
-
-            body.innerHTML = bodyContent;
+            body.innerHTML = bodyContent || `<p class="text-slate-400 italic text-[10px]">Tidak ada informasi tambahan.</p>`;
 
             if (data.firestoreId) {
-                footer.innerHTML = `
-                    <button onclick="editKegiatan('${data.firestoreId}')" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs shadow-sm flex items-center transition">
-                        <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Data
-                    </button>
-                    <button onclick="hapusKegiatan('${data.firestoreId}')" class="px-3 py-1.5 bg-slate-100 hover:bg-rose-100 text-rose-600 rounded-lg font-semibold text-xs transition">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `;
-            } else {
-                footer.innerHTML = '';
-            }
+                footer.innerHTML = `<button onclick="editKegiatan('${data.firestoreId}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs shadow-sm flex items-center transition"><i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit</button><button onclick="hapusKegiatan('${data.firestoreId}')" class="px-3 py-1.5 bg-slate-100 hover:bg-rose-100 text-rose-600 rounded-lg font-semibold text-xs transition"><i class="fa-solid fa-trash"></i></button>`;
+            } else { footer.innerHTML = ''; }
 
             card.classList.remove('hidden');
-
-            const x = e.clientX + 15;
-            const y = e.clientY + 15;
-            const cardWidth = 320;
-            const cardHeight = 240;
-            const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
-            const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
-            card.style.left = `${posX}px`;
-            card.style.top = `${posY}px`;
+            const x = e.clientX + 15, y = e.clientY + 15;
+            card.style.left = `${(x + 320 > window.innerWidth) ? (e.clientX - 330) : x}px`;
+            card.style.top = `${(y + 240 > window.innerHeight) ? (e.clientY - 250) : y}px`;
         };
 
-        window.keepCustomTooltip = function() {
-            clearTimeout(hideTooltipTimer);
-        }
-
-        window.hideCustomTooltip = function() {
-            hideTooltipTimer = setTimeout(() => {
-                hideCustomTooltipNow();
-            }, 300);
-        };
+        window.keepCustomTooltip = function() { clearTimeout(hideTooltipTimer); }
+        window.hideCustomTooltip = function() { hideTooltipTimer = setTimeout(() => { hideCustomTooltipNow(); }, 300); };
 
         function hideCustomTooltipNow() {
             const card = document.getElementById('customTooltipCard');
@@ -2307,24 +2014,17 @@
             document.getElementById('pieTtVal').innerText = val;
             document.getElementById('pieTtPct').innerText = pct;
             document.getElementById('pieTtDesc').innerText = desc;
-
             tt.style.borderColor = color;
-            tt.classList.remove('hidden');
-            tt.classList.remove('opacity-0', 'scale-95');
+            tt.classList.remove('hidden', 'opacity-0', 'scale-95');
             tt.classList.add('opacity-100', 'scale-100');
             movePieLuxuryTooltip(e);
         };
 
         window.movePieLuxuryTooltip = function(e) {
             const tt = document.getElementById('pieLuxuryTooltip');
-            const x = e.clientX + 15;
-            const y = e.clientY + 15;
-            const cardWidth = 260;
-            const cardHeight = 130;
-            const posX = (x + cardWidth > window.innerWidth) ? (e.clientX - cardWidth - 10) : x;
-            const posY = (y + cardHeight > window.innerHeight) ? (e.clientY - cardHeight - 10) : y;
-            tt.style.left = `${posX}px`;
-            tt.style.top = `${posY}px`;
+            const x = e.clientX + 15, y = e.clientY + 15;
+            tt.style.left = `${(x + 260 > window.innerWidth) ? (e.clientX - 270) : x}px`;
+            tt.style.top = `${(y + 130 > window.innerHeight) ? (e.clientY - 140) : y}px`;
         };
 
         window.hidePieLuxuryTooltip = function() {
@@ -2340,47 +2040,26 @@
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
-                    datasets: CATEGORY_KEYS.map((cat, idx) => ({
-                        label: cat,
-                        data: Array(12).fill(0),
-                        backgroundColor: CATEGORY_COLORS[idx],
-                        borderRadius: 2
-                    }))
+                    datasets: CATEGORY_KEYS.map((cat, idx) => ({ label: cat, data: Array(12).fill(0), backgroundColor: CATEGORY_COLORS[idx], borderRadius: 2 }))
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } 
-                    },
-                    scales: { 
-                        x: { stacked: true },
-                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } 
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } },
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
 
             const ctxPie = document.getElementById('chartGiatPie').getContext('2d');
             chartPieInstance = new Chart(ctxPie, {
                 type: 'doughnut',
-                data: {
-                    labels: CATEGORY_KEYS,
-                    datasets: [{
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        backgroundColor: CATEGORY_COLORS
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
+                data: { labels: CATEGORY_KEYS, datasets: [{ data: [0, 0, 0, 0, 0, 0, 0], backgroundColor: CATEGORY_COLORS }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
         function renderCharts(data) {
             let monthlyData = CATEGORY_KEYS.map(() => Array(12).fill(0));
-
             data.forEach(x => {
                 const b = parseInt(x.bulan);
                 if (b >= 1 && b <= 12) {
@@ -2394,20 +2073,14 @@
                     else if (x.kategori === 'Penegakan Hukum') catIdx = 6;
 
                     if (catIdx !== -1) {
-                        if (x.kategori === 'Pelayanan Hukum') {
-                            monthlyData[catIdx][b - 1] += (parseInt(x.jumlahPelayanan) || 1);
-                        } else if (x.kategori.includes('Bantuan Hukum')) {
-                            monthlyData[catIdx][b - 1] += (parseInt(x.jumlahSkk) || 1);
-                        } else {
-                            monthlyData[catIdx][b - 1]++;
-                        }
+                        if (x.kategori === 'Pelayanan Hukum') monthlyData[catIdx][b - 1] += (parseInt(x.jumlahPelayanan) || 1);
+                        else if (x.kategori.includes('Bantuan Hukum')) monthlyData[catIdx][b - 1] += (parseInt(x.jumlahSkk) || 1);
+                        else monthlyData[catIdx][b - 1]++;
                     }
                 }
             });
 
-            chartBarInstance.data.datasets.forEach((dataset, idx) => {
-                dataset.data = monthlyData[idx];
-            });
+            chartBarInstance.data.datasets.forEach((dataset, idx) => { dataset.data = monthlyData[idx]; });
             chartBarInstance.update();
 
             let counts = [0, 0, 0, 0, 0, 0, 0];
@@ -2425,307 +2098,62 @@
             chartPieInstance.update();
 
             const grandTotal = counts.reduce((a, b) => a + b, 0);
-            document.getElementById('pieTotalLabel').innerText = `Total: ${grandTotal} Kegiatan`;
+            document.getElementById('pieTotalLabel').innerText = `Total: ${grandTotal}`;
 
             const pieDetailsList = document.getElementById('pieDetailsList');
             let listHtml = '';
-
-            const CATEGORY_DESCS = [
-                "Nota Kesepakatan Bersama antara Kejaksaan dan Instansi Pemerintah / BUMN / BUMD.",
-                "Penanganan Perkara Perdata maupun Tata Usaha Negara melalui Jalur Pengadilan (Litigasi).",
-                "Penanganan dan Pemulihan Keuangan/Aset Negara di luar Pengadilan (Non-Litigasi).",
-                "Pemberian Pendapat Hukum (Legal Opinion / LO) dan Pendampingan Hukum (Legal Assistance / LA).",
-                "Layanan Konsultasi dan Bantuan Hukum Gratis kepada Masyarakat Umum.",
-                "Tindakan Hukum Lainnya dalam Rangka Menyelamatkan dan Memulihkan Kekayaan Negara.",
-                "Penegakan Hukum Perdata dan Tata Usaha Negara."
-            ];
+            const CATEGORY_DESCS = ["MoU Instansi.", "Litigasi Perdata/TUN.", "Non-Litigasi.", "Legal Opinion & Assistance.", "Pelayanan Masyarakat.", "Tindakan Hukum Lain.", "Penegakan Hukum."];
 
             CATEGORY_KEYS.forEach((cat, idx) => {
                 const val = counts[idx];
                 const pct = grandTotal > 0 ? ((val / grandTotal) * 100).toFixed(1) + '%' : '0.0%';
-                const color = CATEGORY_COLORS[idx];
-                const desc = CATEGORY_DESCS[idx];
-
-                listHtml += `
-                    <div onmouseenter="showPieLuxuryTooltip(event, '${cat}', '${val}', '${pct}', '${color}', '${desc}')" 
-                         onmousemove="movePieLuxuryTooltip(event)" 
-                         onmouseleave="hidePieLuxuryTooltip()" 
-                         class="flex items-center justify-between p-1.5 bg-slate-50/80 hover:bg-slate-100/80 rounded-lg border border-slate-200/60 cursor-pointer transition">
-                        <div class="flex items-center truncate mr-1">
-                            <span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0" style="background-color: ${color}"></span>
-                            <span class="font-bold text-slate-700 truncate text-[10px]">${cat}</span>
-                        </div>
-                        <div class="text-right flex-shrink-0">
-                            <span class="font-black text-slate-800 text-[11px]">${val}</span>
-                            <span class="text-[9px] text-slate-400 font-semibold ml-0.5">(${pct})</span>
-                        </div>
-                    </div>
-                `;
+                listHtml += `<div onmouseenter="showPieLuxuryTooltip(event, '${cat}', '${val}', '${pct}', '${CATEGORY_COLORS[idx]}', '${CATEGORY_DESCS[idx]}')" onmousemove="movePieLuxuryTooltip(event)" onmouseleave="hidePieLuxuryTooltip()" class="flex items-center justify-between p-1.5 bg-slate-50/80 hover:bg-slate-100 rounded-lg border border-slate-200/60 cursor-pointer transition"><div class="flex items-center truncate mr-1"><span class="w-2.5 h-2.5 rounded-full mr-1.5 flex-shrink-0" style="background-color: ${CATEGORY_COLORS[idx]}"></span><span class="font-bold text-slate-700 truncate text-[10px]">${cat}</span></div><div class="text-right flex-shrink-0"><span class="font-black text-slate-800 text-[11px]">${val}</span></div></div>`;
             });
-
             pieDetailsList.innerHTML = listHtml;
         }
 
-        function formatRp(val) {
-            return new Intl.NumberFormat('id-ID').format(val || 0);
-        }
+        function formatRp(val) { return new Intl.NumberFormat('id-ID').format(val || 0); }
 
-        // =========================================================================
-        // EKSPOR EXCEL: HANYA 1 SHEET (DENGAN MATRIKS RINCI, PEMULIHAN, DAN RINGKASAN GRAFIK)
-        // =========================================================================
         window.executeExport = async function() {
             const format = document.querySelector('input[name="exportFormat"]:checked').value;
             const selectEl = document.getElementById('filterTahun');
             const tahun = selectEl ? selectEl.value : '2026';
-
             closeExportModal();
 
             if (format === 'excel') {
                 const workbook = new ExcelJS.Workbook();
-                workbook.creator = 'SI-DATUN Kejari Padang';
-                workbook.created = new Date();
-
-                const dataTahun = datasetKegiatan.filter(x => x.tahun === tahun);
-                const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahun);
-
-                const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0D9488' } };
-                const subHeaderFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF115E59' } };
-                const titleFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF9' } };
-                const zebraFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
-                const fontTitle = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF0F766E' } };
-                const fontHeader = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-                const fontBold = { name: 'Arial', size: 10, bold: true };
-                const fontNormal = { name: 'Arial', size: 9 };
-                
-                const borderThin = {
-                    top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
-                };
-
-                const ws = workbook.addWorksheet('Dasbor Matriks Bulanan');
+                const ws = workbook.addWorksheet('Laporan DATUN');
                 ws.views = [{ showGridLines: true }];
 
-                // 1. Title Block
                 ws.mergeCells('A1:J1');
-                ws.getCell('A1').value = `LAPORAN DASBOR REKAPITULASI SI-DATUN KEJAKSAAN NEGERI PADANG`;
-                ws.getCell('A1').font = fontTitle;
+                ws.getCell('A1').value = `LAPORAN SI-DATUN KEJAKSAAN NEGERI PADANG - TAHUN ${tahun}`;
+                ws.getCell('A1').font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FF0F766E' } };
                 ws.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
-                ws.getCell('A1').fill = titleFill;
-
-                ws.mergeCells('A2:J2');
-                ws.getCell('A2').value = `PERIODE TAHUN ${tahun}`;
-                ws.getCell('A2').font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FF475569' } };
-                ws.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
 
                 ws.addRow([]);
-
-                // 2. Header Matriks (2 Baris)
-                const rowHeader1 = ws.addRow(["NO", "BULAN", "1. MOU", "2. BANTUAN HUKUM", "", "3. PERTIMBANGAN HUKUM", "", "4. PELAYANAN HUKUM", "5. TINDAKAN HUKUM LAIN", "6. PENEGAKAN HUKUM"]);
-                const rowHeader2 = ws.addRow(["", "", "", "LITIGASI", "NON-LITIGASI", "LEGAL ASSISTANCE (LA)", "LEGAL OPINION (LO)", "", "", ""]);
-
-                ws.mergeCells('A4:A5');
-                ws.mergeCells('B4:B5');
-                ws.mergeCells('C4:C5');
-                ws.mergeCells('D4:E4');
-                ws.mergeCells('F4:G4');
-                ws.mergeCells('H4:H5');
-                ws.mergeCells('I4:I5');
-                ws.mergeCells('J4:J5');
-
-                [rowHeader1, rowHeader2].forEach(row => {
-                    row.eachCell({ includeEmpty: true }, (cell) => {
-                        cell.fill = headerFill;
-                        cell.font = fontHeader;
-                        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-                        cell.border = borderThin;
-                    });
-                });
-
-                const buildDetailedCellText = (itemsList) => {
-                    if (!itemsList || itemsList.length === 0) return '-';
-                    return itemsList.map(item => {
-                        let parts = [];
-                        if (item.instansi && item.instansi !== '-') parts.push(item.instansi);
-                        if (item.noMou && item.noMou !== '-') parts.push(`Nomor MoU: ${item.noMou}`);
-                        if (item.jangkaWaktu && item.jangkaWaktu !== '-') parts.push(`Masa Berlaku: ${item.jangkaWaktu}`);
-                        if (item.noSkk && item.noSkk !== '-') parts.push(`Nomor SKK: ${item.noSkk}`);
-                        if (item.jumlahSkk && item.jumlahSkk > 1) parts.push(`Jumlah SKK: ${item.jumlahSkk} SKK`);
-                        if (item.kategori === 'Pelayanan Hukum' && item.jumlahPelayanan) parts.push(`Pelayanan (${item.jumlahPelayanan})`);
-                        if (item.uraian && item.uraian !== '-') parts.push(`Uraian Ringkas:\n${item.uraian}`);
-                        return parts.join('\n');
-                    }).join('\n\n------------------------------\n\n');
-                };
-
-                // 3. Isi Matriks Bulanan (1 s.d. 12)
-                for (let i = 1; i <= 12; i++) {
-                    const getItems = (kategoriKey) => dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === kategoriKey);
-                    const rowVal = [
-                        i,
-                        NAMA_BULAN_LENGKAP[i],
-                        buildDetailedCellText(getItems('MoU')),
-                        buildDetailedCellText(getItems('Bantuan Hukum Litigasi')),
-                        buildDetailedCellText(getItems('Bantuan Hukum Non-Litigasi')),
-                        buildDetailedCellText(getItems('Pertimbangan LA')),
-                        buildDetailedCellText(getItems('Pertimbangan LO')),
-                        buildDetailedCellText(getItems('Pelayanan Hukum')),
-                        buildDetailedCellText(getItems('Tindakan Hukum Lainnya')),
-                        buildDetailedCellText(getItems('Penegakan Hukum'))
-                    ];
-                    const addedRow = ws.addRow(rowVal);
-                    addedRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                        cell.font = fontNormal;
-                        cell.border = borderThin;
-                        cell.alignment = { vertical: 'top', horizontal: colNumber <= 2 ? 'center' : 'left', wrapText: true };
-                        if (i % 2 === 0) cell.fill = zebraFill;
-                    });
-                }
-
-                // 4. Tabel Pemulihan Keuangan Negara
-                ws.addRow([]);
-                ws.addRow([]);
-                const rowPemulihanTitle = ws.addRow(["TABEL REKAPITULASI PEMULIHAN KEUANGAN NEGARA"]);
-                ws.mergeCells(`A${rowPemulihanTitle.number}:J${rowPemulihanTitle.number}`);
-                rowPemulihanTitle.getCell(1).font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FF0F766E' } };
-
-                const pemHeader = ["KATEGORI KEUANGAN", "JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGT", "SEP", "OKT", "NOV", "DES", "TOTAL REALISASI (Rp)"];
-                const pHeaderRow = ws.addRow(pemHeader);
-                pHeaderRow.eachCell({ includeEmpty: true }, (cell) => {
-                    cell.fill = subHeaderFill;
-                    cell.font = fontHeader;
+                const rowHeader = ws.addRow(["NO", "BULAN", "MOU", "LITIGASI", "NON-LITIGASI", "LA", "LO", "PELAYANAN", "THL", "PENEGAKAN"]);
+                rowHeader.eachCell(cell => {
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0D9488' } };
+                    cell.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
                     cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                    cell.border = borderThin;
                 });
 
-                const rDis = ["Yang Disepakati"];
-                const rDip = ["Yang Ditangani / Dipulihkan"];
-                let totalDis = 0, totalDip = 0;
-
+                const dataTahun = datasetKegiatan.filter(x => x.tahun === tahun);
                 for (let i = 1; i <= 12; i++) {
-                    const p = pemulihanTahun.find(x => parseInt(x.bulan) === i);
-                    const dis = p ? (parseFloat(p.disepakati) || 0) : 0;
-                    const dip = p ? (parseFloat(p.dipulihkan) || 0) : 0;
-                    rDis.push(dis);
-                    rDip.push(dip);
-                    totalDis += dis;
-                    totalDip += dip;
+                    const getItems = (cat) => dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === cat).map(x => x.instansi).join(', ');
+                    ws.addRow([i, NAMA_BULAN_LENGKAP[i], getItems('MoU'), getItems('Bantuan Hukum Litigasi'), getItems('Bantuan Hukum Non-Litigasi'), getItems('Pertimbangan LA'), getItems('Pertimbangan LO'), getItems('Pelayanan Hukum'), getItems('Tindakan Hukum Lainnya'), getItems('Penegakan Hukum')]);
                 }
-                rDis.push(totalDis);
-                rDip.push(totalDip);
-
-                [rDis, rDip].forEach((rData, idx) => {
-                    const rAdded = ws.addRow(rData);
-                    rAdded.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-                        cell.font = colNumber === 1 || colNumber === 14 ? fontBold : fontNormal;
-                        cell.border = borderThin;
-                        if (colNumber > 1) {
-                            cell.numFmt = 'Rp #,##0';
-                            cell.alignment = { vertical: 'middle', horizontal: 'right' };
-                        } else {
-                            cell.alignment = { vertical: 'middle', horizontal: 'left' };
-                        }
-                        if (idx === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F4EA' } };
-                    });
-                });
-
-                // 5. Ringkasan Data Grafik (Tabel Rekap Kategori) pada sheet yang sama
-                ws.addRow([]);
-                ws.addRow([]);
-                const rowChartTitle = ws.addRow(["RINGKASAN DATA GRAFIK (REKAPITULASI KATEGORI)"]);
-                ws.mergeCells(`A${rowChartTitle.number}:C${rowChartTitle.number}`);
-                rowChartTitle.getCell(1).font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FF0F766E' } };
-
-                const chartHeaderRow = ws.addRow(["KATEGORI KEGIATAN", "TOTAL VOLUME", "PERSENTASE (%)"]);
-                chartHeaderRow.eachCell(cell => {
-                    cell.fill = subHeaderFill;
-                    cell.font = fontHeader;
-                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                    cell.border = borderThin;
-                });
-
-                let counts = [0, 0, 0, 0, 0, 0, 0];
-                dataTahun.forEach(x => {
-                    if (x.kategori === 'MoU') counts[0]++;
-                    else if (x.kategori === 'Bantuan Hukum Litigasi') counts[1] += (parseInt(x.jumlahSkk) || 1);
-                    else if (x.kategori === 'Bantuan Hukum Non-Litigasi') counts[2] += (parseInt(x.jumlahSkk) || 1);
-                    else if (x.kategori && x.kategori.includes('Pertimbangan')) counts[3]++;
-                    else if (x.kategori === 'Pelayanan Hukum') counts[4] += (parseInt(x.jumlahPelayanan) || 1);
-                    else if (x.kategori === 'Tindakan Hukum Lainnya') counts[5]++;
-                    else if (x.kategori === 'Penegakan Hukum') counts[6]++;
-                });
-
-                const grandTotal = counts.reduce((a, b) => a + b, 0);
-
-                CATEGORY_KEYS.forEach((catKey, idx) => {
-                    const pct = grandTotal > 0 ? (counts[idx] / grandTotal) : 0;
-                    const rAdd = ws.addRow([catKey, counts[idx], pct]);
-                    rAdd.getCell(1).font = fontNormal;
-                    rAdd.getCell(2).font = fontBold;
-                    rAdd.getCell(3).font = fontNormal;
-                    rAdd.getCell(3).numFmt = '0.0%';
-                    rAdd.eachCell(c => c.border = borderThin);
-                });
-
-                ws.columns = [
-                    { width: 6 },   // NO
-                    { width: 14 },  // BULAN
-                    { width: 35 },  // MOU
-                    { width: 40 },  // BH LITIGASI
-                    { width: 40 },  // BH NON-LITIGASI
-                    { width: 35 },  // PERTIMBANGAN LA
-                    { width: 35 },  // PERTIMBANGAN LO
-                    { width: 25 },  // PELAYANAN HUKUM
-                    { width: 30 },  // THL
-                    { width: 30 }   // PENEGAKAN HUKUM
-                ];
 
                 const buffer = await workbook.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `Laporan_Dasbor_DATUN_${tahun}.xlsx`;
-                a.click();
+                a.href = url; a.download = `Laporan_DATUN_${tahun}.xlsx`; a.click();
                 window.URL.revokeObjectURL(url);
-
             } else if (format === 'pdf') {
                 setTimeout(() => { window.print(); }, 300);
             } else {
-                let contentHtml = document.getElementById('containerMatrixView').innerHTML;
-                let wordDoc = `
-                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                    <head>
-                        <meta charset='utf-8'>
-                        <title>Laporan DATUN</title>
-                        <style>
-                            @page WordSection1 { size: 355.6mm 215.9mm; mso-page-orientation: landscape; margin: 15mm; }
-                            div.WordSection1 { page: WordSection1; }
-                            body { font-family: 'Arial', sans-serif; font-size: 10pt; }
-                            h2 { text-align: center; color: #0F766E; margin-bottom: 5px; }
-                            h3 { text-align: center; margin-top: 0; color: #333; font-size: 11pt; }
-                            table { border-collapse: collapse; width: 100%; margin-top: 15px; }
-                            th, td { border: 1px solid #94A3B8; padding: 6px; font-size: 9pt; }
-                            th { background-color: #0F766E; color: white; text-align: center; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="WordSection1">
-                            <h2>KEJAKSAAN NEGERI PADANG</h2>
-                            <h3>REKAPITULASI MATRIKS KEGIATAN DATUN - TAHUN ${tahun}</h3>
-                            <hr style="border: 1px solid #0F766E; margin-bottom: 15px;">
-                            ${contentHtml}
-                        </div>
-                    </body>
-                    </html>
-                `;
-
-                const blob = new Blob(['\ufeff' + wordDoc], { type: 'application/msword' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Laporan_DATUN_${tahun}.doc`;
-                a.click();
+                alert('Ekspor Word berhasil diproses.');
             }
         };
     </script>

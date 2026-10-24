@@ -842,7 +842,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -873,6 +873,7 @@
         let hideTooltipTimer = null;
         let unreadChatCount = 0;
         let isChatOpen = false;
+        let chatListenerInitialized = false;
         let selectedChatFile = null;
 
         let isMonthDetailMode = false;
@@ -1019,7 +1020,8 @@
                 } catch (e) { console.error("Presence error:", e); }
             };
             sendHeartbeat();
-            setInterval(sendHeartbeat, 40000);
+            // Heartbeat 60 detik: mengurangi write dibanding interval 40 detik.
+            setInterval(sendHeartbeat, 60000);
 
             onSnapshot(activeUsersColRef, (snapshot) => {
                 const now = new Date().getTime();
@@ -1029,7 +1031,7 @@
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     if (data.lastActive) {
-                        if (now - new Date(data.lastActive).getTime() < 120000) {
+                        if (now - new Date(data.lastActive).getTime() < 150000) {
                             activeCount++;
                             if (docSnap.id !== myUserId) otherUserActive = true;
                         }
@@ -1075,28 +1077,53 @@
             renderPemulihanTable();
         });
 
-        onSnapshot(chatColRef, (snapshot) => {
-            const oldLength = chatMessagesCache.length;
-            chatMessagesCache = [];
-            const now = new Date().getTime();
+        // Optimasi reads: listener chat hanya mengambil dokumen dengan createdAt
+        // dalam satu jam terakhir, bukan seluruh riwayat chat yang tersimpan.
+        // createdAt saat ini disimpan sebagai ISO string sehingga batas waktu juga string ISO.
+        const getRecentChatQuery = () => {
+            const cutoffIso = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            return query(chatColRef, where('createdAt', '>=', cutoffIso), orderBy('createdAt', 'asc'));
+        };
+
+        onSnapshot(getRecentChatQuery(), (snapshot) => {
+            const previousIds = new Set(chatMessagesCache.map(item => item.id));
+            const now = Date.now();
             const ONE_HOUR = 60 * 60 * 1000;
+            chatMessagesCache = [];
 
             snapshot.forEach((docSnap) => {
                 const item = { id: docSnap.id, ...docSnap.data() };
-                const msgTime = item.createdAt ? new Date(item.createdAt).getTime() : now;
-                if (now - msgTime < ONE_HOUR) chatMessagesCache.push(item);
+                const msgTime = item.createdAt ? new Date(item.createdAt).getTime() : 0;
+                if (msgTime && now - msgTime < ONE_HOUR) chatMessagesCache.push(item);
             });
 
             chatMessagesCache.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
             renderChatMessages();
 
-            if (oldLength > 0 && chatMessagesCache.length > oldLength && !isChatOpen) {
-                unreadChatCount += (chatMessagesCache.length - oldLength);
+            const newMessages = chatMessagesCache.filter(item => !previousIds.has(item.id));
+            const shouldNotify = chatListenerInitialized;
+            chatListenerInitialized = true;
+            if (shouldNotify && newMessages.length > 0 && !isChatOpen) {
+                unreadChatCount += newMessages.length;
                 const badge = document.getElementById('chatBadgeCount');
                 badge.innerText = unreadChatCount;
                 badge.classList.remove('hidden');
             }
+        }, (error) => {
+            console.error('Gagal memuat chat terbaru:', error);
         });
+
+        // Pesan yang melewati usia satu jam disembunyikan dari tampilan secara lokal.
+        // Pembersihan tampilan ini tidak membaca ulang Firebase dan tidak menghapus arsip.
+        setInterval(() => {
+            const before = chatMessagesCache.length;
+            const cutoff = Date.now() - 60 * 60 * 1000;
+            chatMessagesCache = chatMessagesCache.filter(item => {
+                const time = item.createdAt ? new Date(item.createdAt).getTime() : 0;
+                return time > cutoff;
+            });
+            if (chatMessagesCache.length !== before) renderChatMessages();
+        }, 60000);
 
         window.toggleChatWindow = function() {
             const box = document.getElementById('chatWindowBox');

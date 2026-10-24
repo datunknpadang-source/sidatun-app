@@ -2278,6 +2278,24 @@
                 }
             });
 
+            // Pastikan tooltip rekap bulanan tidak tertinggal saat pointer keluar dari canvas.
+            // onHover Chart.js tidak selalu dipanggil lagi ketika pointer meninggalkan elemen canvas.
+            canvasBar.addEventListener('mouseleave', () => {
+                activeHoverMonthIndex = null;
+                activeHoverCategoryIndex = null;
+
+                const tooltipEl = document.getElementById('monthDetailChartTooltip');
+                if (tooltipEl) {
+                    tooltipEl.classList.remove('opacity-100', 'scale-100');
+                    tooltipEl.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        tooltipEl.classList.add('hidden');
+                    }, 150);
+                }
+
+                if (chartBarInstance) chartBarInstance.draw();
+            });
+
             const ctxPie = document.getElementById('chartGiatPie').getContext('2d');
             chartPieInstance = new Chart(ctxPie, {
                 type: 'doughnut',

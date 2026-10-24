@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIAT DATUN - Kejaksaan Negeri Padang</title>
+    <title>Datun App - Kejaksaan Negeri Padang</title>
 
     <!-- FAVICON TAB BROWSER -->
     <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
@@ -128,10 +128,14 @@
                     <div id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
                     <div>
                         <span class="font-bold text-xs block leading-none">Live Chat DATUN</span>
-                        <span id="chatActiveUserText" class="text-[9px] text-tosca-200">1 Pengguna Aktif</span>
+                        <span id="chatActiveUserText" class="text-[9px] text-tosca-200">1 Pengguna Online</span>
                     </div>
                 </div>
-                <button onclick="toggleChatWindow()" class="text-white/70 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+                <div class="flex items-center space-x-2">
+                    <!-- Tombol Bersihkan Layar Chat -->
+                    <button onclick="clearChatScreen()" title="Bersihkan Layar Chat" class="text-white/80 hover:text-rose-300 text-xs p-1 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <button onclick="toggleChatWindow()" class="text-white/70 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
 
             <!-- Daftar Pesan Chat -->
@@ -139,14 +143,35 @@
                 <div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>
             </div>
 
+            <!-- Preview Gambar Sebelum Terkirim -->
+            <div id="chatImagePreviewBox" class="hidden px-3 py-1.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
+                <div class="flex items-center space-x-2 truncate">
+                    <i class="fa-regular fa-image text-tosca-600"></i>
+                    <span id="chatImagePreviewName" class="text-[10px] text-slate-600 truncate max-w-[180px]">gambar.png</span>
+                </div>
+                <button type="button" onclick="cancelChatImageUpload()" class="text-rose-500 text-xs hover:text-rose-700"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
             <!-- Form Kirim Pesan -->
             <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex flex-col space-y-1.5">
+                <input type="hidden" id="chatEditingDocId" value="">
                 <div class="flex items-center space-x-2">
                     <input type="text" id="chatNickInput" placeholder="Nama Anda..." required class="w-full text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800">
+                    <span id="chatEditBadge" class="hidden text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded border border-amber-300 flex-shrink-0">Edit Pesan</span>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="chatMsgInput" placeholder="Ketik pesan..." required class="flex-grow text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
-                    <button type="submit" class="bg-tosca-600 hover:bg-tosca-700 text-white w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition shadow">
+                <div class="flex items-center space-x-1.5">
+                    <!-- Input File Gambar Tersembunyi -->
+                    <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)">
+                    <button type="button" onclick="document.getElementById('chatImageInput').click()" title="Lampirkan Gambar" class="text-slate-500 hover:text-tosca-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition">
+                        <i class="fa-solid fa-paperclip text-xs"></i>
+                    </button>
+
+                    <input type="text" id="chatMsgInput" placeholder="Ketik pesan..." class="flex-grow text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
+                    
+                    <button type="button" id="btnCancelEditChat" onclick="cancelChatEdit()" class="hidden bg-slate-200 text-slate-700 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition hover:bg-slate-300" title="Batal Edit">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                    <button type="submit" class="bg-tosca-600 hover:bg-tosca-700 text-white w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition shadow">
                         <i class="fa-solid fa-paper-plane text-xs"></i>
                     </button>
                 </div>
@@ -200,7 +225,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-wide flex items-center">
-                        SI-DATUN KN PADANG
+                        GIAT DATUN KN PADANG
                     </h1>
                     <p class="text-xs text-tosca-200 flex items-center">
                         <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
@@ -826,7 +851,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -857,12 +882,14 @@
         let hideTooltipTimer = null;
         let unreadChatCount = 0;
         let isChatOpen = false;
+        let isChatScreenCleared = false;
+        let selectedChatImageBase64 = null;
 
         // IDENTITAS LOKAL USER UNTUK CHAT POV
         let myUserId = localStorage.getItem('datun_chat_user_id');
         if (!myUserId) {
             myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
-            localStorage.getItem('datun_chat_user_id', myUserId);
+            localStorage.setItem('datun_chat_user_id', myUserId);
         }
 
         // WARNA SPESIFIK NICKNAME KONSEP TEMA DATUN
@@ -911,7 +938,6 @@
             sendHeartbeat();
             setInterval(sendHeartbeat, 40000); // Heartbeat setiap 40 detik
 
-            // Listener jumlah user aktif (dianggap aktif jika heartbeat dalam 2 menit terakhir)
             onSnapshot(activeUsersColRef, (snapshot) => {
                 const now = new Date().getTime();
                 let activeCount = 0;
@@ -930,7 +956,6 @@
                     }
                 });
 
-                // Update Indikator pada Logo Fitur Chat
                 const badgeDot = document.getElementById('chatOnlineBadge');
                 const textActive = document.getElementById('chatActiveUserText');
                 
@@ -974,7 +999,7 @@
             renderPemulihanTable();
         });
 
-        // LIVE CHAT REAL-TIME LISTENER (HANYA DENGAN DUKUNGAN CHAT MAX 1 JAM TERAKHIR)
+        // LIVE CHAT REAL-TIME LISTENER (DENGAN EXSPIRASI OTOMATIS 1 JAM)
         onSnapshot(chatColRef, (snapshot) => {
             const oldLength = chatMessagesCache.length;
             chatMessagesCache = [];
@@ -985,7 +1010,6 @@
                 const item = { id: docSnap.id, ...docSnap.data() };
                 const msgTime = item.createdAt ? new Date(item.createdAt).getTime() : now;
                 
-                // Hanya simpan pesan berumur kurang dari 1 jam
                 if (now - msgTime < ONE_HOUR) {
                     chatMessagesCache.push(item);
                 }
@@ -1015,22 +1039,106 @@
             }
         };
 
+        // ENHANCEMENT: FITUR GAMBAR CHAT
+        window.handleChatImageSelect = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Ukuran file gambar maksimal 2 MB.');
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                selectedChatImageBase64 = evt.target.result;
+                document.getElementById('chatImagePreviewName').innerText = file.name;
+                document.getElementById('chatImagePreviewBox').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.cancelChatImageUpload = function() {
+            selectedChatImageBase64 = null;
+            document.getElementById('chatImageInput').value = '';
+            document.getElementById('chatImagePreviewBox').classList.add('hidden');
+        };
+
+        // ENHANCEMENT: BERSIHKAN TAMPILAN JENDELA CHAT (LOKAL VIEW)
+        window.clearChatScreen = function() {
+            isChatScreenCleared = true;
+            renderChatMessages();
+        };
+
         window.sendChatMessage = async function(e) {
             e.preventDefault();
             const nick = document.getElementById('chatNickInput').value.trim();
             const msg = document.getElementById('chatMsgInput').value.trim();
-            if (!nick || !msg) return;
+            const editDocId = document.getElementById('chatEditingDocId').value;
+
+            if (!nick) return;
+            if (!msg && !selectedChatImageBase64) return;
 
             try {
-                await addDoc(chatColRef, {
-                    senderId: myUserId,
-                    nickname: nick,
-                    message: msg,
-                    createdAt: new Date().toISOString()
-                });
-                document.getElementById('chatMsgInput').value = '';
+                if (editDocId) {
+                    // PROSES EDIT PESAN
+                    const updateObj = {
+                        message: msg,
+                        isEdited: true,
+                        updatedAt: new Date().toISOString()
+                    };
+                    if (selectedChatImageBase64) {
+                        updateObj.imageUrl = selectedChatImageBase64;
+                    }
+                    await updateDoc(doc(db, "chat_datun", editDocId), updateObj);
+                    cancelChatEdit();
+                } else {
+                    // PROSES KIRIM PESAN BARU
+                    const payload = {
+                        senderId: myUserId,
+                        nickname: nick,
+                        message: msg || '',
+                        createdAt: new Date().toISOString()
+                    };
+                    if (selectedChatImageBase64) {
+                        payload.imageUrl = selectedChatImageBase64;
+                    }
+
+                    await addDoc(chatColRef, payload);
+                    document.getElementById('chatMsgInput').value = '';
+                    cancelChatImageUpload();
+                }
+
+                isChatScreenCleared = false; // Tampilkan kembali pesan setelah aksi baru
             } catch (err) {
-                console.error("Gagal mengirim pesan chat:", err);
+                console.error("Gagal mengirim/mengedit pesan:", err);
+            }
+        };
+
+        // EDIT & HAPUS PESAN
+        window.editChatMessage = function(id, currentMsg) {
+            document.getElementById('chatEditingDocId').value = id;
+            document.getElementById('chatMsgInput').value = currentMsg;
+            document.getElementById('chatEditBadge').classList.remove('hidden');
+            document.getElementById('btnCancelEditChat').classList.remove('hidden');
+            document.getElementById('chatMsgInput').focus();
+        };
+
+        window.cancelChatEdit = function() {
+            document.getElementById('chatEditingDocId').value = '';
+            document.getElementById('chatMsgInput').value = '';
+            document.getElementById('chatEditBadge').classList.add('hidden');
+            document.getElementById('btnCancelEditChat').classList.add('hidden');
+        };
+
+        window.deleteChatMessage = async function(id) {
+            if (confirm('Hapus pesan ini dari chat?')) {
+                try {
+                    await deleteDoc(doc(db, "chat_datun", id));
+                } catch (e) {
+                    console.error("Gagal menghapus pesan chat:", e);
+                }
             }
         };
 
@@ -1038,28 +1146,57 @@
             const list = document.getElementById('chatMessagesList');
             if (!list) return;
 
+            if (isChatScreenCleared) {
+                list.innerHTML = `
+                    <div class="text-center text-slate-400 text-[10px] my-3">
+                        <i>Tampilan layar chat dibersihkan. Pesan baru akan muncul secara otomatis.</i>
+                    </div>
+                `;
+                return;
+            }
+
             let html = '<div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>';
             
             chatMessagesCache.forEach(item => {
                 const timeStr = item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                 const isMe = (item.senderId === myUserId);
                 const nickColor = getUserColor(item.nickname || 'User');
+                const editedTag = item.isEdited ? '<span class="text-[8px] opacity-75 italic ml-1">(diedit)</span>' : '';
+
+                let imageElement = '';
+                if (item.imageUrl) {
+                    imageElement = `
+                        <div class="mt-1 relative group overflow-hidden rounded-xl border border-black/10">
+                            <img src="${item.imageUrl}" alt="Lampiran" class="max-w-full max-h-48 object-cover rounded-xl">
+                            <a href="${item.imageUrl}" download="gambar_chat_datun.png" target="_blank" class="absolute bottom-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white text-[9px] px-2 py-1 rounded-md font-semibold flex items-center transition shadow">
+                                <i class="fa-solid fa-download mr-1"></i> Unduh
+                            </a>
+                        </div>
+                    `;
+                }
 
                 if (isMe) {
-                    // SUSUNAN CHAT POV USER SENDIRI (SEBELAH KANAN)
+                    // PESAN POV USER SENDIRI (SEBELAH KANAN)
                     html += `
-                        <div class="flex flex-col items-end space-y-0.5">
+                        <div class="flex flex-col items-end space-y-0.5 group">
                             <div class="flex items-center space-x-1">
                                 <span class="text-[9px] text-slate-400">${timeStr}</span>
                                 <span class="font-bold text-[10px]" style="color: ${nickColor}">Anda</span>
                             </div>
-                            <div class="bg-tosca-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
-                                ${escapeHtml(item.message || '')}
+                            <div class="relative bg-tosca-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
+                                ${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}
+                                ${imageElement}
+
+                                <!-- Tombol Edit & Hapus Pesan Anda -->
+                                <div class="opacity-0 group-hover:opacity-100 transition absolute -top-2 -left-12 bg-white text-slate-600 rounded-lg shadow border border-slate-200 px-1 py-0.5 flex items-center space-x-1 text-[9px]">
+                                    <button onclick="editChatMessage('${item.id}', '${escapeJsStr(item.message)}')" title="Edit" class="hover:text-tosca-600 p-0.5"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="deleteChatMessage('${item.id}')" title="Hapus" class="hover:text-rose-600 p-0.5"><i class="fa-solid fa-trash"></i></button>
+                                </div>
                             </div>
                         </div>
                     `;
                 } else {
-                    // SUSUNAN CHAT USER LAIN (SEBELAH KIRI)
+                    // PESAN USER LAIN (SEBELAH KIRI)
                     html += `
                         <div class="flex flex-col items-start space-y-0.5">
                             <div class="flex items-center space-x-1">
@@ -1067,7 +1204,8 @@
                                 <span class="text-[9px] text-slate-400">${timeStr}</span>
                             </div>
                             <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
-                                ${escapeHtml(item.message || '')}
+                                ${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}
+                                ${imageElement}
                             </div>
                         </div>
                     `;
@@ -1081,7 +1219,11 @@
         }
 
         function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            return (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function escapeJsStr(text) {
+            return (text || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         }
 
         const toBase64 = file => new Promise((resolve, reject) => {
@@ -2293,7 +2435,6 @@
                     right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
                 };
 
-                // SATU-SATUNYA SHEET
                 const ws = workbook.addWorksheet('Dasbor Matriks Bulanan');
                 ws.views = [{ showGridLines: true }];
 
@@ -2333,7 +2474,6 @@
                     });
                 });
 
-                // Fungsi pembentuk teks rinci pop-up/tooltip di dalam sel matriks
                 const buildDetailedCellText = (itemsList) => {
                     if (!itemsList || itemsList.length === 0) return '-';
                     return itemsList.map(item => {

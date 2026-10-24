@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datun App - Kejaksaan Negeri Padang</title>
+    <title>SI-DATUN - Kejaksaan Negeri Padang</title>
 
     <!-- FAVICON TAB BROWSER -->
     <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
@@ -67,7 +67,6 @@
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        /* EFEK TRANSISI GRAFIK */
         .chart-transition-container {
             transition: opacity 0.35s ease-in-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -222,7 +221,7 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-sm sm:text-lg leading-tight tracking-wide flex items-center">
-                            GIAT DATUN KN PADANG
+                            SI-DATUN KN PADANG
                         </h1>
                         <p class="text-[11px] sm:text-xs text-tosca-200 flex items-center">
                             <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
@@ -483,7 +482,7 @@
                             <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
                         </tr>
                         <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Dipulihkan</td>
+                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Ditangani / Dipulihkan</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
@@ -889,6 +888,7 @@
         let isMonthDetailMode = false;
         let selectedMonthDetailNum = null;
         let activeHoverMonthIndex = null;
+        let activeHoverCategoryIndex = null;
 
         let myUserId = localStorage.getItem('datun_chat_user_id');
         if (!myUserId) {
@@ -920,17 +920,22 @@
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        // REVISI 1: PLUGIN SOROT AREA KOLOM BULAN KESELURUHAN (BOLEH DIATAS/KOSONG)
+        // PLUGIN SOROT KOLOM (DI BATASI HANYA PADA chartGiatBar AGAR TIDAK BENTROK DENGAN DONAT)
         const monthHighlightPlugin = {
             id: 'monthHighlightPlugin',
             beforeDraw: (chart) => {
-                if (isMonthDetailMode) return;
-                if (activeHoverMonthIndex !== null && activeHoverMonthIndex >= 0 && activeHoverMonthIndex < 12) {
+                if (chart.canvas.id !== 'chartGiatBar') return;
+                
+                const countCols = isMonthDetailMode ? CATEGORY_KEYS.length : 12;
+                const activeIdx = isMonthDetailMode ? activeHoverCategoryIndex : activeHoverMonthIndex;
+
+                if (activeIdx !== null && activeIdx >= 0 && activeIdx < countCols) {
                     const ctx = chart.ctx;
                     const chartArea = chart.chartArea;
-                    const colWidth = (chartArea.right - chartArea.left) / 12;
+                    if (!chartArea) return;
+                    const colWidth = (chartArea.right - chartArea.left) / countCols;
                     
-                    const x = chartArea.left + (activeHoverMonthIndex * colWidth);
+                    const x = chartArea.left + (activeIdx * colWidth);
                     const y = chartArea.top;
                     const width = colWidth;
                     const height = chartArea.bottom - chartArea.top;
@@ -2126,12 +2131,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    // REVISI 2: KLIK PADA AREA KOLOM BULAN MANAPUN MEMICU ZOOM IN
                     onClick: (evt) => {
                         if (!isMonthDetailMode && chartBarInstance) {
                             const chartArea = chartBarInstance.chartArea;
                             const xPos = evt.x;
-                            if (xPos >= chartArea.left && xPos <= chartArea.right) {
+                            if (chartArea && xPos >= chartArea.left && xPos <= chartArea.right) {
                                 const colWidth = (chartArea.right - chartArea.left) / 12;
                                 const monthIndex = Math.floor((xPos - chartArea.left) / colWidth);
                                 if (monthIndex >= 0 && monthIndex < 12) {
@@ -2140,7 +2144,6 @@
                                     const tahunAktif = selectEl ? selectEl.value : '2026';
                                     const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
                                     
-                                    // Bawa transisi zoom in
                                     const container = document.getElementById('chartCanvasContainer');
                                     container.classList.add('chart-zoom-out');
                                     setTimeout(() => {
@@ -2151,12 +2154,11 @@
                             }
                         }
                     },
-                    // REVISI 1: DETEKSI HOVER POSISI KURSOR DI AREA KOLOM BULAN
                     onHover: (evt) => {
                         if (!isMonthDetailMode && chartBarInstance) {
                             const chartArea = chartBarInstance.chartArea;
                             const xPos = evt.x;
-                            if (xPos >= chartArea.left && xPos <= chartArea.right && evt.y >= chartArea.top && evt.y <= chartArea.bottom) {
+                            if (chartArea && xPos >= chartArea.left && xPos <= chartArea.right && evt.y >= chartArea.top && evt.y <= chartArea.bottom) {
                                 const colWidth = (chartArea.right - chartArea.left) / 12;
                                 const idx = Math.floor((xPos - chartArea.left) / colWidth);
                                 if (activeHoverMonthIndex !== idx) {
@@ -2187,21 +2189,22 @@
             });
         }
 
-        // REVISI 3: RENDER GRAFIK SPESIFIK BULAN (DENGAN DETAIL PER INSTANSI & JUMLAHNYA DI POPUP)
+        // RENDER GRAFIK SPESIFIK BULAN (DENGAN AREA SOROT PER KOLOM KATEGORI)
         function renderMonthlyDetailChart(monthNum, dataTahun) {
             isMonthDetailMode = true;
             selectedMonthDetailNum = monthNum;
             activeHoverMonthIndex = null;
+            activeHoverCategoryIndex = null;
 
             const monthName = NAMA_BULAN_LENGKAP[monthNum];
             document.getElementById('chartBarTitle').innerText = `Tren Kegiatan Bulan ${monthName}`;
-            document.getElementById('chartBarSubtitle').innerText = `Kategori kegiatan pada bulan ${monthName} (Sorot kolom untuk melihat rincian instansi & jumlahnya)`;
+            document.getElementById('chartBarSubtitle').innerText = `Kategori kegiatan pada bulan ${monthName} (Sorot kolom kategori untuk rincian & jumlah)`;
             document.getElementById('btnBackToYearChart').classList.remove('hidden');
 
             const monthData = dataTahun.filter(x => parseInt(x.bulan) === monthNum);
 
             let counts = [0, 0, 0, 0, 0, 0, 0];
-            let instansiMaps = [{}, {}, {}, {}, {}, {}, {}]; // Map nama instansi -> jumlah kegiatan
+            let instansiMaps = [{}, {}, {}, {}, {}, {}, {}];
 
             monthData.forEach(item => {
                 let idx = -1;
@@ -2249,9 +2252,26 @@
                         legend: { display: false },
                         tooltip: { enabled: false }
                     },
-                    // REVISI 3: REVISI POP-UP TOOLTIP DENGAN RINCIN PER INSTANSI (MISAL: Bapenda : 1)
                     onHover: (event, chartElement) => {
                         const tooltipEl = document.getElementById('monthDetailChartTooltip');
+                        const chartArea = chartBarInstance.chartArea;
+                        const evt = event.native;
+
+                        // Tangani sorot area kolom per kategori (7 kolom)
+                        if (chartArea && evt.x >= chartArea.left && evt.x <= chartArea.right && evt.y >= chartArea.top && evt.y <= chartArea.bottom) {
+                            const colWidth = (chartArea.right - chartArea.left) / CATEGORY_KEYS.length;
+                            const idx = Math.floor((evt.x - chartArea.left) / colWidth);
+                            if (activeHoverCategoryIndex !== idx) {
+                                activeHoverCategoryIndex = idx;
+                                chartBarInstance.draw();
+                            }
+                        } else {
+                            if (activeHoverCategoryIndex !== null) {
+                                activeHoverCategoryIndex = null;
+                                chartBarInstance.draw();
+                            }
+                        }
+
                         if (chartElement.length) {
                             const idx = chartElement[0].index;
                             const catName = CATEGORY_KEYS[idx];
@@ -2279,10 +2299,9 @@
                             tooltipEl.classList.remove('hidden', 'opacity-0', 'scale-95');
                             tooltipEl.classList.add('opacity-100', 'scale-100');
 
-                            const e = event.native;
-                            const x = e.clientX + 15, y = e.clientY + 15;
-                            tooltipEl.style.left = `${(x + 260 > window.innerWidth) ? (e.clientX - 270) : x}px`;
-                            tooltipEl.style.top = `${(y + 160 > window.innerHeight) ? (e.clientY - 170) : y}px`;
+                            const x = evt.clientX + 15, y = evt.clientY + 15;
+                            tooltipEl.style.left = `${(x + 260 > window.innerWidth) ? (evt.clientX - 270) : x}px`;
+                            tooltipEl.style.top = `${(y + 160 > window.innerHeight) ? (evt.clientY - 170) : y}px`;
                         } else {
                             tooltipEl.classList.remove('opacity-100', 'scale-100');
                             tooltipEl.classList.add('opacity-0', 'scale-95');
@@ -2297,7 +2316,6 @@
             });
         }
 
-        // REVISI 4: PERBAIKAN EROK/BATANG HILANG SAAT KLIK TOMBOL KEMBALI + EFEK TRANSISI
         window.backToYearlyChart = function() {
             const container = document.getElementById('chartCanvasContainer');
             container.classList.add('chart-zoom-out');
@@ -2306,6 +2324,7 @@
                 isMonthDetailMode = false;
                 selectedMonthDetailNum = null;
                 activeHoverMonthIndex = null;
+                activeHoverCategoryIndex = null;
 
                 document.getElementById('btnBackToYearChart').classList.add('hidden');
                 document.getElementById('chartBarTitle').innerText = 'Tren Rekapitulasi Kegiatan Per Bulan';
@@ -2320,7 +2339,6 @@
 
                 if (chartBarInstance) chartBarInstance.destroy();
                 
-                // Inisialisasi Ulang & Langsung Isi Data
                 initCharts();
                 renderCharts(dataTahun);
 

@@ -166,7 +166,7 @@
     </div>
 
     <!-- POP-UP TOOLTIP KHUSUS GRAFIK DETAIL BULAN (MODE SPESIFIK BULAN) -->
-    <div id="monthDetailChartTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-xl shadow-2xl border border-slate-200 p-3 max-w-xs w-64 z-50">
+    <div id="monthDetailChartTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-xl shadow-2xl border border-slate-200 p-3 max-w-xs w-64 z-50 pointer-events-none">
         <div class="flex items-center space-x-2 border-b pb-1.5 mb-2 border-slate-100">
             <span id="mdTtDot" class="w-3 h-3 rounded-full flex-shrink-0"></span>
             <h5 id="mdTtTitle" class="font-bold text-xs text-slate-800 truncate">Nama Kategori</h5>
@@ -889,6 +889,8 @@
         let selectedMonthDetailNum = null;
         let activeHoverMonthIndex = null;
         let activeHoverCategoryIndex = null;
+        let currentDetailInstansiMaps = [{}, {}, {}, {}, {}, {}, {}];
+        let currentDetailCounts = [0, 0, 0, 0, 0, 0, 0];
 
         let myUserId = localStorage.getItem('datun_chat_user_id');
         if (!myUserId) {
@@ -920,7 +922,7 @@
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        // PLUGIN SOROT KOLOM (DI BATASI HANYA PADA chartGiatBar AGAR TIDAK BENTROK DENGAN DONAT)
+        // PLUGIN SOROT AREA KOLOM (HANYA AKTIF PADA KANVAS UTAMA chartGiatBar)
         const monthHighlightPlugin = {
             id: 'monthHighlightPlugin',
             beforeDraw: (chart) => {
@@ -2122,11 +2124,17 @@
         function initCharts() {
             const canvasBar = document.getElementById('chartGiatBar');
             const ctxBar = canvasBar.getContext('2d');
+            
             chartBarInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
-                    datasets: CATEGORY_KEYS.map((cat, idx) => ({ label: cat, data: Array(12).fill(0), backgroundColor: CATEGORY_COLORS[idx], borderRadius: 2 }))
+                    datasets: CATEGORY_KEYS.map((cat, idx) => ({ 
+                        label: cat, 
+                        data: Array(12).fill(0), 
+                        backgroundColor: CATEGORY_COLORS[idx], 
+                        borderRadius: 2 
+                    }))
                 },
                 options: {
                     responsive: true,
@@ -2155,10 +2163,13 @@
                         }
                     },
                     onHover: (evt) => {
-                        if (!isMonthDetailMode && chartBarInstance) {
-                            const chartArea = chartBarInstance.chartArea;
-                            const xPos = evt.x;
-                            if (chartArea && xPos >= chartArea.left && xPos <= chartArea.right && evt.y >= chartArea.top && evt.y <= chartArea.bottom) {
+                        if (!chartBarInstance) return;
+                        const chartArea = chartBarInstance.chartArea;
+                        if (!chartArea) return;
+                        const xPos = evt.x, yPos = evt.y;
+
+                        if (xPos >= chartArea.left && xPos <= chartArea.right && yPos >= chartArea.top && yPos <= chartArea.bottom) {
+                            if (!isMonthDetailMode) {
                                 const colWidth = (chartArea.right - chartArea.left) / 12;
                                 const idx = Math.floor((xPos - chartArea.left) / colWidth);
                                 if (activeHoverMonthIndex !== idx) {
@@ -2166,9 +2177,58 @@
                                     chartBarInstance.draw();
                                 }
                             } else {
-                                if (activeHoverMonthIndex !== null) {
-                                    activeHoverMonthIndex = null;
+                                const colWidth = (chartArea.right - chartArea.left) / CATEGORY_KEYS.length;
+                                const idx = Math.floor((xPos - chartArea.left) / colWidth);
+                                if (activeHoverCategoryIndex !== idx) {
+                                    activeHoverCategoryIndex = idx;
                                     chartBarInstance.draw();
+                                }
+
+                                const tooltipEl = document.getElementById('monthDetailChartTooltip');
+                                if (idx >= 0 && idx < CATEGORY_KEYS.length) {
+                                    const catName = CATEGORY_KEYS[idx];
+                                    const catColor = CATEGORY_COLORS[idx];
+                                    const countVal = currentDetailCounts[idx];
+                                    const mapInst = currentDetailInstansiMaps[idx];
+
+                                    document.getElementById('mdTtDot').style.backgroundColor = catColor;
+                                    document.getElementById('mdTtTitle').innerText = catName;
+
+                                    let html = `<div class="flex justify-between font-bold border-b border-slate-100 pb-1 mb-1.5"><span>Total Kegiatan Bulan Ini:</span> <span class="text-tosca-800 font-extrabold text-xs">${countVal}</span></div>`;
+                                    
+                                    const keysInst = Object.keys(mapInst);
+                                    if (keysInst.length > 0) {
+                                        html += `<div class="text-[10px] text-slate-500 font-semibold mb-1">Rincian Per Instansi:</div><ul class="space-y-1 text-[10px] text-slate-700 font-medium">`;
+                                        keysInst.forEach(inst => { 
+                                            html += `<li class="flex justify-between items-center bg-slate-50 p-1 rounded border border-slate-100"><span class="truncate max-w-[150px] font-semibold">${escapeHtml(inst)}</span> <span class="font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border shadow-none">${mapInst[inst]}</span></li>`; 
+                                        });
+                                        html += `</ul>`;
+                                    } else {
+                                        html += `<p class="text-[10px] text-amber-600 font-semibold italic bg-amber-50 p-1.5 rounded border border-amber-200/60 mt-1 text-center">Tidak ada kegiatan</p>`;
+                                    }
+
+                                    document.getElementById('mdTtContent').innerHTML = html;
+                                    tooltipEl.classList.remove('hidden', 'opacity-0', 'scale-95');
+                                    tooltipEl.classList.add('opacity-100', 'scale-100');
+
+                                    const nativeEvt = evt.native || evt;
+                                    const x = nativeEvt.clientX + 15, y = nativeEvt.clientY + 15;
+                                    tooltipEl.style.left = `${(x + 260 > window.innerWidth) ? (nativeEvt.clientX - 270) : x}px`;
+                                    tooltipEl.style.top = `${(y + 160 > window.innerHeight) ? (nativeEvt.clientY - 170) : y}px`;
+                                }
+                            }
+                        } else {
+                            if (activeHoverMonthIndex !== null || activeHoverCategoryIndex !== null) {
+                                activeHoverMonthIndex = null;
+                                activeHoverCategoryIndex = null;
+                                chartBarInstance.draw();
+                            }
+                            if (isMonthDetailMode) {
+                                const tooltipEl = document.getElementById('monthDetailChartTooltip');
+                                if (tooltipEl) {
+                                    tooltipEl.classList.remove('opacity-100', 'scale-100');
+                                    tooltipEl.classList.add('opacity-0', 'scale-95');
+                                    setTimeout(() => { tooltipEl.classList.add('hidden'); }, 150);
                                 }
                             }
                         }
@@ -2177,7 +2237,10 @@
                         legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } },
                         tooltip: { enabled: true }
                     },
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }
+                    scales: { 
+                        x: { stacked: true }, 
+                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } 
+                    }
                 }
             });
 
@@ -2189,7 +2252,7 @@
             });
         }
 
-        // RENDER GRAFIK SPESIFIK BULAN (DENGAN AREA SOROT PER KOLOM KATEGORI)
+        // RENDER GRAFIK SPESIFIK BULAN
         function renderMonthlyDetailChart(monthNum, dataTahun) {
             isMonthDetailMode = true;
             selectedMonthDetailNum = monthNum;
@@ -2203,8 +2266,8 @@
 
             const monthData = dataTahun.filter(x => parseInt(x.bulan) === monthNum);
 
-            let counts = [0, 0, 0, 0, 0, 0, 0];
-            let instansiMaps = [{}, {}, {}, {}, {}, {}, {}];
+            currentDetailCounts = [0, 0, 0, 0, 0, 0, 0];
+            currentDetailInstansiMaps = [{}, {}, {}, {}, {}, {}, {}];
 
             monthData.forEach(item => {
                 let idx = -1;
@@ -2221,101 +2284,33 @@
                     if (item.kategori === 'Pelayanan Hukum') volume = (parseInt(item.jumlahPelayanan) || 1);
                     else if (item.kategori.includes('Bantuan Hukum')) volume = (parseInt(item.jumlahSkk) || 1);
 
-                    counts[idx] += volume;
+                    currentDetailCounts[idx] += volume;
 
                     const instText = item.instansi && item.instansi !== '-' ? item.instansi : 'Pelayanan Hukum';
-                    instansiMaps[idx][instText] = (instansiMaps[idx][instText] || 0) + volume;
+                    currentDetailInstansiMaps[idx][instText] = (currentDetailInstansiMaps[idx][instText] || 0) + volume;
                 }
             });
 
-            if (chartBarInstance) chartBarInstance.destroy();
+            chartBarInstance.options.scales.x.stacked = false;
+            chartBarInstance.options.scales.y.stacked = false;
+            chartBarInstance.options.plugins.tooltip.enabled = false;
+            chartBarInstance.options.plugins.legend.display = false;
 
-            const ctxBar = document.getElementById('chartGiatBar').getContext('2d');
-            chartBarInstance = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: CATEGORY_KEYS,
-                    datasets: [{
-                        label: `Giat Bulan ${monthName}`,
-                        data: counts,
-                        backgroundColor: CATEGORY_COLORS,
-                        hoverBackgroundColor: CATEGORY_SOFT_COLORS,
-                        borderRadius: 6,
-                        borderWidth: 1.5,
-                        borderColor: CATEGORY_COLORS
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    },
-                    onHover: (event, chartElement) => {
-                        const tooltipEl = document.getElementById('monthDetailChartTooltip');
-                        const chartArea = chartBarInstance.chartArea;
-                        const evt = event.native;
+            chartBarInstance.data.labels = CATEGORY_KEYS;
+            chartBarInstance.data.datasets = [{
+                label: `Giat Bulan ${monthName}`,
+                data: currentDetailCounts,
+                backgroundColor: CATEGORY_COLORS,
+                hoverBackgroundColor: CATEGORY_SOFT_COLORS,
+                borderRadius: 6,
+                borderWidth: 1.5,
+                borderColor: CATEGORY_COLORS
+            }];
 
-                        // Tangani sorot area kolom per kategori (7 kolom)
-                        if (chartArea && evt.x >= chartArea.left && evt.x <= chartArea.right && evt.y >= chartArea.top && evt.y <= chartArea.bottom) {
-                            const colWidth = (chartArea.right - chartArea.left) / CATEGORY_KEYS.length;
-                            const idx = Math.floor((evt.x - chartArea.left) / colWidth);
-                            if (activeHoverCategoryIndex !== idx) {
-                                activeHoverCategoryIndex = idx;
-                                chartBarInstance.draw();
-                            }
-                        } else {
-                            if (activeHoverCategoryIndex !== null) {
-                                activeHoverCategoryIndex = null;
-                                chartBarInstance.draw();
-                            }
-                        }
-
-                        if (chartElement.length) {
-                            const idx = chartElement[0].index;
-                            const catName = CATEGORY_KEYS[idx];
-                            const catColor = CATEGORY_COLORS[idx];
-                            const countVal = counts[idx];
-                            const mapInst = instansiMaps[idx];
-
-                            document.getElementById('mdTtDot').style.backgroundColor = catColor;
-                            document.getElementById('mdTtTitle').innerText = catName;
-
-                            let html = `<div class="flex justify-between font-bold border-b border-slate-100 pb-1 mb-1.5"><span>Total Kegiatan Bulan Ini:</span> <span class="text-tosca-800 font-extrabold text-xs">${countVal}</span></div>`;
-                            
-                            const keysInst = Object.keys(mapInst);
-                            if (keysInst.length > 0) {
-                                html += `<div class="text-[10px] text-slate-500 font-semibold mb-1">Rincian Per Instansi:</div><ul class="space-y-1 text-[10px] text-slate-700 font-medium">`;
-                                keysInst.forEach(inst => { 
-                                    html += `<li class="flex justify-between items-center bg-slate-50 p-1 rounded border border-slate-100"><span class="truncate max-w-[150px] font-semibold">${escapeHtml(inst)}</span> <span class="font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border shadow-none">${mapInst[inst]}</span></li>`; 
-                                });
-                                html += `</ul>`;
-                            } else {
-                                html += `<p class="text-[10px] text-amber-600 font-semibold italic bg-amber-50 p-1.5 rounded border border-amber-200/60 mt-1 text-center">Tidak ada kegiatan</p>`;
-                            }
-
-                            document.getElementById('mdTtContent').innerHTML = html;
-                            tooltipEl.classList.remove('hidden', 'opacity-0', 'scale-95');
-                            tooltipEl.classList.add('opacity-100', 'scale-100');
-
-                            const x = evt.clientX + 15, y = evt.clientY + 15;
-                            tooltipEl.style.left = `${(x + 260 > window.innerWidth) ? (evt.clientX - 270) : x}px`;
-                            tooltipEl.style.top = `${(y + 160 > window.innerHeight) ? (evt.clientY - 170) : y}px`;
-                        } else {
-                            tooltipEl.classList.remove('opacity-100', 'scale-100');
-                            tooltipEl.classList.add('opacity-0', 'scale-95');
-                            setTimeout(() => { tooltipEl.classList.add('hidden'); }, 150);
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 9, weight: 'bold' } } },
-                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                    }
-                }
-            });
+            chartBarInstance.update();
         }
 
+        // KEMBALI KE GRAFIK TAHUNAN (SOLUSI FIX GRAFIK HILANG & TRANSISI SMOOTH)
         window.backToYearlyChart = function() {
             const container = document.getElementById('chartCanvasContainer');
             container.classList.add('chart-zoom-out');
@@ -2337,9 +2332,20 @@
                 const tahunAktif = selectEl ? selectEl.value : '2026';
                 const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
 
-                if (chartBarInstance) chartBarInstance.destroy();
-                
-                initCharts();
+                // Re-konfigurasi opsi grafik tahunan
+                chartBarInstance.options.scales.x.stacked = true;
+                chartBarInstance.options.scales.y.stacked = true;
+                chartBarInstance.options.plugins.tooltip.enabled = true;
+                chartBarInstance.options.plugins.legend.display = true;
+
+                chartBarInstance.data.labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+                chartBarInstance.data.datasets = CATEGORY_KEYS.map((cat, idx) => ({ 
+                    label: cat, 
+                    data: Array(12).fill(0), 
+                    backgroundColor: CATEGORY_COLORS[idx], 
+                    borderRadius: 2 
+                }));
+
                 renderCharts(dataTahun);
 
                 container.classList.remove('chart-zoom-out');

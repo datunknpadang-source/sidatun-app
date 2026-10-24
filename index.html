@@ -144,8 +144,7 @@
             <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex flex-col space-y-1.5">
                 <input type="hidden" id="chatEditingDocId" value="">
                 <div class="flex items-center space-x-2">
-                    <input type="text" id="chatNickInput" placeholder="Nama Anda (Klik untuk ubah)..." onclick="handleNickClick()" readonly required class="w-full text-xs bg-slate-200 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800 cursor-pointer" title="Klik untuk mengubah nama">
-                    <span id="chatEditBadge" class="hidden text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded border border-amber-300 flex-shrink-0">Edit</span>
+                    <input type="text" id="chatNickInput" placeholder="Nama Anda..." required class="w-full text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800">
                 </div>
 
                 <div class="flex items-center space-x-1.5">
@@ -999,39 +998,15 @@
         function initNicknameState() {
             const savedNick = localStorage.getItem('datun_chat_nick');
             const nickInput = document.getElementById('chatNickInput');
-            if (savedNick) {
+            if (savedNick && nickInput) {
                 nickInput.value = savedNick;
-                nickInput.setAttribute('readonly', 'true');
-                nickInput.classList.add('bg-slate-200', 'cursor-pointer');
-                nickInput.classList.remove('bg-slate-100');
-            } else {
-                nickInput.removeAttribute('readonly');
-                nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
-                nickInput.classList.add('bg-slate-100');
-                nickInput.focus();
             }
         }
 
-        window.handleNickClick = function() {
-            const nickInput = document.getElementById('chatNickInput');
-            if (nickInput.hasAttribute('readonly')) {
-                if (confirm("Apakah Anda ingin mengubah nama?")) {
-                    nickInput.removeAttribute('readonly');
-                    nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
-                    nickInput.classList.add('bg-slate-100');
-                    nickInput.focus();
-                    nickInput.select();
-                }
-            }
-        };
-
-        document.getElementById('chatNickInput')?.addEventListener('blur', function() {
+        document.getElementById('chatNickInput')?.addEventListener('input', function() {
             const val = this.value.trim();
             if (val) {
                 localStorage.setItem('datun_chat_nick', val);
-                this.setAttribute('readonly', 'true');
-                this.classList.add('bg-slate-200', 'cursor-pointer');
-                this.classList.remove('bg-slate-100');
             }
         });
 
@@ -1177,13 +1152,12 @@
 
             if (!nick) {
                 alert('Silakan isi kolom nama terlebih dahulu.');
-                nickInput.removeAttribute('readonly');
-                nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
-                nickInput.classList.add('bg-slate-100');
                 nickInput.focus();
                 return;
             }
             if (!msg && !selectedChatFile) return;
+
+            localStorage.setItem('datun_chat_nick', nick);
 
             try {
                 if (editDocId) {
@@ -2278,8 +2252,6 @@
                 }
             });
 
-            // Pastikan tooltip rekap bulanan tidak tertinggal saat pointer keluar dari canvas.
-            // onHover Chart.js tidak selalu dipanggil lagi ketika pointer meninggalkan elemen canvas.
             canvasBar.addEventListener('mouseleave', () => {
                 activeHoverMonthIndex = null;
                 activeHoverCategoryIndex = null;
@@ -2461,7 +2433,6 @@
 
         function formatRp(val) { return new Intl.NumberFormat('id-ID').format(val || 0); }
 
-        // FUNGSI EKSPOR EXCEL SESUAI TEMPLATE RESMI
         window.executeExport = async function() {
             const format = document.querySelector('input[name="exportFormat"]:checked').value;
             const selectEl = document.getElementById('filterTahun');
@@ -2493,11 +2464,9 @@
                     right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
                 };
 
-                // SATU-SATUNYA SHEET
                 const ws = workbook.addWorksheet('Dasbor Matriks Bulanan');
                 ws.views = [{ showGridLines: true }];
 
-                // 1. Title Block
                 ws.mergeCells('A1:J1');
                 ws.getCell('A1').value = `LAPORAN DASBOR REKAPITULASI GIAT DATUN KEJAKSAAN NEGERI PADANG`;
                 ws.getCell('A1').font = fontTitle;
@@ -2511,7 +2480,6 @@
 
                 ws.addRow([]);
 
-                // 2. Header Matriks (2 Baris)
                 const rowHeader1 = ws.addRow(["NO", "BULAN", "1. MOU", "2. BANTUAN HUKUM", "", "3. PERTIMBANGAN HUKUM", "", "4. PELAYANAN HUKUM", "5. TINDAKAN HUKUM LAIN", "6. PENEGAKAN HUKUM"]);
                 const rowHeader2 = ws.addRow(["", "", "", "LITIGASI", "NON-LITIGASI", "LEGAL ASSISTANCE (LA)", "LEGAL OPINION (LO)", "", "", ""]);
 
@@ -2533,7 +2501,6 @@
                     });
                 });
 
-                // Fungsi pembentuk teks rinci pop-up/tooltip di dalam sel matriks
                 const buildDetailedCellText = (itemsList) => {
                     if (!itemsList || itemsList.length === 0) return '-';
                     return itemsList.map(item => {
@@ -2549,7 +2516,6 @@
                     }).join('\n\n------------------------------\n\n');
                 };
 
-                // 3. Isi Matriks Bulanan (1 s.d. 12)
                 for (let i = 1; i <= 12; i++) {
                     const getItems = (kategoriKey) => dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === kategoriKey);
                     const rowVal = [
@@ -2573,7 +2539,6 @@
                     });
                 }
 
-                // 4. Tabel Pemulihan Keuangan Negara
                 ws.addRow([]);
                 ws.addRow([]);
                 const rowPemulihanTitle = ws.addRow(["TABEL REKAPITULASI PEMULIHAN KEUANGAN NEGARA"]);
@@ -2620,7 +2585,6 @@
                     });
                 });
 
-                // 5. Ringkasan Data Grafik (Tabel Rekap Kategori) pada sheet yang sama
                 ws.addRow([]);
                 ws.addRow([]);
                 const rowChartTitle = ws.addRow(["RINGKASAN DATA GRAFIK (REKAPITULASI KATEGORI)"]);

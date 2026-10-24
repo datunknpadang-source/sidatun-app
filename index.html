@@ -79,6 +79,14 @@
             transform: scale(1);
         }
 
+        /* REVISI 2: STYLE HEADER FREEZE / STICKY TABLE */
+        .sticky-table-header {
+            position: sticky;
+            top: 4rem; /* Menempel di bawah navbar (h-16 = 4rem) */
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
         @media print {
             @page { size: legal landscape; margin: 10mm; }
             body { background: white; color: black; }
@@ -165,11 +173,11 @@
         </div>
     </div>
 
-    <!-- POP-UP TOOLTIP KHUSUS GRAFIK DETAIL BULAN (MODE SPESIFIK BULAN) -->
+    <!-- POP-UP TOOLTIP KHUSUS GRAFIK DETAIL BULAN / HOVER BULANAN TAHUNAN (REVISI 1) -->
     <div id="monthDetailChartTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-xl shadow-2xl border border-slate-200 p-3 max-w-xs w-64 z-50 pointer-events-none">
         <div class="flex items-center space-x-2 border-b pb-1.5 mb-2 border-slate-100">
             <span id="mdTtDot" class="w-3 h-3 rounded-full flex-shrink-0"></span>
-            <h5 id="mdTtTitle" class="font-bold text-xs text-slate-800 truncate">Nama Kategori</h5>
+            <h5 id="mdTtTitle" class="font-bold text-xs text-slate-800 truncate">Nama Judul</h5>
         </div>
         <div id="mdTtContent" class="space-y-1.5 text-[11px] text-slate-600"></div>
     </div>
@@ -212,26 +220,24 @@
     </div>
 
     <!-- Top Navigation Header -->
-    <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:h-16 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="flex items-center justify-between w-full sm:w-auto space-x-3">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
-                        <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-sm sm:text-lg leading-tight tracking-wide flex items-center">
-                            SI-DATUN KN PADANG
-                        </h1>
-                        <p class="text-[11px] sm:text-xs text-tosca-200 flex items-center">
-                            <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
-                            <span id="syncText">Menghubungkan ke Firestore...</span>
-                        </p>
-                    </div>
+    <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30 h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-1 rounded-xl border border-white/20 shadow-inner flex items-center justify-center">
+                    <img id="appLogo" src="./logo.png?v=2" alt="Logo DATUN" class="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-lg bg-slate-900/40 p-0.5" onError="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/921/921347.png';" />
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm sm:text-lg leading-tight tracking-wide flex items-center">
+                        SI-DATUN KN PADANG
+                    </h1>
+                    <p class="text-[11px] sm:text-xs text-tosca-200 flex items-center">
+                        <span id="syncStatus" class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5 animate-pulse"></span>
+                        <span id="syncText">Menghubungkan ke Firestore...</span>
+                    </p>
                 </div>
             </div>
 
-            <div class="flex items-center flex-wrap justify-center sm:justify-end gap-2 w-full sm:w-auto">
+            <div class="flex items-center flex-wrap justify-end gap-2">
                 <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 text-xs">
                     <i class="fa-regular fa-calendar text-xs text-tosca-200 mr-2"></i>
                     <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer">
@@ -279,7 +285,6 @@
                     </p>
                 </div>
                 
-                <!-- WIDGET TANGGAL & JAM DIGITAL REAL-TIME -->
                 <div id="digitalClockWidget" class="flex items-center space-x-2 bg-tosca-50/80 border border-tosca-200 px-3 py-1.5 rounded-xl shadow-sm text-xs font-semibold text-tosca-900 self-start sm:self-auto">
                     <i class="fa-regular fa-clock text-tosca-600"></i>
                     <span id="realtimeClockDisplay">Memuat Waktu...</span>
@@ -362,7 +367,6 @@
                     </div>
 
                     <div class="flex items-center space-x-2">
-                        <!-- TOMBOL KEMBALI GRAFIK SPESIFIK BULAN -->
                         <button id="btnBackToYearChart" onclick="backToYearlyChart()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold px-3 py-1 rounded-full border border-slate-300 transition shadow-sm flex items-center">
                             <i class="fa-solid fa-arrow-left mr-1.5 text-xs text-tosca-700"></i> Kembali
                         </button>
@@ -403,9 +407,10 @@
             </div>
 
             <div id="containerMatrixView" class="space-y-6">
-                <div class="overflow-x-auto custom-scrollbar">
+                <!-- REVISI 2: TABEL DENGAN STICKY HEADER -->
+                <div class="overflow-x-auto custom-scrollbar max-h-[70vh]">
                     <table class="w-full text-xs text-left excel-table border-collapse min-w-[900px]">
-                        <thead>
+                        <thead class="sticky-table-header">
                             <tr class="bg-tosca-700 text-white text-center font-bold">
                                 <th class="p-2 w-10" rowspan="2">NO.</th>
                                 <th class="p-2 w-28" rowspan="2">BULAN</th>
@@ -964,7 +969,6 @@
             startRealtimeClock();
         });
 
-        // JAM & TANGGAL DIGITAL REAL-TIME
         function startRealtimeClock() {
             function updateClock() {
                 const now = new Date();
@@ -983,7 +987,6 @@
             setInterval(updateClock, 1000);
         }
 
-        // PEMERIKSAAN PENGINGAT BULANAN OTOMATIS
         function checkMonthlyReminder() {
             const now = new Date();
             const currentYear = now.getFullYear().toString();
@@ -2162,6 +2165,7 @@
                             }
                         }
                     },
+                    // REVISI 1: ONHOVER DIPERBARUI AGAR POPUP MUNCUL JUGA DI TREN REKAP TAHUNAN
                     onHover: (evt) => {
                         if (!chartBarInstance) return;
                         const chartArea = chartBarInstance.chartArea;
@@ -2169,6 +2173,11 @@
                         const xPos = evt.x, yPos = evt.y;
 
                         if (xPos >= chartArea.left && xPos <= chartArea.right && yPos >= chartArea.top && yPos <= chartArea.bottom) {
+                            const tooltipEl = document.getElementById('monthDetailChartTooltip');
+                            const selectEl = document.getElementById('filterTahun');
+                            const tahunAktif = selectEl ? selectEl.value : '2026';
+                            const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
+
                             if (!isMonthDetailMode) {
                                 const colWidth = (chartArea.right - chartArea.left) / 12;
                                 const idx = Math.floor((xPos - chartArea.left) / colWidth);
@@ -2176,6 +2185,50 @@
                                     activeHoverMonthIndex = idx;
                                     chartBarInstance.draw();
                                 }
+
+                                if (idx >= 0 && idx < 12) {
+                                    const monthNum = idx + 1;
+                                    const monthName = NAMA_BULAN_LENGKAP[monthNum];
+                                    const monthData = dataTahun.filter(x => parseInt(x.bulan) === monthNum);
+
+                                    let instansiMap = {};
+                                    let totalVol = 0;
+                                    monthData.forEach(item => {
+                                        let vol = 1;
+                                        if (item.kategori === 'Pelayanan Hukum') vol = (parseInt(item.jumlahPelayanan) || 1);
+                                        else if (item.kategori && item.kategori.includes('Bantuan Hukum')) vol = (parseInt(item.jumlahSkk) || 1);
+                                        
+                                        totalVol += vol;
+                                        const instText = item.instansi && item.instansi !== '-' ? item.instansi : (item.kategori === 'Pelayanan Hukum' ? 'Pelayanan Hukum' : 'Kegiatan DATUN');
+                                        instansiMap[instText] = (instansiMap[instText] || 0) + vol;
+                                    });
+
+                                    document.getElementById('mdTtDot').style.backgroundColor = '#0D9488';
+                                    document.getElementById('mdTtTitle').innerText = `Rekap Bulan ${monthName} ${tahunAktif}`;
+
+                                    let html = `<div class="flex justify-between font-bold border-b border-slate-100 pb-1 mb-1.5"><span>Total Vol. Kegiatan:</span> <span class="text-tosca-800 font-extrabold text-xs">${totalVol}</span></div>`;
+                                    
+                                    const keysInst = Object.keys(instansiMap);
+                                    if (keysInst.length > 0) {
+                                        html += `<div class="text-[10px] text-slate-500 font-semibold mb-1">Rincian Per Instansi:</div><ul class="space-y-1 text-[10px] text-slate-700 font-medium max-h-36 overflow-y-auto custom-scrollbar">`;
+                                        keysInst.forEach(inst => { 
+                                            html += `<li class="flex justify-between items-center bg-slate-50 p-1 rounded border border-slate-100"><span class="truncate max-w-[150px] font-semibold">${escapeHtml(inst)}</span> <span class="font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border">${instansiMap[inst]}</span></li>`; 
+                                        });
+                                        html += `</ul>`;
+                                    } else {
+                                        html += `<p class="text-[10px] text-amber-600 font-semibold italic bg-amber-50 p-1.5 rounded border border-amber-200/60 mt-1 text-center">Belum ada kegiatan</p>`;
+                                    }
+
+                                    document.getElementById('mdTtContent').innerHTML = html;
+                                    tooltipEl.classList.remove('hidden', 'opacity-0', 'scale-95');
+                                    tooltipEl.classList.add('opacity-100', 'scale-100');
+
+                                    const nativeEvt = evt.native || evt;
+                                    const x = nativeEvt.clientX + 15, y = nativeEvt.clientY + 15;
+                                    tooltipEl.style.left = `${(x + 260 > window.innerWidth) ? (nativeEvt.clientX - 270) : x}px`;
+                                    tooltipEl.style.top = `${(y + 160 > window.innerHeight) ? (nativeEvt.clientY - 170) : y}px`;
+                                }
+
                             } else {
                                 const colWidth = (chartArea.right - chartArea.left) / CATEGORY_KEYS.length;
                                 const idx = Math.floor((xPos - chartArea.left) / colWidth);
@@ -2184,7 +2237,6 @@
                                     chartBarInstance.draw();
                                 }
 
-                                const tooltipEl = document.getElementById('monthDetailChartTooltip');
                                 if (idx >= 0 && idx < CATEGORY_KEYS.length) {
                                     const catName = CATEGORY_KEYS[idx];
                                     const catColor = CATEGORY_COLORS[idx];
@@ -2198,7 +2250,7 @@
                                     
                                     const keysInst = Object.keys(mapInst);
                                     if (keysInst.length > 0) {
-                                        html += `<div class="text-[10px] text-slate-500 font-semibold mb-1">Rincian Per Instansi:</div><ul class="space-y-1 text-[10px] text-slate-700 font-medium">`;
+                                        html += `<div class="text-[10px] text-slate-500 font-semibold mb-1">Rincian Per Instansi:</div><ul class="space-y-1 text-[10px] text-slate-700 font-medium max-h-36 overflow-y-auto custom-scrollbar">`;
                                         keysInst.forEach(inst => { 
                                             html += `<li class="flex justify-between items-center bg-slate-50 p-1 rounded border border-slate-100"><span class="truncate max-w-[150px] font-semibold">${escapeHtml(inst)}</span> <span class="font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border shadow-none">${mapInst[inst]}</span></li>`; 
                                         });
@@ -2223,13 +2275,11 @@
                                 activeHoverCategoryIndex = null;
                                 chartBarInstance.draw();
                             }
-                            if (isMonthDetailMode) {
-                                const tooltipEl = document.getElementById('monthDetailChartTooltip');
-                                if (tooltipEl) {
-                                    tooltipEl.classList.remove('opacity-100', 'scale-100');
-                                    tooltipEl.classList.add('opacity-0', 'scale-95');
-                                    setTimeout(() => { tooltipEl.classList.add('hidden'); }, 150);
-                                }
+                            const tooltipEl = document.getElementById('monthDetailChartTooltip');
+                            if (tooltipEl) {
+                                tooltipEl.classList.remove('opacity-100', 'scale-100');
+                                tooltipEl.classList.add('opacity-0', 'scale-95');
+                                setTimeout(() => { tooltipEl.classList.add('hidden'); }, 150);
                             }
                         }
                     },
@@ -2252,7 +2302,6 @@
             });
         }
 
-        // RENDER GRAFIK SPESIFIK BULAN
         function renderMonthlyDetailChart(monthNum, dataTahun) {
             isMonthDetailMode = true;
             selectedMonthDetailNum = monthNum;
@@ -2310,7 +2359,6 @@
             chartBarInstance.update();
         }
 
-        // KEMBALI KE GRAFIK TAHUNAN (SOLUSI FIX GRAFIK HILANG & TRANSISI SMOOTH)
         window.backToYearlyChart = function() {
             const container = document.getElementById('chartCanvasContainer');
             container.classList.add('chart-zoom-out');
@@ -2332,7 +2380,6 @@
                 const tahunAktif = selectEl ? selectEl.value : '2026';
                 const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);
 
-                // Re-konfigurasi opsi grafik tahunan
                 chartBarInstance.options.scales.x.stacked = true;
                 chartBarInstance.options.scales.y.stacked = true;
                 chartBarInstance.options.plugins.tooltip.enabled = true;
@@ -2412,6 +2459,7 @@
 
         function formatRp(val) { return new Intl.NumberFormat('id-ID').format(val || 0); }
 
+        // REVISI 3: FUNGSI EKSPOR EXCEL DIKEMBALIKAN KE VERSI RINCI LENGKAP (SEPERTI GAMBAR DILAMPIRKAN)
         window.executeExport = async function() {
             const format = document.querySelector('input[name="exportFormat"]:checked').value;
             const selectEl = document.getElementById('filterTahun');
@@ -2423,30 +2471,96 @@
                 const ws = workbook.addWorksheet('Laporan DATUN');
                 ws.views = [{ showGridLines: true }];
 
+                // JUDUL ATAS
                 ws.mergeCells('A1:J1');
-                ws.getCell('A1').value = `LAPORAN SI-DATUN KEJAKSAAN NEGERI PADANG - TAHUN ${tahun}`;
-                ws.getCell('A1').font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FF0F766E' } };
-                ws.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+                const titleCell = ws.getCell('A1');
+                titleCell.value = `LAPORAN DASBOR REKAPITULASI SI-DATUN KEJAKSAAN NEGERI PADANG`;
+                titleCell.font = { name: 'Arial', size: 12, bold: true, color: { argb: 'FF004D40' } };
+                titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws.mergeCells('A2:J2');
+                const subTitleCell = ws.getCell('A2');
+                subTitleCell.value = `PERIODE : TAHUN ${tahun}`;
+                subTitleCell.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FF004D40' } };
+                subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 ws.addRow([]);
-                const rowHeader = ws.addRow(["NO", "BULAN", "MOU", "LITIGASI", "NON-LITIGASI", "LA", "LO", "PELAYANAN", "THL", "PENEGAKAN"]);
-                rowHeader.eachCell(cell => {
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0D9488' } };
-                    cell.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // HEADER TABEL TINGKAT 1 & 2
+                const rowH1 = ws.addRow(["NO.", "BULAN", "1. MOU", "2. BANTUAN HUKUM", "", "3. PERTIMBANGAN HUKUM", "", "4. PELAYANAN HUKUM", "5. TINDAKAN HUKUM LAIN", "6. PENEGAKAN HUKUM"]);
+                const rowH2 = ws.addRow(["", "", "", "LITIGASI", "NON-LITIGASI", "LEGAL ASSISTANCE (LA)", "LEGAL OPINION (LO)", "", "", ""]);
+
+                ws.mergeCells('A4:A5'); ws.mergeCells('B4:B5'); ws.mergeCells('C4:C5');
+                ws.mergeCells('D4:E4'); ws.mergeCells('F4:G4');
+                ws.mergeCells('H4:H5'); ws.mergeCells('I4:I5'); ws.mergeCells('J4:J5');
+
+                [rowH1, rowH2].forEach(r => {
+                    r.eachCell(cell => {
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF004D40' } };
+                        cell.font = { name: 'Arial', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+                        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                    });
                 });
 
+                // RINCIAN TEKS LENGKAP PADA SETIAP SEL EXCEL (PERIODE BULAN)
                 const dataTahun = datasetKegiatan.filter(x => x.tahun === tahun);
+
                 for (let i = 1; i <= 12; i++) {
-                    const getItems = (cat) => dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === cat).map(x => x.instansi).join(', ');
-                    ws.addRow([i, NAMA_BULAN_LENGKAP[i], getItems('MoU'), getItems('Bantuan Hukum Litigasi'), getItems('Bantuan Hukum Non-Litigasi'), getItems('Pertimbangan LA'), getItems('Pertimbangan LO'), getItems('Pelayanan Hukum'), getItems('Tindakan Hukum Lainnya'), getItems('Penegakan Hukum')]);
+                    const getDetailedText = (catKeys) => {
+                        const items = dataTahun.filter(x => parseInt(x.bulan) === i && catKeys.includes(x.kategori));
+                        if (items.length === 0) return "-";
+                        return items.map((it, idx) => {
+                            let lines = [];
+                            if (it.instansi && it.instansi !== '-') lines.push(`${idx + 1}. ${it.instansi}`);
+                            else if (it.kategori === 'Pelayanan Hukum') lines.push(`${idx + 1}. Pelayanan Hukum (${it.jumlahPelayanan || 1})`);
+                            else lines.push(`${idx + 1}. Kegiatan DATUN`);
+
+                            if (it.noMou && it.noMou !== '-') lines.push(`   No. MoU: ${it.noMou}`);
+                            if (it.jangkaWaktu && it.jangkaWaktu !== '-') lines.push(`   Masa: ${it.jangkaWaktu}`);
+                            if (it.noSkk && it.noSkk !== '-') lines.push(`   No. SKK: ${it.noSkk}`);
+                            if (it.uraian && it.uraian !== '-') lines.push(`   Uraian: ${it.uraian}`);
+                            return lines.join('\n');
+                        }).join('\n\n');
+                    };
+
+                    const rowData = ws.addRow([
+                        i,
+                        NAMA_BULAN_LENGKAP[i],
+                        getDetailedText(['MoU']),
+                        getDetailedText(['Bantuan Hukum Litigasi']),
+                        getDetailedText(['Bantuan Hukum Non-Litigasi']),
+                        getDetailedText(['Pertimbangan LA']),
+                        getDetailedText(['Pertimbangan LO']),
+                        getDetailedText(['Pelayanan Hukum']),
+                        getDetailedText(['Tindakan Hukum Lainnya']),
+                        getDetailedText(['Penegakan Hukum'])
+                    ]);
+
+                    rowData.eachCell((cell, colNumber) => {
+                        cell.font = { name: 'Arial', size: 8 };
+                        cell.alignment = { vertical: 'top', horizontal: (colNumber <= 2 ? 'center' : 'left'), wrapText: true };
+                        cell.border = { top: { style: 'thin', color: { argb: 'FFCBD5E1' } }, left: { style: 'thin', color: { argb: 'FFCBD5E1' } }, bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } }, right: { style: 'thin', color: { argb: 'FFCBD5E1' } } };
+                    });
                 }
+
+                // SIZING LEBAR KOLOM
+                ws.getColumn(1).width = 5;
+                ws.getColumn(2).width = 12;
+                ws.getColumn(3).width = 28;
+                ws.getColumn(4).width = 28;
+                ws.getColumn(5).width = 28;
+                ws.getColumn(6).width = 28;
+                ws.getColumn(7).width = 28;
+                ws.getColumn(8).width = 28;
+                ws.getColumn(9).width = 28;
+                ws.getColumn(10).width = 28;
 
                 const buffer = await workbook.xlsx.writeBuffer();
                 const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url; a.download = `Laporan_DATUN_${tahun}.xlsx`; a.click();
+                a.href = url; a.download = `LAPORAN_SI_DATUN_KN_PADANG_${tahun}.xlsx`; a.click();
                 window.URL.revokeObjectURL(url);
             } else if (format === 'pdf') {
                 setTimeout(() => { window.print(); }, 300);

@@ -44,8 +44,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS untuk Ekspor Excel (.xlsx) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- ExcelJS untuk Ekspor Excel Mewah Berwarna, Rapi & Berformat -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; }
@@ -57,14 +57,6 @@
         #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip {
             transition: opacity 0.15s ease-in-out, transform 0.15s ease-in-out;
             z-index: 9999;
-        }
-
-        .matrix-item-row .hover-action-btn {
-            opacity: 0;
-            transition: opacity 0.15s ease-in-out;
-        }
-        .matrix-item-row:hover .hover-action-btn {
-            opacity: 1;
         }
 
         @media print {
@@ -166,7 +158,6 @@
                     <i class="fa-solid fa-chart-line mr-1.5"></i> Bandingkan Data
                 </button>
 
-                <!-- REVISI LABEL TOMBOL SESUAI PETUNJUK GAMBAR -->
                 <button onclick="openExportModal()" class="bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3.5 py-2 rounded-lg border border-white/20 flex items-center transition">
                     <i class="fa-solid fa-file-export mr-1.5 text-blue-300"></i> Ekspor Data
                 </button>
@@ -199,7 +190,6 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                <!-- KARTU 1: MOU -->
                 <div onmouseenter="showKpiTooltip(event, 'mou')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-tosca-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-tosca-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">1. MoU</span>
@@ -209,7 +199,6 @@
                     <p class="text-[10px] text-slate-500 mt-1">Nota Kesepakatan</p>
                 </div>
 
-                <!-- KARTU 2: BANTUAN HUKUM -->
                 <div onmouseenter="showKpiTooltip(event, 'bantuan_hukum')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-blue-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-blue-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">2. Bantuan Hukum</span>
@@ -225,7 +214,6 @@
                     </div>
                 </div>
 
-                <!-- KARTU 3: PERTIMBANGAN HUKUM -->
                 <div onmouseenter="showKpiTooltip(event, 'pertimbangan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-amber-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-amber-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">3. Pertimbangan</span>
@@ -238,7 +226,6 @@
                     </div>
                 </div>
 
-                <!-- KARTU 4: PELAYANAN HUKUM -->
                 <div onmouseenter="showKpiTooltip(event, 'pelayanan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-purple-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-purple-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">4. Pelayanan</span>
@@ -248,7 +235,6 @@
                     <p class="text-[10px] text-slate-500 mt-1">Konsultasi / Layanan</p>
                 </div>
 
-                <!-- KARTU 5: THL -->
                 <div onmouseenter="showKpiTooltip(event, 'thl')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-teal-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-teal-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">5. THL</span>
@@ -258,7 +244,6 @@
                     <p class="text-[10px] text-slate-500 mt-1">Tindakan Hukum Lain</p>
                 </div>
 
-                <!-- KARTU 6: PENEGAKAN HUKUM -->
                 <div onmouseenter="showKpiTooltip(event, 'penegakan')" onmousemove="moveKpiTooltip(event)" onmouseleave="hideKpiTooltip()" class="bg-slate-50/60 rounded-xl p-3.5 border border-slate-200 hover:border-rose-500 transition cursor-pointer">
                     <div class="flex items-center justify-between text-rose-700 mb-1">
                         <span class="text-xs font-bold uppercase tracking-wider">6. Penegakan</span>
@@ -781,7 +766,7 @@
         </div>
     </div>
 
-    <!-- MODAL EXPOR DATA (REVISI TAMBAH EXCEL) -->
+    <!-- MODAL EXPOR DATA (SANGAT MEWAH UNTUK EXCEL) -->
     <div id="modalExport" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
@@ -1428,7 +1413,6 @@
             document.getElementById('kpiPenegakan').innerText = penegakan;
         }
 
-        // LOGIKA POP-UP INTERAKTIF UNTUK KARTU SUMMARY/RINGKASAN (NEW FEATURE)
         window.showKpiTooltip = function(e, key) {
             const tt = document.getElementById('kpiCategoryTooltip');
             const badge = document.getElementById('kpiTtBadge');
@@ -1787,6 +1771,7 @@
             tfoot.appendChild(totalFootRow);
         }
 
+        // FUNGSI CELL MATRIKS (REVISI: IKON EDIT PADA SEL MATRIKS DIHILANGKAN FULL KARENA SUDAH ADA DI POPUP)
         function getItemsCell(data, bulan, keys) {
             const filtered = data.filter(x => parseInt(x.bulan) === bulan && keys.includes(x.kategori));
             if (filtered.length === 0) return { count: 0, text: '<span class="text-slate-300 text-center block">-</span>' };
@@ -1835,15 +1820,12 @@
 
                 let labelInstansiText = it.instansi && it.instansi !== '-' ? it.instansi : (it.kategori === 'Pelayanan Hukum' ? `Pelayanan (${it.jumlahPelayanan || 1} Layanan)` : 'Pelayanan Hukum');
 
+                // BERSIH DARI TOMBOL IKON EDIT DI LUAR (REVISI CATATAN GAMBAR)
                 let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none matrix-item-row group">`;
                 t += `<div class="flex items-start justify-between">
                         <span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start flex-grow">
                             <span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span>
                         </span>
-                        
-                        <button onclick="editKegiatan('${it.firestoreId}')" title="Edit Kegiatan Ini" class="hover-action-btn text-blue-600 hover:text-blue-800 text-[10px] bg-blue-50 hover:bg-blue-100 px-1.5 py-0.5 rounded transition ml-1 flex-shrink-0 border border-blue-200 no-print">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
                       </div>`;
                 
                 if (it.kategori === 'Pelayanan Hukum' && it.jumlahPelayanan > 1) {
@@ -1894,10 +1876,10 @@
 
             if (data.firestoreId) {
                 footer.innerHTML = `
-                    <button onclick="editKegiatan('${data.firestoreId}')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[11px] shadow-sm flex items-center transition">
-                        <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Data
+                    <button onclick="editKegiatan('${data.firestoreId}')" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs shadow-sm flex items-center transition">
+                        <i class="fa-solid fa-pen-to-square mr-1.5"></i> Edit Data
                     </button>
-                    <button onclick="hapusKegiatan('${data.firestoreId}')" class="px-2.5 py-1 bg-slate-100 hover:bg-rose-100 text-rose-600 rounded-lg font-semibold text-[11px] transition">
+                    <button onclick="hapusKegiatan('${data.firestoreId}')" class="px-3 py-1.5 bg-slate-100 hover:bg-rose-100 text-rose-600 rounded-lg font-semibold text-xs transition">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 `;
@@ -2228,8 +2210,10 @@
             return new Intl.NumberFormat('id-ID').format(val || 0);
         }
 
-        // FUNGSI EKSPOR MULTI-FORMAT (EXCEL LENGKAP, WORD, PDF)
-        window.executeExport = function() {
+        // =========================================================================
+        // EKSPOR EXCEL MEWAH & RAPI SANGAT PRESISI MENGGUNAKAN EXCELJS (MENJAWAB REVISI GAMBAR)
+        // =========================================================================
+        window.executeExport = async function() {
             const scope = document.querySelector('input[name="exportScope"]:checked').value;
             const format = document.querySelector('input[name="exportFormat"]:checked').value;
             const selectEl = document.getElementById('filterTahun');
@@ -2238,90 +2222,234 @@
             closeExportModal();
 
             if (format === 'excel') {
-                // FITUR EKSPOR EXCEL MULTI-SHEET LENGKAP LENGKAP DENGAN GRAFIK/TABLE
-                const wb = XLSX.utils.book_new();
+                const workbook = new ExcelJS.Workbook();
+                workbook.creator = 'SI-DATUN Kejari Padang';
+                workbook.created = new Date();
+
                 const dataTahun = datasetKegiatan.filter(x => x.tahun === tahun);
                 const pemulihanTahun = datasetPemulihan.filter(x => x.tahun === tahun);
 
-                // SHEET 1: REKAPITULASI MATRIKS BULANAN
-                const matrixHeader = ["No", "Bulan", "MoU", "Bantuan Hukum Litigasi", "Bantuan Hukum Non-Litigasi", "Pertimbangan LA", "Pertimbangan LO", "Pelayanan Hukum", "THL", "Penegakan Hukum"];
-                const matrixRows = [];
+                // STYLE KONSTANTA UNTUK DESAIN EXCEL PROFESSIONAL ALA DASBOR KEUANGAN
+                const headerFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0D9488' } }; // Tosca 600
+                const subHeaderFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF115E59' } }; // Tosca 800
+                const titleFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF9' } };
+                const zebraFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                const fontTitle = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF0F766E' } };
+                const fontHeader = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                const fontBold = { name: 'Arial', size: 10, bold: true };
+                const fontNormal = { name: 'Arial', size: 9 };
+                
+                const borderThin = {
+                    top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
 
+                // SHEET 1: DASBOR UTAMA & MATRIKS REKAP
+                const ws1 = workbook.addWorksheet('Dasbor Matriks Bulanan');
+                ws1.views = [{ showGridLines: true }];
+
+                // TITLE BLOCK
+                ws1.mergeCells('A1:J1');
+                ws1.getCell('A1').value = `LAPORAN DASBOR REKAPITULASI SI-DATUN KEJAKSAAN NEGERI PADANG`;
+                ws1.getCell('A1').font = fontTitle;
+                ws1.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+                ws1.getCell('A1').fill = titleFill;
+
+                ws1.mergeCells('A2:J2');
+                ws1.getCell('A2').value = `PERIODE TAHUN ${tahun}`;
+                ws1.getCell('A2').font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FF475569' } };
+                ws1.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+
+                ws1.addRow([]);
+
+                // HEADER MATRIKS 2 BARIS
+                const rowHeader1 = ws1.addRow(["NO", "BULAN", "1. MOU", "2. BANTUAN HUKUM", "", "3. PERTIMBANGAN HUKUM", "", "4. PELAYANAN HUKUM", "5. TINDAKAN HUKUM LAIN", "6. PENEGAKAN HUKUM"]);
+                const rowHeader2 = ws1.addRow(["", "", "", "LITIGASI", "NON-LITIGASI", "LEGAL ASSISTANCE (LA)", "LEGAL OPINION (LO)", "", "", ""]);
+
+                ws1.mergeCells('A4:A5');
+                ws1.mergeCells('B4:B5');
+                ws1.mergeCells('C4:C5');
+                ws1.mergeCells('D4:E4');
+                ws1.mergeCells('F4:G4');
+                ws1.mergeCells('H4:H5');
+                ws1.mergeCells('I4:I5');
+                ws1.mergeCells('J4:J5');
+
+                [rowHeader1, rowHeader2].forEach(row => {
+                    row.eachCell({ includeEmpty: true }, (cell) => {
+                        cell.fill = headerFill;
+                        cell.font = fontHeader;
+                        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                        cell.border = borderThin;
+                    });
+                });
+
+                // ISI BARIS BULAN MATRIKS
                 for (let i = 1; i <= 12; i++) {
-                    const rowData = [
+                    const rowVal = [
                         i,
                         NAMA_BULAN_LENGKAP[i],
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'MoU').map(x => x.instansi).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Bantuan Hukum Litigasi').map(x => `${x.instansi} (${x.jumlahSkk||1} SKK)`).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Bantuan Hukum Non-Litigasi').map(x => `${x.instansi} (${x.jumlahSkk||1} SKK)`).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Pertimbangan LA').map(x => x.instansi).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Pertimbangan LO').map(x => x.instansi).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Pelayanan Hukum').map(x => `Layanan (${x.jumlahPelayanan||1})`).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Tindakan Hukum Lainnya').map(x => x.instansi).join('; ') || '-',
-                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Penegakan Hukum').map(x => x.instansi).join('; ') || '-'
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'MoU').map(x => x.instansi).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Bantuan Hukum Litigasi').map(x => `${x.instansi} (${x.jumlahSkk||1} SKK)`).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Bantuan Hukum Non-Litigasi').map(x => `${x.instansi} (${x.jumlahSkk||1} SKK)`).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Pertimbangan LA').map(x => x.instansi).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Pertimbangan LO').map(x => x.instansi).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Pelayanan Hukum').map(x => `Pelayanan (${x.jumlahPelayanan||1})`).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Tindakan Hukum Lainnya').map(x => x.instansi).join('\n') || '-',
+                        dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === 'Penegakan Hukum').map(x => x.instansi).join('\n') || '-'
                     ];
-                    matrixRows.push(rowData);
+                    const addedRow = ws1.addRow(rowVal);
+                    addedRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                        cell.font = fontNormal;
+                        cell.border = borderThin;
+                        cell.alignment = { vertical: 'top', horizontal: colNumber <= 2 ? 'center' : 'left', wrapText: true };
+                        if (i % 2 === 0) cell.fill = zebraFill;
+                    });
                 }
 
-                const wsMatrix = XLSX.utils.aoa_to_sheet([
-                    [`REKAPITULASI MATRIKS KEGIATAN DATUN KEJARI PADANG - TAHUN ${tahun}`],
-                    [],
-                    matrixHeader,
-                    ...matrixRows
-                ]);
-                XLSX.utils.book_append_sheet(wb, wsMatrix, "Matriks Bulanan");
+                // SUB-TABEL PEMULIHAN KEUANGAN DI SHEET 1
+                ws1.addRow([]);
+                ws1.addRow([]);
+                const rowPemulihanTitle = ws1.addRow(["TABEL REKAPITULASI PEMULIHAN KEUANGAN NEGARA"]);
+                ws1.mergeCells(`A${rowPemulihanTitle.number}:J${rowPemulihanTitle.number}`);
+                rowPemulihanTitle.getCell(1).font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FF0F766E' } };
 
-                // SHEET 2: PEMULIHAN KEUANGAN NEGARA
-                const pemulihanHeader = ["Kategori Keuangan", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember", "TOTAL (Rp)"];
-                const rowDisepakati = ["Yang Disepakati"];
-                const rowDipulihkan = ["Yang Ditangani / Dipulihkan"];
-                let sumDis = 0, sumDip = 0;
+                const pemHeader = ["KATEGORI KEUANGAN", "JAN", "FEB", "MAR", "APR", "MEI", "JUN", "JUL", "AGT", "SEP", "OKT", "NOV", "DES", "TOTAL REALISASI (Rp)"];
+                const pHeaderRow = ws1.addRow(pemHeader);
+                pHeaderRow.eachCell({ includeEmpty: true }, (cell) => {
+                    cell.fill = subHeaderFill;
+                    cell.font = fontHeader;
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                    cell.border = borderThin;
+                });
+
+                const rDis = ["Yang Disepakati"];
+                const rDip = ["Yang Ditangani / Dipulihkan"];
+                let totalDis = 0, totalDip = 0;
 
                 for (let i = 1; i <= 12; i++) {
                     const p = pemulihanTahun.find(x => parseInt(x.bulan) === i);
                     const dis = p ? (parseFloat(p.disepakati) || 0) : 0;
                     const dip = p ? (parseFloat(p.dipulihkan) || 0) : 0;
-                    rowDisepakati.push(dis);
-                    rowDipulihkan.push(dip);
-                    sumDis += dis;
-                    sumDip += dip;
+                    rDis.push(dis);
+                    rDip.push(dip);
+                    totalDis += dis;
+                    totalDip += dip;
                 }
-                rowDisepakati.push(sumDis);
-                rowDipulihkan.push(sumDip);
+                rDis.push(totalDis);
+                rDip.push(totalDip);
 
-                const wsPemulihan = XLSX.utils.aoa_to_sheet([
-                    [`TABEL PEMULIHAN KEUANGAN NEGARA - TAHUN ${tahun}`],
-                    [],
-                    pemulihanHeader,
-                    rowDisepakati,
-                    rowDipulihkan
-                ]);
-                XLSX.utils.book_append_sheet(wb, wsPemulihan, "Pemulihan Keuangan");
+                [rDis, rDip].forEach((rData, idx) => {
+                    const rAdded = ws1.addRow(rData);
+                    rAdded.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                        cell.font = colNumber === 1 || colNumber === 14 ? fontBold : fontNormal;
+                        cell.border = borderThin;
+                        if (colNumber > 1) {
+                            cell.numFmt = 'Rp #,##0'; // FIX MENJAWAB PROBLEM '5.69E+09' LAMA
+                            cell.alignment = { vertical: 'middle', horizontal: 'right' };
+                        } else {
+                            cell.alignment = { vertical: 'middle', horizontal: 'left' };
+                        }
+                        if (idx === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F4EA' } };
+                    });
+                });
 
-                // SHEET 3: DETAIL LOG LOG LENGKAP
+                ws1.columns = [
+                    { width: 6 },  { width: 14 }, { width: 22 }, { width: 22 },
+                    { width: 22 }, { width: 22 }, { width: 22 }, { width: 22 },
+                    { width: 22 }, { width: 22 }, { width: 22 }, { width: 22 },
+                    { width: 22 }, { width: 26 }
+                ];
+
+                // SHEET 2: LOG RINCI ENTRI
                 if (scope === 'detail') {
-                    const logHeader = ["No", "Bulan", "Kategori", "Instansi / Pemohon", "No. MoU / SKK", "Jumlah (SKK/Layanan)", "Uraian Ringkas", "Link Berkas Drive"];
-                    const logRows = dataTahun.map((x, idx) => [
-                        idx + 1,
-                        NAMA_BULAN_LENGKAP[x.bulan],
-                        x.kategori,
-                        x.instansi || '-',
-                        x.noMou !== '-' ? x.noMou : (x.noSkk !== '-' ? x.noSkk : '-'),
-                        x.kategori === 'Pelayanan Hukum' ? (x.jumlahPelayanan || 1) : (x.kategori && x.kategori.includes('Bantuan Hukum') ? (x.jumlahSkk || 1) : 1),
-                        x.uraian || '-',
-                        x.driveLink || '-'
-                    ]);
+                    const ws2 = workbook.addWorksheet('Log Detail Kegiatan');
+                    ws2.views = [{ showGridLines: true }];
 
-                    const wsLog = XLSX.utils.aoa_to_sheet([
-                        [`RINCIAN DETAIL LOG KEGIATAN DATUN - TAHUN ${tahun}`],
-                        [],
-                        logHeader,
-                        ...logRows
-                    ]);
-                    XLSX.utils.book_append_sheet(wb, wsLog, "Detail Log Kegiatan");
+                    const lTitle = ws2.addRow([`LOG RINCI KESELURUHAN DATA KEGIATAN DATUN - TAHUN ${tahun}`]);
+                    ws2.mergeCells('A1:H1');
+                    lTitle.getCell(1).font = fontTitle;
+                    lTitle.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+                    ws2.addRow([]);
+
+                    const logHeader = ["NO", "BULAN", "KATEGORI BIDANG", "INSTANSI / PEMOHON", "NO. MOU / SKK", "JUMLAH (SKK/LAYANAN)", "URAIAN RINGKAS", "LINK BERKAS DRIVE"];
+                    const lHRow = ws2.addRow(logHeader);
+                    lHRow.eachCell({ includeEmpty: true }, (cell) => {
+                        cell.fill = headerFill;
+                        cell.font = fontHeader;
+                        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                        cell.border = borderThin;
+                    });
+
+                    dataTahun.forEach((x, idx) => {
+                        const r = [
+                            idx + 1,
+                            NAMA_BULAN_LENGKAP[x.bulan],
+                            x.kategori,
+                            x.instansi || '-',
+                            x.noMou !== '-' ? x.noMou : (x.noSkk !== '-' ? x.noSkk : '-'),
+                            x.kategori === 'Pelayanan Hukum' ? (x.jumlahPelayanan || 1) : (x.kategori && x.kategori.includes('Bantuan Hukum') ? (x.jumlahSkk || 1) : 1),
+                            x.uraian || '-',
+                            x.driveLink || '-'
+                        ];
+                        const rAdd = ws2.addRow(r);
+                        rAdd.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                            cell.font = fontNormal;
+                            cell.border = borderThin;
+                            cell.alignment = { vertical: 'top', horizontal: (colNumber === 1 || colNumber === 2 || colNumber === 6) ? 'center' : 'left', wrapText: true };
+                            if (idx % 2 === 1) cell.fill = zebraFill;
+                        });
+                    });
+
+                    ws2.columns = [
+                        { width: 6 }, { width: 14 }, { width: 24 }, { width: 30 },
+                        { width: 24 }, { width: 20 }, { width: 45 }, { width: 35 }
+                    ];
                 }
 
-                XLSX.writeFile(wb, `Laporan_DATUN_Lengkap_${tahun}.xlsx`);
+                // SHEET 3: DATA AGREGAT KHUSUS OLAHAN GRAFIK (DATABASES GRAFIK EXCEL)
+                const ws3 = workbook.addWorksheet('Ringkasan Data Grafik');
+                ws3.views = [{ showGridLines: true }];
+
+                ws3.addRow(["KATEGORI KEGIATAN", "TOTAL VOLUME", "PERSENTASE (%)"]);
+                ws3.getRow(1).eachCell(cell => { cell.fill = headerFill; cell.font = fontHeader; cell.alignment = { horizontal: 'center' }; cell.border = borderThin; });
+
+                let counts = [0, 0, 0, 0, 0, 0, 0];
+                dataTahun.forEach(x => {
+                    if (x.kategori === 'MoU') counts[0]++;
+                    else if (x.kategori === 'Bantuan Hukum Litigasi') counts[1] += (parseInt(x.jumlahSkk) || 1);
+                    else if (x.kategori === 'Bantuan Hukum Non-Litigasi') counts[2] += (parseInt(x.jumlahSkk) || 1);
+                    else if (x.kategori && x.kategori.includes('Pertimbangan')) counts[3]++;
+                    else if (x.kategori === 'Pelayanan Hukum') counts[4] += (parseInt(x.jumlahPelayanan) || 1);
+                    else if (x.kategori === 'Tindakan Hukum Lainnya') counts[5]++;
+                    else if (x.kategori === 'Penegakan Hukum') counts[6]++;
+                });
+
+                const grandTotal = counts.reduce((a, b) => a + b, 0);
+
+                CATEGORY_KEYS.forEach((catKey, idx) => {
+                    const pct = grandTotal > 0 ? (counts[idx] / grandTotal) : 0;
+                    const rAdd = ws3.addRow([catKey, counts[idx], pct]);
+                    rAdd.getCell(1).font = fontNormal;
+                    rAdd.getCell(2).font = fontBold;
+                    rAdd.getCell(3).font = fontNormal;
+                    rAdd.getCell(3).numFmt = '0.0%';
+                    rAdd.eachCell(c => c.border = borderThin);
+                });
+
+                ws3.columns = [{ width: 30 }, { width: 16 }, { width: 16 }];
+
+                // SIMPAN BUNDLE FILE EXCEL (.XLSX)
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Laporan_Dasbor_DATUN_Mewah_${tahun}.xlsx`;
+                a.click();
+                window.URL.revokeObjectURL(url);
 
             } else if (format === 'pdf') {
                 if (scope === 'summary') switchView('matrix');

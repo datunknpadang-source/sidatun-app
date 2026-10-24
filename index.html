@@ -121,7 +121,7 @@
         </button>
 
         <!-- Kotak Jendela Chat -->
-        <div id="chatWindowBox" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-96 transition-all duration-200">
+        <div id="chatWindowBox" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[420px] transition-all duration-200">
             <!-- Header Chat -->
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
@@ -132,8 +132,8 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <!-- Tombol Bersihkan Layar Chat -->
-                    <button onclick="clearChatScreen()" title="Bersihkan Layar Chat" class="text-white/80 hover:text-rose-300 text-xs p-1 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    <!-- Tombol Bersihkan Seluruh Chat (Database & Layar) -->
+                    <button onclick="clearAllChatDatabase()" title="Bersihkan Seluruh Chat" class="text-white/80 hover:text-rose-300 text-xs p-1 transition"><i class="fa-solid fa-trash-can"></i></button>
                     <button onclick="toggleChatWindow()" class="text-white/70 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
@@ -143,26 +143,38 @@
                 <div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>
             </div>
 
-            <!-- Preview Gambar Sebelum Terkirim -->
-            <div id="chatImagePreviewBox" class="hidden px-3 py-1.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
+            <!-- Preview File / Lampiran Sebelum Terkirim -->
+            <div id="chatFilePreviewBox" class="hidden px-3 py-1.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
                 <div class="flex items-center space-x-2 truncate">
-                    <i class="fa-regular fa-image text-tosca-600"></i>
-                    <span id="chatImagePreviewName" class="text-[10px] text-slate-600 truncate max-w-[180px]">gambar.png</span>
+                    <i class="fa-solid fa-file text-tosca-600"></i>
+                    <span id="chatFilePreviewName" class="text-[10px] text-slate-600 truncate max-w-[180px]">file.pdf</span>
                 </div>
-                <button type="button" onclick="cancelChatImageUpload()" class="text-rose-500 text-xs hover:text-rose-700"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="cancelChatFileUpload()" class="text-rose-500 text-xs hover:text-rose-700"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <!-- Form Kirim Pesan -->
             <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex flex-col space-y-1.5">
                 <input type="hidden" id="chatEditingDocId" value="">
                 <div class="flex items-center space-x-2">
-                    <input type="text" id="chatNickInput" placeholder="Nama Anda..." required class="w-full text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800">
-                    <span id="chatEditBadge" class="hidden text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded border border-amber-300 flex-shrink-0">Edit Pesan</span>
+                    <!-- Kolom Nama Terkunci / Bisa Diubah via Klik -->
+                    <input type="text" id="chatNickInput" placeholder="Nama Anda (Klik untuk ubah)..." onclick="handleNickClick()" readonly required class="w-full text-xs bg-slate-200 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800 cursor-pointer" title="Klik untuk mengubah nama">
+                    <span id="chatEditBadge" class="hidden text-[9px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded border border-amber-300 flex-shrink-0">Edit</span>
                 </div>
+
+                <!-- Quick Emotes (Terbatas 5) -->
+                <div class="flex items-center space-x-1.5 px-1 bg-slate-50 py-1 rounded-lg border border-slate-200/60">
+                    <span class="text-[10px] text-slate-400 font-bold mr-0.5">Emote:</span>
+                    <button type="button" onclick="insertEmote('👍')" class="text-xs hover:bg-slate-200 px-1 py-0.5 rounded transition" title="Jempol">👍</button>
+                    <button type="button" onclick="insertEmote('😊')" class="text-xs hover:bg-slate-200 px-1 py-0.5 rounded transition" title="Senyum">😊</button>
+                    <button type="button" onclick="insertEmote('😂')" class="text-xs hover:bg-slate-200 px-1 py-0.5 rounded transition" title="Ketawa">😂</button>
+                    <button type="button" onclick="insertEmote('🫡')" class="text-xs hover:bg-slate-200 px-1 py-0.5 rounded transition" title="Siap">🫡</button>
+                    <button type="button" onclick="insertEmote('❌')" class="text-xs hover:bg-slate-200 px-1 py-0.5 rounded transition" title="Tanda Silang">❌</button>
+                </div>
+
                 <div class="flex items-center space-x-1.5">
-                    <!-- Input File Gambar Tersembunyi -->
-                    <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)">
-                    <button type="button" onclick="document.getElementById('chatImageInput').click()" title="Lampirkan Gambar" class="text-slate-500 hover:text-tosca-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition">
+                    <!-- Input Universal File / Lampiran -->
+                    <input type="file" id="chatFileInput" class="hidden" onchange="handleChatFileSelect(event)">
+                    <button type="button" onclick="document.getElementById('chatFileInput').click()" title="Lampirkan Berkas (Word, Excel, PDF, dll)" class="text-slate-500 hover:text-tosca-700 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition">
                         <i class="fa-solid fa-paperclip text-xs"></i>
                     </button>
 
@@ -851,7 +863,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -882,8 +894,7 @@
         let hideTooltipTimer = null;
         let unreadChatCount = 0;
         let isChatOpen = false;
-        let isChatScreenCleared = false;
-        let selectedChatImageBase64 = null;
+        let selectedChatFile = null;
 
         // IDENTITAS LOKAL USER UNTUK CHAT POV
         let myUserId = localStorage.getItem('datun_chat_user_id');
@@ -920,9 +931,50 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
             startPresenceHeartbeat();
+            initNicknameState();
         });
 
-        // HEARTBEAT & INDIKATOR AKTIFAAN USER REAL-TIME
+        function initNicknameState() {
+            const savedNick = localStorage.getItem('datun_chat_nick');
+            const nickInput = document.getElementById('chatNickInput');
+            if (savedNick) {
+                nickInput.value = savedNick;
+                nickInput.setAttribute('readonly', 'true');
+                nickInput.classList.add('bg-slate-200', 'cursor-pointer');
+                nickInput.classList.remove('bg-slate-100');
+            } else {
+                nickInput.removeAttribute('readonly');
+                nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
+                nickInput.classList.add('bg-slate-100');
+                nickInput.focus();
+            }
+        }
+
+        window.handleNickClick = function() {
+            const nickInput = document.getElementById('chatNickInput');
+            if (nickInput.hasAttribute('readonly')) {
+                if (confirm("apakah kamu ingin mengubah nama")) {
+                    nickInput.removeAttribute('readonly');
+                    nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
+                    nickInput.classList.add('bg-slate-100');
+                    nickInput.focus();
+                    nickInput.select();
+                }
+            }
+        };
+
+        // Simpan nickname otomatis saat user selesai mengetik/blur
+        document.getElementById('chatNickInput')?.addEventListener('blur', function() {
+            const val = this.value.trim();
+            if (val) {
+                localStorage.setItem('datun_chat_nick', val);
+                this.setAttribute('readonly', 'true');
+                this.classList.add('bg-slate-200', 'cursor-pointer');
+                this.classList.remove('bg-slate-100');
+            }
+        });
+
+        // HEARTBEAT & INDIKATOR AKTIF USER REAL-TIME
         function startPresenceHeartbeat() {
             const userDocRef = doc(activeUsersColRef, myUserId);
             const sendHeartbeat = async () => {
@@ -936,7 +988,7 @@
             };
 
             sendHeartbeat();
-            setInterval(sendHeartbeat, 40000); // Heartbeat setiap 40 detik
+            setInterval(sendHeartbeat, 40000);
 
             onSnapshot(activeUsersColRef, (snapshot) => {
                 const now = new Date().getTime();
@@ -947,7 +999,7 @@
                     const data = docSnap.data();
                     if (data.lastActive) {
                         const lastTime = new Date(data.lastActive).getTime();
-                        if (now - lastTime < 120000) { // < 2 menit
+                        if (now - lastTime < 120000) {
                             activeCount++;
                             if (docSnap.id !== myUserId) {
                                 otherUserActive = true;
@@ -999,12 +1051,12 @@
             renderPemulihanTable();
         });
 
-        // LIVE CHAT REAL-TIME LISTENER (DENGAN EXSPIRASI OTOMATIS 1 JAM)
+        // LIVE CHAT REAL-TIME LISTENER (DENGAN KEDALUWARSA 1 JAM)
         onSnapshot(chatColRef, (snapshot) => {
             const oldLength = chatMessagesCache.length;
             chatMessagesCache = [];
             const now = new Date().getTime();
-            const ONE_HOUR = 60 * 60 * 1000; // 1 Jam dalam ms
+            const ONE_HOUR = 60 * 60 * 1000;
 
             snapshot.forEach((docSnap) => {
                 const item = { id: docSnap.id, ...docSnap.data() };
@@ -1039,84 +1091,112 @@
             }
         };
 
-        // ENHANCEMENT: FITUR GAMBAR CHAT
-        window.handleChatImageSelect = function(e) {
+        // PENGATURAN BERKAS / LAMPIRAN UNIVERSAL
+        window.handleChatFileSelect = function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Ukuran file gambar maksimal 2 MB.');
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Ukuran berkas maksimal 5 MB.');
                 e.target.value = '';
                 return;
             }
 
             const reader = new FileReader();
             reader.onload = function(evt) {
-                selectedChatImageBase64 = evt.target.result;
-                document.getElementById('chatImagePreviewName').innerText = file.name;
-                document.getElementById('chatImagePreviewBox').classList.remove('hidden');
+                selectedChatFile = {
+                    name: file.name,
+                    type: file.type,
+                    dataUrl: evt.target.result
+                };
+                document.getElementById('chatFilePreviewName').innerText = file.name;
+                document.getElementById('chatFilePreviewBox').classList.remove('hidden');
             };
             reader.readAsDataURL(file);
         };
 
-        window.cancelChatImageUpload = function() {
-            selectedChatImageBase64 = null;
-            document.getElementById('chatImageInput').value = '';
-            document.getElementById('chatImagePreviewBox').classList.add('hidden');
+        window.cancelChatFileUpload = function() {
+            selectedChatFile = null;
+            document.getElementById('chatFileInput').value = '';
+            document.getElementById('chatFilePreviewBox').classList.add('hidden');
         };
 
-        // ENHANCEMENT: BERSIHKAN TAMPILAN JENDELA CHAT (LOKAL VIEW)
-        window.clearChatScreen = function() {
-            isChatScreenCleared = true;
-            renderChatMessages();
+        // INSERT QUICK EMOTE KE KOLOM PESAN
+        window.insertEmote = function(emoteSymbol) {
+            const msgInput = document.getElementById('chatMsgInput');
+            msgInput.value += emoteSymbol;
+            msgInput.focus();
+        };
+
+        // BERSIHKAN SELURUH CHAT (DI LAYAR & DI DATABASE FIRESTORE)
+        window.clearAllChatDatabase = async function() {
+            if (confirm('Apakah Anda yakin ingin menghapus seluruh pesan chat untuk semua pengguna dan dari database seketika?')) {
+                try {
+                    const snapshot = await getDocs(chatColRef);
+                    const deletePromises = snapshot.docs.map(d => deleteDoc(doc(db, "chat_datun", d.id)));
+                    await Promise.all(deletePromises);
+                } catch (err) {
+                    console.error("Gagal menghapus seluruh chat:", err);
+                    alert("Gagal menghapus chat dari database.");
+                }
+            }
         };
 
         window.sendChatMessage = async function(e) {
             e.preventDefault();
-            const nick = document.getElementById('chatNickInput').value.trim();
+            const nickInput = document.getElementById('chatNickInput');
+            const nick = nickInput.value.trim();
             const msg = document.getElementById('chatMsgInput').value.trim();
             const editDocId = document.getElementById('chatEditingDocId').value;
 
-            if (!nick) return;
-            if (!msg && !selectedChatImageBase64) return;
+            // Validasi nama wajib diisi terlebih dahulu
+            if (!nick) {
+                alert('Silakan isi kolom nama terlebih dahulu sebelum mengirim pesan.');
+                nickInput.removeAttribute('readonly');
+                nickInput.classList.remove('bg-slate-200', 'cursor-pointer');
+                nickInput.classList.add('bg-slate-100');
+                nickInput.focus();
+                return;
+            }
+
+            if (!msg && !selectedChatFile) return;
 
             try {
                 if (editDocId) {
-                    // PROSES EDIT PESAN
                     const updateObj = {
                         message: msg,
                         isEdited: true,
                         updatedAt: new Date().toISOString()
                     };
-                    if (selectedChatImageBase64) {
-                        updateObj.imageUrl = selectedChatImageBase64;
+                    if (selectedChatFile) {
+                        updateObj.fileUrl = selectedChatFile.dataUrl;
+                        updateObj.fileName = selectedChatFile.name;
+                        updateObj.fileType = selectedChatFile.type;
                     }
                     await updateDoc(doc(db, "chat_datun", editDocId), updateObj);
                     cancelChatEdit();
                 } else {
-                    // PROSES KIRIM PESAN BARU
                     const payload = {
                         senderId: myUserId,
                         nickname: nick,
                         message: msg || '',
                         createdAt: new Date().toISOString()
                     };
-                    if (selectedChatImageBase64) {
-                        payload.imageUrl = selectedChatImageBase64;
+                    if (selectedChatFile) {
+                        payload.fileUrl = selectedChatFile.dataUrl;
+                        payload.fileName = selectedChatFile.name;
+                        payload.fileType = selectedChatFile.type;
                     }
 
                     await addDoc(chatColRef, payload);
                     document.getElementById('chatMsgInput').value = '';
-                    cancelChatImageUpload();
+                    cancelChatFileUpload();
                 }
-
-                isChatScreenCleared = false; // Tampilkan kembali pesan setelah aksi baru
             } catch (err) {
                 console.error("Gagal mengirim/mengedit pesan:", err);
             }
         };
 
-        // EDIT & HAPUS PESAN
         window.editChatMessage = function(id, currentMsg) {
             document.getElementById('chatEditingDocId').value = id;
             document.getElementById('chatMsgInput').value = currentMsg;
@@ -1146,15 +1226,6 @@
             const list = document.getElementById('chatMessagesList');
             if (!list) return;
 
-            if (isChatScreenCleared) {
-                list.innerHTML = `
-                    <div class="text-center text-slate-400 text-[10px] my-3">
-                        <i>Tampilan layar chat dibersihkan. Pesan baru akan muncul secara otomatis.</i>
-                    </div>
-                `;
-                return;
-            }
-
             let html = '<div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>';
             
             chatMessagesCache.forEach(item => {
@@ -1163,20 +1234,35 @@
                 const nickColor = getUserColor(item.nickname || 'User');
                 const editedTag = item.isEdited ? '<span class="text-[8px] opacity-75 italic ml-1">(diedit)</span>' : '';
 
-                let imageElement = '';
-                if (item.imageUrl) {
-                    imageElement = `
-                        <div class="mt-1 relative group overflow-hidden rounded-xl border border-black/10">
-                            <img src="${item.imageUrl}" alt="Lampiran" class="max-w-full max-h-48 object-cover rounded-xl">
-                            <a href="${item.imageUrl}" download="gambar_chat_datun.png" target="_blank" class="absolute bottom-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white text-[9px] px-2 py-1 rounded-md font-semibold flex items-center transition shadow">
-                                <i class="fa-solid fa-download mr-1"></i> Unduh
-                            </a>
-                        </div>
-                    `;
+                let fileElement = '';
+                if (item.fileUrl) {
+                    const isImg = item.fileType && item.fileType.startsWith('image/');
+                    if (isImg) {
+                        fileElement = `
+                            <div class="mt-1 relative group overflow-hidden rounded-xl border border-black/10">
+                                <img src="${item.fileUrl}" alt="Lampiran" class="max-w-full max-h-48 object-cover rounded-xl">
+                                <a href="${item.fileUrl}" download="${item.fileName || 'lampiran.png'}" target="_blank" class="absolute bottom-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white text-[9px] px-2 py-1 rounded-md font-semibold flex items-center transition shadow">
+                                    <i class="fa-solid fa-download mr-1"></i> Unduh
+                                </a>
+                            </div>
+                        `;
+                    } else {
+                        fileElement = `
+                            <div class="mt-1 flex items-center justify-between bg-white/85 border border-slate-200 rounded-xl p-2 max-w-[220px]">
+                                <div class="flex items-center space-x-2 truncate mr-2">
+                                    <i class="fa-solid fa-file-lines text-tosca-700 text-base flex-shrink-0"></i>
+                                    <span class="text-[10px] font-semibold text-slate-700 truncate">${escapeHtml(item.fileName || 'Dokumen')}</span>
+                                </div>
+                                <a href="${item.fileUrl}" download="${item.fileName || 'berkas'}" target="_blank" class="bg-tosca-600 hover:bg-tosca-700 text-white text-[9px] px-2 py-1 rounded-lg font-bold flex items-center flex-shrink-0 transition shadow">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
                 }
 
                 if (isMe) {
-                    // PESAN POV USER SENDIRI (SEBELAH KANAN)
+                    // PESAN USER SENDIRI (SEBELAH KANAN)
                     html += `
                         <div class="flex flex-col items-end space-y-0.5 group">
                             <div class="flex items-center space-x-1">
@@ -1185,7 +1271,7 @@
                             </div>
                             <div class="relative bg-tosca-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
                                 ${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}
-                                ${imageElement}
+                                ${fileElement}
 
                                 <!-- Tombol Edit & Hapus Pesan Anda -->
                                 <div class="opacity-0 group-hover:opacity-100 transition absolute -top-2 -left-12 bg-white text-slate-600 rounded-lg shadow border border-slate-200 px-1 py-0.5 flex items-center space-x-1 text-[9px]">
@@ -1205,7 +1291,7 @@
                             </div>
                             <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
                                 ${item.message ? `<div>${escapeHtml(item.message)}${editedTag}</div>` : ''}
-                                ${imageElement}
+                                ${fileElement}
                             </div>
                         </div>
                     `;

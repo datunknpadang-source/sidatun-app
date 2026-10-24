@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI-DATUN - Kejaksaan Negeri Padang</title>
+    <title>GIAT DATUN - Kejaksaan Negeri Padang</title>
 
     <!-- FAVICON TAB BROWSER -->
     <link id="favicon" rel="icon" type="image/png" href="./logo.png?v=2">
@@ -110,8 +110,13 @@
     <!-- FLOATING LIVE CHAT WIDGET DI SUDUT KANAN BAWAH -->
     <div id="floatingChatWidget" class="fixed bottom-5 right-6 z-50 no-print">
         <!-- Tombol Toggle Chat -->
-        <button id="chatToggleBtn" onclick="toggleChatWindow()" class="bg-tosca-700 hover:bg-tosca-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105 active:scale-95 border-2 border-white">
+        <button id="chatToggleBtn" onclick="toggleChatWindow()" class="relative bg-tosca-700 hover:bg-tosca-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105 active:scale-95 border-2 border-white">
             <i class="fa-solid fa-comments text-lg"></i>
+            
+            <!-- Indikator User Aktif / Online pada Logo Chat -->
+            <span id="chatOnlineBadge" class="absolute top-0 left-0 bg-emerald-500 w-3.5 h-3.5 rounded-full border-2 border-white animate-pulse hidden" title="Ada pengguna lain sedang aktif"></span>
+            
+            <!-- Badge Jumlah Pesan Belum Dibaca -->
             <span id="chatBadgeCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
         </button>
 
@@ -120,24 +125,31 @@
             <!-- Header Chat -->
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                    <span class="font-bold text-xs">Live Chat Pengguna DATUN</span>
+                    <div id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <div>
+                        <span class="font-bold text-xs block leading-none">Live Chat DATUN</span>
+                        <span id="chatActiveUserText" class="text-[9px] text-tosca-200">1 Pengguna Aktif</span>
+                    </div>
                 </div>
                 <button onclick="toggleChatWindow()" class="text-white/70 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <!-- Daftar Pesan Chat -->
             <div id="chatMessagesList" class="flex-grow p-3 overflow-y-auto space-y-2.5 bg-slate-50 text-xs custom-scrollbar">
-                <div class="text-center text-slate-400 text-[10px] my-2">Chat bersifat sementara selama sesi web aktif.</div>
+                <div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>
             </div>
 
             <!-- Form Kirim Pesan -->
-            <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex items-center space-x-2">
-                <input type="text" id="chatNickInput" placeholder="Nama..." required class="w-24 text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
-                <input type="text" id="chatMsgInput" placeholder="Ketik pesan..." required class="flex-grow text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
-                <button type="submit" class="bg-tosca-600 hover:bg-tosca-700 text-white w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition">
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
-                </button>
+            <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex flex-col space-y-1.5">
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="chatNickInput" placeholder="Nama Anda..." required class="w-full text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-tosca-500 font-semibold text-tosca-800">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="chatMsgInput" placeholder="Ketik pesan..." required class="flex-grow text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
+                    <button type="submit" class="bg-tosca-600 hover:bg-tosca-700 text-white w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition shadow">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -433,7 +445,7 @@
                             <td class="p-2.5 text-right font-black text-blue-900 bg-blue-100/60" id="pemulihanDisepakati_TOTAL">Rp 0</td>
                         </tr>
                         <tr class="border-b border-slate-200 hover:bg-slate-50">
-                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Ditangani / Dipulihkan</td>
+                            <td class="p-2.5 font-bold text-emerald-900 bg-emerald-50/50">Yang Dipulihkan</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_1">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_2">0</td>
                             <td class="p-2 text-right font-medium text-slate-700" id="pemulihanDipulihkan_3">0</td>
@@ -652,7 +664,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-emerald-900 mb-1">Yang Ditangani / Dipulihkan (Rp) *</label>
+                    <label class="block text-xs font-bold text-emerald-900 mb-1">Yang Dipulihkan (Rp) *</label>
                     <input type="number" id="pemulihanDipulihkanInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 </div>
 
@@ -814,7 +826,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -833,6 +845,7 @@
         const colRef = collection(db, "kegiatan_datun");
         const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
         const chatColRef = collection(db, "chat_datun");
+        const activeUsersColRef = collection(db, "active_users_datun");
 
         let datasetKegiatan = [];
         let datasetPemulihan = [];
@@ -845,13 +858,93 @@
         let unreadChatCount = 0;
         let isChatOpen = false;
 
+        // IDENTITAS LOKAL USER UNTUK CHAT POV
+        let myUserId = localStorage.getItem('datun_chat_user_id');
+        if (!myUserId) {
+            myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.getItem('datun_chat_user_id', myUserId);
+        }
+
+        // WARNA SPESIFIK NICKNAME KONSEP TEMA DATUN
+        const DATUN_COLOR_PALETTE = [
+            '#0D9488', // Tosca 600
+            '#0F766E', // Tosca 700
+            '#2563EB', // Blue 600
+            '#059669', // Emerald 600
+            '#D97706', // Amber 600
+            '#749C7B', // Sage 600
+            '#0891B2', // Cyan 600
+            '#4F46E5', // Indigo 600
+        ];
+
+        function getUserColor(nickName) {
+            let hash = 0;
+            for (let i = 0; i < nickName.length; i++) {
+                hash = nickName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % DATUN_COLOR_PALETTE.length;
+            return DATUN_COLOR_PALETTE[index];
+        }
+
         const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#84A98C', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
+            startPresenceHeartbeat();
         });
+
+        // HEARTBEAT & INDIKATOR AKTIFAAN USER REAL-TIME
+        function startPresenceHeartbeat() {
+            const userDocRef = doc(activeUsersColRef, myUserId);
+            const sendHeartbeat = async () => {
+                const nick = document.getElementById('chatNickInput')?.value.trim() || 'User';
+                try {
+                    await setDoc(userDocRef, {
+                        nickname: nick,
+                        lastActive: new Date().toISOString()
+                    });
+                } catch (e) { console.error("Presence error:", e); }
+            };
+
+            sendHeartbeat();
+            setInterval(sendHeartbeat, 40000); // Heartbeat setiap 40 detik
+
+            // Listener jumlah user aktif (dianggap aktif jika heartbeat dalam 2 menit terakhir)
+            onSnapshot(activeUsersColRef, (snapshot) => {
+                const now = new Date().getTime();
+                let activeCount = 0;
+                let otherUserActive = false;
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (data.lastActive) {
+                        const lastTime = new Date(data.lastActive).getTime();
+                        if (now - lastTime < 120000) { // < 2 menit
+                            activeCount++;
+                            if (docSnap.id !== myUserId) {
+                                otherUserActive = true;
+                            }
+                        }
+                    }
+                });
+
+                // Update Indikator pada Logo Fitur Chat
+                const badgeDot = document.getElementById('chatOnlineBadge');
+                const textActive = document.getElementById('chatActiveUserText');
+                
+                if (otherUserActive) {
+                    badgeDot.classList.remove('hidden');
+                } else {
+                    badgeDot.classList.add('hidden');
+                }
+
+                if (textActive) {
+                    textActive.innerText = `${activeCount} Pengguna Online`;
+                }
+            });
+        }
 
         onSnapshot(colRef, (snapshot) => {
             datasetKegiatan = [];
@@ -881,13 +974,23 @@
             renderPemulihanTable();
         });
 
-        // LIVE CHAT REAL-TIME LISTENER
+        // LIVE CHAT REAL-TIME LISTENER (HANYA DENGAN DUKUNGAN CHAT MAX 1 JAM TERAKHIR)
         onSnapshot(chatColRef, (snapshot) => {
             const oldLength = chatMessagesCache.length;
             chatMessagesCache = [];
+            const now = new Date().getTime();
+            const ONE_HOUR = 60 * 60 * 1000; // 1 Jam dalam ms
+
             snapshot.forEach((docSnap) => {
-                chatMessagesCache.push({ id: docSnap.id, ...docSnap.data() });
+                const item = { id: docSnap.id, ...docSnap.data() };
+                const msgTime = item.createdAt ? new Date(item.createdAt).getTime() : now;
+                
+                // Hanya simpan pesan berumur kurang dari 1 jam
+                if (now - msgTime < ONE_HOUR) {
+                    chatMessagesCache.push(item);
+                }
             });
+
             chatMessagesCache.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
             renderChatMessages();
 
@@ -920,6 +1023,7 @@
 
             try {
                 await addDoc(chatColRef, {
+                    senderId: myUserId,
                     nickname: nick,
                     message: msg,
                     createdAt: new Date().toISOString()
@@ -934,19 +1038,42 @@
             const list = document.getElementById('chatMessagesList');
             if (!list) return;
 
-            let html = '<div class="text-center text-slate-400 text-[10px] my-1">Chat bersifat sementara selama sesi web aktif.</div>';
+            let html = '<div class="text-center text-slate-400 text-[10px] my-1 bg-white/60 p-1.5 rounded-lg border border-slate-200/50">Chat bersifat sementara & otomatis dibersihkan (sesi aktif max 1 jam).</div>';
+            
             chatMessagesCache.forEach(item => {
                 const timeStr = item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-                html += `
-                    <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm space-y-0.5">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-tosca-700 text-[11px]">${escapeHtml(item.nickname || 'Anonym')}</span>
-                            <span class="text-[9px] text-slate-400">${timeStr}</span>
+                const isMe = (item.senderId === myUserId);
+                const nickColor = getUserColor(item.nickname || 'User');
+
+                if (isMe) {
+                    // SUSUNAN CHAT POV USER SENDIRI (SEBELAH KANAN)
+                    html += `
+                        <div class="flex flex-col items-end space-y-0.5">
+                            <div class="flex items-center space-x-1">
+                                <span class="text-[9px] text-slate-400">${timeStr}</span>
+                                <span class="font-bold text-[10px]" style="color: ${nickColor}">Anda</span>
+                            </div>
+                            <div class="bg-tosca-600 text-white p-2.5 rounded-2xl rounded-tr-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
+                                ${escapeHtml(item.message || '')}
+                            </div>
                         </div>
-                        <p class="text-slate-700 text-[11px] break-words">${escapeHtml(item.message || '')}</p>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // SUSUNAN CHAT USER LAIN (SEBELAH KIRI)
+                    html += `
+                        <div class="flex flex-col items-start space-y-0.5">
+                            <div class="flex items-center space-x-1">
+                                <span class="font-bold text-[10px]" style="color: ${nickColor}">${escapeHtml(item.nickname || 'Anonym')}</span>
+                                <span class="text-[9px] text-slate-400">${timeStr}</span>
+                            </div>
+                            <div class="bg-white border border-slate-200 text-slate-800 p-2.5 rounded-2xl rounded-tl-none shadow-sm max-w-[85%] text-[11px] leading-relaxed break-words">
+                                ${escapeHtml(item.message || '')}
+                            </div>
+                        </div>
+                    `;
+                }
             });
+
             list.innerHTML = html;
             if (isChatOpen) {
                 list.scrollTop = list.scrollHeight;
@@ -1503,7 +1630,7 @@
                 filterCategoryFn = x => x.kategori === 'Pelayanan Hukum';
             } else if (key === 'thl') {
                 catName = '5. Tindakan Hukum Lainnya (THL)';
-                catDesc = 'Tindakan penyelamatan dan pemulihan keuangan/aset negara yang dilakukan oleh Jaksa Pengacara Negara.';
+                catDesc = 'Tindakan penyelamatkan dan pemulihan keuangan/aset negara yang dilakukan oleh Jaksa Pengacara Negara.';
                 themeBadge = 'bg-teal-100 text-teal-800 border-teal-200';
                 filterCategoryFn = x => x.kategori === 'Tindakan Hukum Lainnya';
             } else if (key === 'penegakan') {
@@ -1642,7 +1769,7 @@
                             pointHoverRadius: 7
                         },
                         {
-                            label: 'Yang Ditangani / Dipulihkan',
+                            label: 'Yang Dipulihkan',
                             data: dipulihkanData,
                             borderColor: '#10B981',
                             backgroundColor: gradEmerald,

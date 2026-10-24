@@ -83,7 +83,7 @@
                 background: white;
                 color: black;
             }
-            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, .no-print {
+            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #floatingChatWidget, .no-print {
                 display: none !important;
             }
             .print-area {
@@ -101,6 +101,46 @@
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- WATERMARK KECIL DI SUDUT KIRI BAWAH -->
+    <div class="fixed bottom-5 left-6 text-[11px] text-slate-400 font-medium tracking-wider select-none z-20 pointer-events-none opacity-50 no-print">
+        created by bby
+    </div>
+
+    <!-- FLOATING LIVE CHAT WIDGET DI SUDUT KANAN BAWAH -->
+    <div id="floatingChatWidget" class="fixed bottom-5 right-6 z-50 no-print">
+        <!-- Tombol Toggle Chat -->
+        <button id="chatToggleBtn" onclick="toggleChatWindow()" class="bg-tosca-700 hover:bg-tosca-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105 active:scale-95 border-2 border-white">
+            <i class="fa-solid fa-comments text-lg"></i>
+            <span id="chatBadgeCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
+        </button>
+
+        <!-- Kotak Jendela Chat -->
+        <div id="chatWindowBox" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-96 transition-all duration-200">
+            <!-- Header Chat -->
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <span class="font-bold text-xs">Live Chat Pengguna DATUN</span>
+                </div>
+                <button onclick="toggleChatWindow()" class="text-white/70 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Daftar Pesan Chat -->
+            <div id="chatMessagesList" class="flex-grow p-3 overflow-y-auto space-y-2.5 bg-slate-50 text-xs custom-scrollbar">
+                <div class="text-center text-slate-400 text-[10px] my-2">Chat bersifat sementara selama sesi web aktif.</div>
+            </div>
+
+            <!-- Form Kirim Pesan -->
+            <form id="chatForm" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex items-center space-x-2">
+                <input type="text" id="chatNickInput" placeholder="Nama..." required class="w-24 text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
+                <input type="text" id="chatMsgInput" placeholder="Ketik pesan..." required class="flex-grow text-xs bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-tosca-500">
+                <button type="submit" class="bg-tosca-600 hover:bg-tosca-700 text-white w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- POP-UP TOOLTIP KHUSUS KARTU KATEGORI SUMMARY/RINGKASAN -->
     <div id="kpiCategoryTooltip" class="fixed opacity-0 transform scale-95 hidden bg-white rounded-2xl shadow-2xl border p-4 max-w-xs w-72 backdrop-blur-md">
@@ -792,14 +832,18 @@
         const db = getFirestore(app);
         const colRef = collection(db, "kegiatan_datun");
         const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
+        const chatColRef = collection(db, "chat_datun");
 
         let datasetKegiatan = [];
         let datasetPemulihan = [];
+        let chatMessagesCache = [];
         let chartBarInstance = null;
         let chartPieInstance = null;
         let chartCompareInstance = null;
         let chartFinanceLineInstance = null;
         let hideTooltipTimer = null;
+        let unreadChatCount = 0;
+        let isChatOpen = false;
 
         const CATEGORY_COLORS = ['#0D9488', '#2563EB', '#84A98C', '#D97706', '#9333EA', '#06B6D4', '#E11D48'];
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
@@ -836,6 +880,82 @@
             });
             renderPemulihanTable();
         });
+
+        // LIVE CHAT REAL-TIME LISTENER
+        onSnapshot(chatColRef, (snapshot) => {
+            const oldLength = chatMessagesCache.length;
+            chatMessagesCache = [];
+            snapshot.forEach((docSnap) => {
+                chatMessagesCache.push({ id: docSnap.id, ...docSnap.data() });
+            });
+            chatMessagesCache.sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+            renderChatMessages();
+
+            if (oldLength > 0 && chatMessagesCache.length > oldLength && !isChatOpen) {
+                unreadChatCount += (chatMessagesCache.length - oldLength);
+                const badge = document.getElementById('chatBadgeCount');
+                badge.innerText = unreadChatCount;
+                badge.classList.remove('hidden');
+            }
+        });
+
+        window.toggleChatWindow = function() {
+            const box = document.getElementById('chatWindowBox');
+            isChatOpen = !isChatOpen;
+            box.classList.toggle('hidden');
+            if (!box.classList.contains('hidden')) {
+                unreadChatCount = 0;
+                const badge = document.getElementById('chatBadgeCount');
+                badge.classList.add('hidden');
+                const list = document.getElementById('chatMessagesList');
+                list.scrollTop = list.scrollHeight;
+            }
+        };
+
+        window.sendChatMessage = async function(e) {
+            e.preventDefault();
+            const nick = document.getElementById('chatNickInput').value.trim();
+            const msg = document.getElementById('chatMsgInput').value.trim();
+            if (!nick || !msg) return;
+
+            try {
+                await addDoc(chatColRef, {
+                    nickname: nick,
+                    message: msg,
+                    createdAt: new Date().toISOString()
+                });
+                document.getElementById('chatMsgInput').value = '';
+            } catch (err) {
+                console.error("Gagal mengirim pesan chat:", err);
+            }
+        };
+
+        function renderChatMessages() {
+            const list = document.getElementById('chatMessagesList');
+            if (!list) return;
+
+            let html = '<div class="text-center text-slate-400 text-[10px] my-1">Chat bersifat sementara selama sesi web aktif.</div>';
+            chatMessagesCache.forEach(item => {
+                const timeStr = item.createdAt ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+                html += `
+                    <div class="bg-white p-2 rounded-xl border border-slate-200 shadow-sm space-y-0.5">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-tosca-700 text-[11px]">${escapeHtml(item.nickname || 'Anonym')}</span>
+                            <span class="text-[9px] text-slate-400">${timeStr}</span>
+                        </div>
+                        <p class="text-slate-700 text-[11px] break-words">${escapeHtml(item.message || '')}</p>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+            if (isChatOpen) {
+                list.scrollTop = list.scrollHeight;
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
 
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -1242,15 +1362,12 @@
             }
         }
 
-        // PEMBARUAN: RENTANG TAHUN DINAMIS (TAHUN SEBELUMNYA DAN BERIKUTNYA OTOMATIS TERSEDIA)
         function updateYearFilterOptions(selectYear = null) {
             const selectEl = document.getElementById('filterTahun');
-            const currentYearNum = new Date().getFullYear(); // 2026
+            const currentYearNum = new Date().getFullYear();
             
-            // Kumpulkan tahun yang ada di dataset
             let yearSet = new Set(datasetKegiatan.map(x => x.tahun ? x.tahun.toString() : currentYearNum.toString()));
             
-            // Tambahkan rentang tahun secara dinamis (misal 3 tahun ke belakang hingga 4 tahun ke depan: 2023 s.d. 2030)
             for (let y = currentYearNum - 3; y <= currentYearNum + 4; y++) {
                 yearSet.add(y.toString());
             }
@@ -1270,16 +1387,14 @@
         }
         window.updateYearFilterOptions = updateYearFilterOptions;
 
-        // FUNGSI RENDER UTAMA DENGAN EFEK TRANSISI MEWAH
         function renderAll() {
             const selectEl = document.getElementById('filterTahun');
             const tahunAktif = selectEl ? selectEl.value : '2026';
             document.getElementById('chartYearBadge').innerText = `Tahun ${tahunAktif}`;
 
-            // Picu efek animasi transisi mewah saat berganti tahun / halaman
             const mainContainer = document.getElementById('mainPageContainer');
             mainContainer.classList.remove('luxury-page-transition');
-            void mainContainer.offsetWidth; // Trigger reflow
+            void mainContainer.offsetWidth;
             mainContainer.classList.add('luxury-page-transition');
 
             const dataTahun = datasetKegiatan.filter(x => x.tahun === tahunAktif);

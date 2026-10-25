@@ -67,6 +67,24 @@
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+        /* Efek Transisi Air / Zoom Out & Zoom In Peralihan Mode */
+        @keyframes waterZoomOut {
+            0% { transform: scale(1); opacity: 1; filter: blur(0px); }
+            50% { transform: scale(0.985); opacity: 0.85; filter: blur(0.5px); }
+            100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+        }
+        @keyframes waterZoomIn {
+            0% { transform: scale(1); opacity: 1; filter: blur(0px); }
+            50% { transform: scale(1.015); opacity: 0.85; filter: blur(0.5px); }
+            100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+        }
+        .transition-admin-public {
+            animation: waterZoomOut 0.4s ease-in-out;
+        }
+        .transition-public-admin {
+            animation: waterZoomIn 0.4s ease-in-out;
+        }
+
         .chart-transition-container {
             transition: opacity 0.35s ease-in-out, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -93,7 +111,7 @@
         @media print {
             @page { size: legal landscape; margin: 10mm; }
             body { background: white; color: black; }
-            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #monthDetailChartTooltip, #floatingChatWidget, #floatingMonthReminder, #adminAuthModal, #adminAlertModal, .no-print {
+            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #monthDetailChartTooltip, #floatingChatWidget, #floatingMonthReminder, #adminAuthModal, #adminAlertModal, #clearChatConfirmModal, .no-print {
                 display: none !important;
             }
             .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
@@ -172,6 +190,23 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP: KONFIRMASI HAPUS CHAT KUSTOM DI ATAS CHAT -->
+    <div id="clearChatConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-3 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 p-5 text-center space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-sm text-slate-800">Hapus Seluruh Pesan Chat?</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Tindakan ini akan menghapus semua riwayat pesan chat aktif untuk semua pengguna secara permanen.</p>
+            </div>
+            <div class="flex items-center space-x-2 pt-2">
+                <button type="button" onclick="closeClearChatModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">Batal</button>
+                <button type="button" onclick="executeClearAllChat()" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow transition">Hapus Semua</button>
+            </div>
         </div>
     </div>
 
@@ -1027,15 +1062,27 @@
             startPresenceHeartbeat();
             initNicknameState();
             startRealtimeClock();
+
+            // Event listener klik di luar jendela chat untuk menutup otomatis
+            document.addEventListener('click', function(event) {
+                const chatWidget = document.getElementById('floatingChatWidget');
+                const chatWindow = document.getElementById('chatWindowBox');
+                if (isChatOpen && chatWidget && !chatWidget.contains(event.target)) {
+                    toggleChatWindow();
+                }
+            });
         });
 
-        /* --- FUNGSI KONTROL KEAMANAN HAK AKSES --- */
+        /* --- FUNGSI KONTROL KEAMANAN HAK AKSES & REVISI TRANSISI MODE --- */
         window.handleAdminModeToggle = function() {
+            const container = document.getElementById('mainPageContainer');
             if (isAdminMode) {
-                if (confirm('Keluar dari Mode Administrator dan kembali ke Mode Publik?')) {
-                    isAdminMode = false;
-                    updateAdminModeUI();
-                }
+                // Langsung beralih ke Mode Publik tanpa pop-up browser konfirmasi, disertai efek animasi air zoom out
+                container.classList.add('transition-admin-public');
+                setTimeout(() => container.classList.remove('transition-admin-public'), 400);
+                isAdminMode = false;
+                updateAdminModeUI();
+                renderAll();
             } else {
                 document.getElementById('adminSecretInput').value = '';
                 document.getElementById('adminAuthError').classList.add('hidden');
@@ -1055,6 +1102,12 @@
                 isAdminMode = true;
                 closeAdminAuthModal();
                 updateAdminModeUI();
+                renderAll();
+
+                // Efek transisi air zoom in saat sukses masuk Mode Administrator
+                const container = document.getElementById('mainPageContainer');
+                container.classList.add('transition-public-admin');
+                setTimeout(() => container.classList.remove('transition-public-admin'), 400);
             } else {
                 const errEl = document.getElementById('adminAuthError');
                 errEl.innerText = 'Password atau PIN salah!';
@@ -1350,14 +1403,22 @@
             document.getElementById('chatFilePreviewBox').classList.add('hidden');
         };
 
-        window.clearAllChatDatabase = async function() {
+        // REVISI: Mengganti pop-up hitam browser dengan modal kustom di atas chat
+        window.clearAllChatDatabase = function() {
             if (!checkAdminPermissionOrWarn()) return;
-            if (confirm('Hapus seluruh pesan chat untuk semua pengguna?')) {
-                try {
-                    const snapshot = await getDocs(chatColRef);
-                    await Promise.all(snapshot.docs.map(d => deleteDoc(doc(db, "chat_datun", d.id))));
-                } catch (err) { console.error("Gagal hapus chat:", err); }
-            }
+            document.getElementById('clearChatConfirmModal').classList.remove('hidden');
+        };
+
+        window.closeClearChatModal = function() {
+            document.getElementById('clearChatConfirmModal').classList.add('hidden');
+        };
+
+        window.executeClearAllChat = async function() {
+            closeClearChatModal();
+            try {
+                const snapshot = await getDocs(chatColRef);
+                await Promise.all(snapshot.docs.map(d => deleteDoc(doc(db, "chat_datun", d.id))));
+            } catch (err) { console.error("Gagal hapus chat:", err); }
         };
 
         window.sendChatMessage = async function(e) {

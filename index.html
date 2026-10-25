@@ -139,17 +139,16 @@
     <div id="floatingChatWidget" class="fixed bottom-5 right-6 z-50 no-print">
         <button id="chatToggleBtn" onclick="toggleChatWindow()" class="relative bg-tosca-700 hover:bg-tosca-800 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105 active:scale-95 border-2 border-white">
             <i class="fa-solid fa-comments text-lg"></i>
-            <span id="chatOnlineBadge" class="absolute top-0 left-0 bg-emerald-500 w-3.5 h-3.5 rounded-full border-2 border-white animate-pulse hidden" title="Ada pengguna lain sedang aktif"></span>
             <span id="chatBadgeCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white hidden">0</span>
         </button>
 
         <div id="chatWindowBox" class="hidden absolute bottom-16 right-0 w-80 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[420px] transition-all duration-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-3 flex items-center justify-between">
                 <div class="flex items-center space-x-2">
-                    <div id="headerStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
                     <div>
                         <span class="font-bold text-xs block leading-none">Live Chat DATUN</span>
-                        <span id="chatActiveUserText" class="text-[9px] text-tosca-200">1 Pengguna Online</span>
+                        <span class="text-[9px] text-tosca-200">Online</span>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
@@ -966,7 +965,6 @@
         const colRef = collection(db, "kegiatan_datun");
         const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
         const chatColRef = collection(db, "chat_datun");
-        const activeUsersColRef = collection(db, "active_users_datun");
 
         let datasetKegiatan = [];
         let datasetPemulihan = [];
@@ -1059,7 +1057,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
-            startPresenceHeartbeat();
+            // Heartbeat dimatikan sepenuhnya untuk menghemat kuota Firestore
             initNicknameState();
             startRealtimeClock();
 
@@ -1077,7 +1075,6 @@
         window.handleAdminModeToggle = function() {
             const container = document.getElementById('mainPageContainer');
             if (isAdminMode) {
-                // Langsung beralih ke Mode Publik tanpa pop-up browser konfirmasi, disertai efek animasi air zoom out
                 container.classList.add('transition-admin-public');
                 setTimeout(() => container.classList.remove('transition-admin-public'), 400);
                 isAdminMode = false;
@@ -1104,7 +1101,6 @@
                 updateAdminModeUI();
                 renderAll();
 
-                // Efek transisi air zoom in saat sukses masuk Mode Administrator
                 const container = document.getElementById('mainPageContainer');
                 container.classList.add('transition-public-admin');
                 setTimeout(() => container.classList.remove('transition-public-admin'), 400);
@@ -1148,7 +1144,6 @@
             return true;
         }
 
-        // FUNGSI UTAMA DENGAN PROTEKSI KEAMANAN HAK AKSES
         window.openModal = function() {
             if (!checkAdminPermissionOrWarn()) return;
             document.getElementById('modalForm').classList.remove('hidden');
@@ -1200,7 +1195,6 @@
                 } catch (err) { alert('Gagal: ' + err.message); }
             }
         };
-        /* --- AKHIR FUNGSI KONTROL KEAMANAN --- */
 
         function startRealtimeClock() {
             function updateClock() {
@@ -1258,42 +1252,6 @@
                 localStorage.setItem('datun_chat_nick', val);
             }
         });
-
-        function startPresenceHeartbeat() {
-            const userDocRef = doc(activeUsersColRef, myUserId);
-            const sendHeartbeat = async () => {
-                const nick = document.getElementById('chatNickInput')?.value.trim() || 'User';
-                try {
-                    await setDoc(userDocRef, { nickname: nick, lastActive: new Date().toISOString() });
-                } catch (e) { console.error("Presence error:", e); }
-            };
-            sendHeartbeat();
-            setInterval(sendHeartbeat, 60000);
-
-            onSnapshot(activeUsersColRef, (snapshot) => {
-                const now = new Date().getTime();
-                let activeCount = 0;
-                let otherUserActive = false;
-
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    if (data.lastActive) {
-                        if (now - new Date(data.lastActive).getTime() < 150000) {
-                            activeCount++;
-                            if (docSnap.id !== myUserId) otherUserActive = true;
-                        }
-                    }
-                });
-
-                const badgeDot = document.getElementById('chatOnlineBadge');
-                const textActive = document.getElementById('chatActiveUserText');
-                if (badgeDot) {
-                    if (otherUserActive) badgeDot.classList.remove('hidden');
-                    else badgeDot.classList.add('hidden');
-                }
-                if (textActive) textActive.innerText = `${activeCount} Pengguna Online`;
-            });
-        }
 
         onSnapshot(colRef, (snapshot) => {
             datasetKegiatan = [];
@@ -1403,7 +1361,6 @@
             document.getElementById('chatFilePreviewBox').classList.add('hidden');
         };
 
-        // REVISI: Mengganti pop-up hitam browser dengan modal kustom di atas chat
         window.clearAllChatDatabase = function() {
             if (!checkAdminPermissionOrWarn()) return;
             document.getElementById('clearChatConfirmModal').classList.remove('hidden');
@@ -1464,7 +1421,6 @@
         window.editChatMessage = function(id, currentMsg) {
             document.getElementById('chatEditingDocId').value = id;
             document.getElementById('chatMsgInput').value = currentMsg;
-            document.getElementById('chatEditBadge').classList.remove('hidden');
             document.getElementById('btnCancelEditChat').classList.remove('hidden');
             document.getElementById('chatMsgInput').focus();
         };
@@ -1472,7 +1428,6 @@
         window.cancelChatEdit = function() {
             document.getElementById('chatEditingDocId').value = '';
             document.getElementById('chatMsgInput').value = '';
-            document.getElementById('chatEditBadge').classList.add('hidden');
             document.getElementById('btnCancelEditChat').classList.add('hidden');
         };
 

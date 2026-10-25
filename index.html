@@ -79,10 +79,21 @@
             transform: scale(1);
         }
 
+        /* Efek Menyala / Glowing Pulse untuk Tombol Admin Guide */
+        @keyframes adminGlowPulse {
+            0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.8), 0 0 15px rgba(20, 184, 166, 0.6); transform: scale(1); }
+            50% { box-shadow: 0 0 0 12px rgba(20, 184, 166, 0), 0 0 30px rgba(20, 184, 166, 0.9); transform: scale(1.04); }
+            100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0), 0 0 15px rgba(20, 184, 166, 0.6); transform: scale(1); }
+        }
+        .admin-glow-target {
+            animation: adminGlowPulse 1.2s infinite ease-in-out !important;
+            border: 2px solid #99F6E4 !important;
+        }
+
         @media print {
             @page { size: legal landscape; margin: 10mm; }
             body { background: white; color: black; }
-            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #monthDetailChartTooltip, #floatingChatWidget, #floatingMonthReminder, .no-print {
+            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #monthDetailChartTooltip, #floatingChatWidget, #floatingMonthReminder, #adminAuthModal, #adminAlertModal, .no-print {
                 display: none !important;
             }
             .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
@@ -210,6 +221,59 @@
         </div>
     </div>
 
+    <!-- MODAL POPUP: VALIDASI PASSWORD / PIN ADMINISTRATOR -->
+    <div id="adminAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 p-5 space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-tosca-100 text-tosca-800 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-800">Otorisasi Administrator</h3>
+                        <p class="text-[11px] text-slate-500">Masukkan Password atau PIN Akses</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminAuthModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form onsubmit="verifyAdminAuth(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password / PIN Keamanan</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"><i class="fa-solid fa-key text-xs"></i></span>
+                        <input type="password" id="adminSecretInput" placeholder="Masukkan password / PIN..." required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none font-medium">
+                    </div>
+                    <p id="adminAuthError" class="text-[10px] text-rose-600 mt-1.5 hidden font-semibold"></p>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeAdminAuthModal()" class="px-3 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition shadow-md flex items-center">
+                        <i class="fa-solid fa-lock-open mr-1.5"></i> Buka Akses
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP: PERINGATAN AKSES DITOLAK -->
+    <div id="adminAlertModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 p-5 text-center space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-xl shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-sm text-slate-800">Akses Dibatasi (Mode Publik)</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Anda tidak memiliki hak otorisasi untuk menambah, mengubah, atau menghapus data dalam Mode Publik.</p>
+            </div>
+            <div class="p-3 bg-tosca-50 rounded-xl border border-tosca-200 text-xs text-tosca-900 font-medium">
+                Silakan beralih ke <b class="text-tosca-800">Mode Administrator</b> melalui tombol di bagian atas header web yang sekarang sedang menyala.
+            </div>
+            <button onclick="closeAdminAlertModal()" class="w-full py-2.5 bg-tosca-600 hover:bg-tosca-700 text-white font-bold text-xs rounded-xl shadow transition">Mengerti</button>
+        </div>
+    </div>
+
     <!-- Top Navigation Header -->
     <header class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white shadow-lg sticky top-0 z-30 h-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3">
@@ -229,6 +293,12 @@
             </div>
 
             <div class="flex items-center flex-wrap justify-end gap-2">
+                <!-- TOMBOL MODE ADMINISTRATOR / PUBLIK (SESUAI ACUAN GAMBAR) -->
+                <button id="adminModeToggleBtn" onclick="handleAdminModeToggle()" class="bg-white/15 hover:bg-white/25 text-white font-bold text-xs px-3.5 py-2 rounded-lg border border-white/30 shadow-sm flex items-center transition">
+                    <i id="adminModeIcon" class="fa-solid fa-lock mr-1.5 text-amber-300 text-xs"></i>
+                    <span id="adminModeText">Mode Publik</span>
+                </button>
+
                 <div class="flex items-center bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 text-xs">
                     <i class="fa-regular fa-calendar text-xs text-tosca-200 mr-2"></i>
                     <select id="filterTahun" onchange="renderAll()" class="bg-transparent text-xs sm:text-sm font-semibold text-white focus:outline-none cursor-pointer">
@@ -883,6 +953,11 @@
         let currentDetailInstansiMaps = [{}, {}, {}, {}, {}, {}, {}];
         let currentDetailCounts = [0, 0, 0, 0, 0, 0, 0];
 
+        // Status Sesi Hak Akses Administrator
+        let isAdminMode = false;
+        const ADMIN_PASSWORD = "@Bc123456789";
+        const ADMIN_PIN = "@111";
+
         let myUserId = localStorage.getItem('datun_chat_user_id');
         if (!myUserId) {
             myUserId = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -954,6 +1029,98 @@
             startRealtimeClock();
         });
 
+        /* --- FUNGSI KONTROL KEAMANAN HAK AKSES --- */
+        window.handleAdminModeToggle = function() {
+            if (isAdminMode) {
+                if (confirm('Keluar dari Mode Administrator dan kembali ke Mode Publik?')) {
+                    isAdminMode = false;
+                    updateAdminModeUI();
+                }
+            } else {
+                document.getElementById('adminSecretInput').value = '';
+                document.getElementById('adminAuthError').classList.add('hidden');
+                document.getElementById('adminAuthModal').classList.remove('hidden');
+                document.getElementById('adminSecretInput').focus();
+            }
+        };
+
+        window.closeAdminAuthModal = function() {
+            document.getElementById('adminAuthModal').classList.add('hidden');
+        };
+
+        window.verifyAdminAuth = function(e) {
+            e.preventDefault();
+            const val = document.getElementById('adminSecretInput').value.trim();
+            if (val === ADMIN_PASSWORD || val === ADMIN_PIN) {
+                isAdminMode = true;
+                closeAdminAuthModal();
+                updateAdminModeUI();
+            } else {
+                const errEl = document.getElementById('adminAuthError');
+                errEl.innerText = 'Password atau PIN salah!';
+                errEl.classList.remove('hidden');
+            }
+        };
+
+        function updateAdminModeUI() {
+            const btn = document.getElementById('adminModeToggleBtn');
+            const icon = document.getElementById('adminModeIcon');
+            const text = document.getElementById('adminModeText');
+
+            if (isAdminMode) {
+                btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg border border-emerald-400 shadow-sm flex items-center transition";
+                icon.className = "fa-solid fa-lock-open mr-1.5 text-white text-xs";
+                text.innerText = "Mode Administrator";
+            } else {
+                btn.className = "bg-white/15 hover:bg-white/25 text-white font-bold text-xs px-3.5 py-2 rounded-lg border border-white/30 shadow-sm flex items-center transition";
+                icon.className = "fa-solid fa-lock mr-1.5 text-amber-300 text-xs";
+                text.innerText = "Mode Publik";
+            }
+        }
+
+        window.closeAdminAlertModal = function() {
+            document.getElementById('adminAlertModal').classList.add('hidden');
+            const toggleBtn = document.getElementById('adminModeToggleBtn');
+            toggleBtn.classList.add('admin-glow-target');
+            setTimeout(() => {
+                toggleBtn.classList.remove('admin-glow-target');
+            }, 3500);
+        };
+
+        function checkAdminPermissionOrWarn() {
+            if (!isAdminMode) {
+                document.getElementById('adminAlertModal').classList.remove('hidden');
+                return false;
+            }
+            return true;
+        }
+
+        // Wrapper fungsi asli yang diproteksi keamanan hak akses
+        const originalOpenModal = window.openModal;
+        window.openModal = function() {
+            if (!checkAdminPermissionOrWarn()) return;
+            if (typeof originalOpenModal === 'function') originalOpenModal();
+        };
+
+        const originalOpenPemulihanModal = window.openPemulihanModal;
+        window.openPemulihanModal = function() {
+            if (!checkAdminPermissionOrWarn()) return;
+            if (typeof originalOpenPemulihanModal === 'function') originalOpenPemulihanModal();
+        };
+
+        const originalEditKegiatan = window.editKegiatan;
+        window.editKegiatan = function(firestoreId) {
+            if (!checkAdminPermissionOrWarn()) return;
+            if (typeof originalEditKegiatan === 'function') originalEditKegiatan(firestoreId);
+        };
+
+        const originalHapusKegiatan = window.hapusKegiatan;
+        window.hapusKegiatan = function(id) {
+            if (!checkAdminPermissionOrWarn()) return;
+            if (typeof originalHapusKegiatan === 'function') originalHapusKegiatan(id);
+        };
+        /* --- AKHIR FUNGSI KONTROL KEAMANAN --- */
+
         function startRealtimeClock() {
             function updateClock() {
                 const now = new Date();
@@ -1020,7 +1187,6 @@
                 } catch (e) { console.error("Presence error:", e); }
             };
             sendHeartbeat();
-            // Heartbeat 60 detik: mengurangi write dibanding interval 40 detik.
             setInterval(sendHeartbeat, 60000);
 
             onSnapshot(activeUsersColRef, (snapshot) => {
@@ -1077,9 +1243,6 @@
             renderPemulihanTable();
         });
 
-        // Optimasi reads: listener chat hanya mengambil dokumen dengan createdAt
-        // dalam satu jam terakhir, bukan seluruh riwayat chat yang tersimpan.
-        // createdAt saat ini disimpan sebagai ISO string sehingga batas waktu juga string ISO.
         const getRecentChatQuery = () => {
             const cutoffIso = new Date(Date.now() - 60 * 60 * 1000).toISOString();
             return query(chatColRef, where('createdAt', '>=', cutoffIso), orderBy('createdAt', 'asc'));
@@ -1113,8 +1276,6 @@
             console.error('Gagal memuat chat terbaru:', error);
         });
 
-        // Pesan yang melewati usia satu jam disembunyikan dari tampilan secara lokal.
-        // Pembersihan tampilan ini tidak membaca ulang Firebase dan tidak menghapus arsip.
         setInterval(() => {
             const before = chatMessagesCache.length;
             const cutoff = Date.now() - 60 * 60 * 1000;
@@ -1162,6 +1323,7 @@
         };
 
         window.clearAllChatDatabase = async function() {
+            if (!checkAdminPermissionOrWarn()) return;
             if (confirm('Hapus seluruh pesan chat untuk semua pengguna?')) {
                 try {
                     const snapshot = await getDocs(chatColRef);
@@ -1226,6 +1388,7 @@
         };
 
         window.deleteChatMessage = async function(id) {
+            if (!checkAdminPermissionOrWarn()) return;
             if (confirm('Hapus pesan ini?')) {
                 try { await deleteDoc(doc(db, "chat_datun", id)); } catch (e) { console.error(e); }
             }

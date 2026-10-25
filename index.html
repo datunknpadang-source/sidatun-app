@@ -293,7 +293,7 @@
             </div>
 
             <div class="flex items-center flex-wrap justify-end gap-2">
-                <!-- TOMBOL MODE ADMINISTRATOR / PUBLIK (SESUAI ACUAN GAMBAR) -->
+                <!-- TOMBOL MODE ADMINISTRATOR / PUBLIK -->
                 <button id="adminModeToggleBtn" onclick="handleAdminModeToggle()" class="bg-white/15 hover:bg-white/25 text-white font-bold text-xs px-3.5 py-2 rounded-lg border border-white/30 shadow-sm flex items-center transition">
                     <i id="adminModeIcon" class="fa-solid fa-lock mr-1.5 text-amber-300 text-xs"></i>
                     <span id="adminModeText">Mode Publik</span>
@@ -468,7 +468,7 @@
             </div>
 
             <div id="containerMatrixView" class="space-y-6">
-                <!-- TABEL MATRIKS (TANPA STICKY HEADER SESUAI PERMINTAAN) -->
+                <!-- TABEL MATRIKS -->
                 <div class="overflow-x-auto custom-scrollbar">
                     <table class="w-full text-xs text-left excel-table border-collapse min-w-[900px]">
                         <thead>
@@ -854,7 +854,7 @@
         </div>
     </div>
 
-    <!-- MODAL EKSPOR DATA (HANYA EXCEL SESUAI PERMINTAAN) -->
+    <!-- MODAL EKSPOR DATA -->
     <div id="modalExport" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden p-3">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
             <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
@@ -1095,29 +1095,57 @@
             return true;
         }
 
-        // Wrapper fungsi asli yang diproteksi keamanan hak akses
-        const originalOpenModal = window.openModal;
+        // FUNGSI UTAMA DENGAN PROTEKSI KEAMANAN HAK AKSES
         window.openModal = function() {
             if (!checkAdminPermissionOrWarn()) return;
-            if (typeof originalOpenModal === 'function') originalOpenModal();
-        };
+            document.getElementById('modalForm').classList.remove('hidden');
+        }
 
-        const originalOpenPemulihanModal = window.openPemulihanModal;
         window.openPemulihanModal = function() {
             if (!checkAdminPermissionOrWarn()) return;
-            if (typeof originalOpenPemulihanModal === 'function') originalOpenPemulihanModal();
-        };
+            document.getElementById('pemulihanDisepakatiInput').value = 0;
+            document.getElementById('pemulihanDipulihkanInput').value = 0;
+            document.getElementById('modalPemulihan').classList.remove('hidden');
+        }
 
-        const originalEditKegiatan = window.editKegiatan;
         window.editKegiatan = function(firestoreId) {
             if (!checkAdminPermissionOrWarn()) return;
-            if (typeof originalEditKegiatan === 'function') originalEditKegiatan(firestoreId);
+            hideCustomTooltipNow();
+            const item = datasetKegiatan.find(x => x.firestoreId === firestoreId);
+            if (!item) return;
+
+            document.getElementById('editDocId').value = item.firestoreId;
+            document.getElementById('inputKategori').value = item.kategori || '';
+            document.getElementById('inputBulan').value = item.bulan || 1;
+            document.getElementById('inputTahun').value = item.tahun || 2026;
+            document.getElementById('inputInstansi').value = item.instansi === '-' ? '' : (item.instansi || '');
+            document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
+            document.getElementById('inputManualDriveLink').value = (item.driveLink && item.driveLink !== '-') ? item.driveLink : '';
+
+            toggleFormFields();
+            if (item.kategori === 'MoU') {
+                document.getElementById('inputNoMou').value = item.noMou || '';
+                document.getElementById('inputJangkaWaktu').value = item.jangkaWaktu || '';
+            } else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
+                document.getElementById('inputNoSkk').value = item.noSkk || '';
+                document.getElementById('inputJumlahSkk').value = item.jumlahSkk || 1;
+            } else if (item.kategori === 'Pelayanan Hukum') {
+                if (document.getElementById('inputJumlahPelayanan')) document.getElementById('inputJumlahPelayanan').value = item.jumlahPelayanan || 1;
+            }
+
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-tosca-200 mr-2"></i> Edit Data Kegiatan DATUN`;
+            document.getElementById('modalForm').classList.remove('hidden');
         };
 
-        const originalHapusKegiatan = window.hapusKegiatan;
-        window.hapusKegiatan = function(id) {
+        window.hapusKegiatan = async function(id) {
             if (!checkAdminPermissionOrWarn()) return;
-            if (typeof originalHapusKegiatan === 'function') originalHapusKegiatan(id);
+            hideCustomTooltipNow();
+            if (confirm('Yakin ingin menghapus data ini?')) {
+                try {
+                    await deleteDoc(doc(db, "kegiatan_datun", id));
+                    checkMonthlyReminder();
+                } catch (err) { alert('Gagal: ' + err.message); }
+            }
         };
         /* --- AKHIR FUNGSI KONTROL KEAMANAN --- */
 
@@ -1542,57 +1570,12 @@
             }
         };
 
-        window.editKegiatan = function(firestoreId) {
-            hideCustomTooltipNow();
-            const item = datasetKegiatan.find(x => x.firestoreId === firestoreId);
-            if (!item) return;
-
-            document.getElementById('editDocId').value = item.firestoreId;
-            document.getElementById('inputKategori').value = item.kategori || '';
-            document.getElementById('inputBulan').value = item.bulan || 1;
-            document.getElementById('inputTahun').value = item.tahun || 2026;
-            document.getElementById('inputInstansi').value = item.instansi === '-' ? '' : (item.instansi || '');
-            document.getElementById('inputUraian').value = item.uraian === '-' ? '' : (item.uraian || '');
-            document.getElementById('inputManualDriveLink').value = (item.driveLink && item.driveLink !== '-') ? item.driveLink : '';
-
-            toggleFormFields();
-            if (item.kategori === 'MoU') {
-                document.getElementById('inputNoMou').value = item.noMou || '';
-                document.getElementById('inputJangkaWaktu').value = item.jangkaWaktu || '';
-            } else if (item.kategori && item.kategori.includes('Bantuan Hukum')) {
-                document.getElementById('inputNoSkk').value = item.noSkk || '';
-                document.getElementById('inputJumlahSkk').value = item.jumlahSkk || 1;
-            } else if (item.kategori === 'Pelayanan Hukum') {
-                if (document.getElementById('inputJumlahPelayanan')) document.getElementById('inputJumlahPelayanan').value = item.jumlahPelayanan || 1;
-            }
-
-            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-pen-to-square text-tosca-200 mr-2"></i> Edit Data Kegiatan DATUN`;
-            openModal();
-        };
-
-        window.hapusKegiatan = async function(id) {
-            hideCustomTooltipNow();
-            if (confirm('Yakin ingin menghapus data ini?')) {
-                try {
-                    await deleteDoc(doc(db, "kegiatan_datun", id));
-                    checkMonthlyReminder();
-                } catch (err) { alert('Gagal: ' + err.message); }
-            }
-        };
-
-        window.openModal = function() { document.getElementById('modalForm').classList.remove('hidden'); }
         window.closeModal = function() { 
             document.getElementById('modalForm').classList.add('hidden'); 
             document.getElementById('formKegiatan').reset();
             document.getElementById('editDocId').value = '';
             document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-circle-plus text-tosca-200 mr-2"></i> Input Kegiatan DATUN Baru`;
             toggleFormFields();
-        }
-
-        window.openPemulihanModal = function() {
-            document.getElementById('pemulihanDisepakatiInput').value = 0;
-            document.getElementById('pemulihanDipulihkanInput').value = 0;
-            document.getElementById('modalPemulihan').classList.remove('hidden');
         }
 
         window.closePemulihanModal = function() {
@@ -2834,43 +2817,8 @@
                 a.click();
                 window.URL.revokeObjectURL(url);
 
-            } else if (format === 'pdf') {
-                setTimeout(() => { window.print(); }, 300);
             } else {
-                let contentHtml = document.getElementById('containerMatrixView').innerHTML;
-                let wordDoc = `
-                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                    <head>
-                        <meta charset='utf-8'>
-                        <title>Laporan DATUN</title>
-                        <style>
-                            @page WordSection1 { size: 355.6mm 215.9mm; mso-page-orientation: landscape; margin: 15mm; }
-                            div.WordSection1 { page: WordSection1; }
-                            body { font-family: 'Arial', sans-serif; font-size: 10pt; }
-                            h2 { text-align: center; color: #0F766E; margin-bottom: 5px; }
-                            h3 { text-align: center; margin-top: 0; color: #333; font-size: 11pt; }
-                            table { border-collapse: collapse; width: 100%; margin-top: 15px; }
-                            th, td { border: 1px solid #94A3B8; padding: 6px; font-size: 9pt; }
-                            th { background-color: #0F766E; color: white; text-align: center; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="WordSection1">
-                            <h2>KEJAKSAAN NEGERI PADANG</h2>
-                            <h3>REKAPITULASI MATRIKS KEGIATAN DATUN - TAHUN ${tahun}</h3>
-                            <hr style="border: 1px solid #0F766E; margin-bottom: 15px;">
-                            ${contentHtml}
-                        </div>
-                    </body>
-                    </html>
-                `;
-
-                const blob = new Blob(['\ufeff' + wordDoc], { type: 'application/msword' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `Laporan_DATUN_${tahun}.doc`;
-                a.click();
+                setTimeout(() => { window.print(); }, 300);
             }
         };
     </script>

@@ -2641,6 +2641,7 @@
                 const subHeaderFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF115E59' } };
                 const titleFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0FDF9' } };
                 const zebraFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                const totalFill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFCCFBF1' } };
                 const fontTitle = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF0F766E' } };
                 const fontHeader = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
                 const fontBold = { name: 'Arial', size: 10, bold: true };
@@ -2705,19 +2706,40 @@
                     }).join('\n\n------------------------------\n\n');
                 };
 
+                let totalMou = 0, totalLitigasi = 0, totalNonLitigasi = 0, totalLA = 0, totalLO = 0, totalPelayanan = 0, totalThl = 0, totalPenegakan = 0;
+
                 for (let i = 1; i <= 12; i++) {
                     const getItems = (kategoriKey) => dataTahun.filter(x => parseInt(x.bulan) === i && x.kategori === kategoriKey);
+                    
+                    const mouItems = getItems('MoU');
+                    const litItems = getItems('Bantuan Hukum Litigasi');
+                    const nonLitItems = getItems('Bantuan Hukum Non-Litigasi');
+                    const laItems = getItems('Pertimbangan LA');
+                    const loItems = getItems('Pertimbangan LO');
+                    const pelItems = getItems('Pelayanan Hukum');
+                    const thlItems = getItems('Tindakan Hukum Lainnya');
+                    const penItems = getItems('Penegakan Hukum');
+
+                    totalMou += mouItems.length;
+                    totalLitigasi += litItems.reduce((acc, cur) => acc + (parseInt(cur.jumlahSkk) || 1), 0);
+                    totalNonLitigasi += nonLitItems.reduce((acc, cur) => acc + (parseInt(cur.jumlahSkk) || 1), 0);
+                    totalLA += laItems.length;
+                    totalLO += loItems.length;
+                    totalPelayanan += pelItems.reduce((acc, cur) => acc + (parseInt(cur.jumlahPelayanan) || 1), 0);
+                    totalThl += thlItems.length;
+                    totalPenegakan += penItems.length;
+
                     const rowVal = [
                         i,
                         NAMA_BULAN_LENGKAP[i],
-                        buildDetailedCellText(getItems('MoU')),
-                        buildDetailedCellText(getItems('Bantuan Hukum Litigasi')),
-                        buildDetailedCellText(getItems('Bantuan Hukum Non-Litigasi')),
-                        buildDetailedCellText(getItems('Pertimbangan LA')),
-                        buildDetailedCellText(getItems('Pertimbangan LO')),
-                        buildDetailedCellText(getItems('Pelayanan Hukum')),
-                        buildDetailedCellText(getItems('Tindakan Hukum Lainnya')),
-                        buildDetailedCellText(getItems('Penegakan Hukum'))
+                        buildDetailedCellText(mouItems),
+                        buildDetailedCellText(litItems),
+                        buildDetailedCellText(nonLitItems),
+                        buildDetailedCellText(laItems),
+                        buildDetailedCellText(loItems),
+                        buildDetailedCellText(pelItems),
+                        buildDetailedCellText(thlItems),
+                        buildDetailedCellText(penItems)
                     ];
                     const addedRow = ws.addRow(rowVal);
                     addedRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
@@ -2727,6 +2749,18 @@
                         if (i % 2 === 0) cell.fill = zebraFill;
                     });
                 }
+
+                // Tambahan Baris TOTAL Matriks di bawah bulan Desember
+                const totalRowVal = ["TOTAL", "", totalMou, totalLitigasi, totalNonLitigasi, totalLA, totalLO, totalPelayanan, totalThl, totalPenegakan];
+                const addedTotalRow = ws.addRow(totalRowVal);
+                addedTotalRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                    cell.font = fontBold;
+                    cell.fill = totalFill;
+                    cell.border = borderThin;
+                    cell.alignment = { vertical: 'middle', horizontal: colNumber <= 2 ? 'center' : 'center' };
+                });
+                ws.mergeCells(`A${addedTotalRow.number}:B${addedTotalRow.number}`);
+                addedTotalRow.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
                 ws.addRow([]);
                 ws.addRow([]);
@@ -2788,22 +2822,35 @@
                     cell.border = borderThin;
                 });
 
-                let counts = [0, 0, 0, 0, 0, 0, 0];
+                // Memecah Kategori Pertimbangan menjadi Legal Assistance (LA) dan Legal Opinion (LO) di Ringkasan Grafik Excel
+                let countMou = 0, countLit = 0, countNonLit = 0, countLA = 0, countLO = 0, countPel = 0, countThl = 0, countPen = 0;
                 dataTahun.forEach(x => {
-                    if (x.kategori === 'MoU') counts[0]++;
-                    else if (x.kategori === 'Bantuan Hukum Litigasi') counts[1] += (parseInt(x.jumlahSkk) || 1);
-                    else if (x.kategori === 'Bantuan Hukum Non-Litigasi') counts[2] += (parseInt(x.jumlahSkk) || 1);
-                    else if (x.kategori && x.kategori.includes('Pertimbangan')) counts[3]++;
-                    else if (x.kategori === 'Pelayanan Hukum') counts[4] += (parseInt(x.jumlahPelayanan) || 1);
-                    else if (x.kategori === 'Tindakan Hukum Lainnya') counts[5]++;
-                    else if (x.kategori === 'Penegakan Hukum') counts[6]++;
+                    if (x.kategori === 'MoU') countMou++;
+                    else if (x.kategori === 'Bantuan Hukum Litigasi') countLit += (parseInt(x.jumlahSkk) || 1);
+                    else if (x.kategori === 'Bantuan Hukum Non-Litigasi') countNonLit += (parseInt(x.jumlahSkk) || 1);
+                    else if (x.kategori === 'Pertimbangan LA') countLA++;
+                    else if (x.kategori === 'Pertimbangan LO') countLO++;
+                    else if (x.kategori === 'Pelayanan Hukum') countPel += (parseInt(x.jumlahPelayanan) || 1);
+                    else if (x.kategori === 'Tindakan Hukum Lainnya') countThl++;
+                    else if (x.kategori === 'Penegakan Hukum') countPen++;
                 });
 
-                const grandTotal = counts.reduce((a, b) => a + b, 0);
+                const summaryCategories = [
+                    { name: 'MoU', val: countMou },
+                    { name: 'Bantuan Hukum Litigasi', val: countLit },
+                    { name: 'Bantuan Hukum Non-Litigasi', val: countNonLit },
+                    { name: 'Legal Assistance (LA)', val: countLA },
+                    { name: 'Legal Opinion (LO)', val: countLO },
+                    { name: 'Pelayanan Hukum', val: countPel },
+                    { name: 'Tindakan Hukum Lainnya (THL)', val: countThl },
+                    { name: 'Penegakan Hukum', val: countPen }
+                ];
 
-                CATEGORY_KEYS.forEach((catKey, idx) => {
-                    const pct = grandTotal > 0 ? (counts[idx] / grandTotal) : 0;
-                    const rAdd = ws.addRow([catKey, counts[idx], pct]);
+                const grandTotalGiat = summaryCategories.reduce((acc, cur) => acc + cur.val, 0);
+
+                summaryCategories.forEach(cat => {
+                    const pct = grandTotalGiat > 0 ? (cat.val / grandTotalGiat) : 0;
+                    const rAdd = ws.addRow([cat.name, cat.val, pct]);
                     rAdd.getCell(1).font = fontNormal;
                     rAdd.getCell(2).font = fontBold;
                     rAdd.getCell(3).font = fontNormal;

@@ -111,7 +111,7 @@
         @media print {
             @page { size: legal landscape; margin: 10mm; }
             body { background: white; color: black; }
-            header, #modalForm, #modalPemulihan, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #monthDetailChartTooltip, #floatingChatWidget, #floatingMonthReminder, #adminAuthModal, #adminAlertModal, #clearChatConfirmModal, .no-print {
+            header, #modalForm, #modalPemulihan, #modalHaloJpn, #modalExport, #modalPreview, #modalCompare, #firestoreErrorBanner, #customTooltipCard, #pieLuxuryTooltip, #kpiCategoryTooltip, #monthDetailChartTooltip, #floatingChatWidget, #floatingMonthReminder, #adminAuthModal, #adminAlertModal, #clearChatConfirmModal, .no-print {
                 display: none !important;
             }
             .print-area { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
@@ -650,6 +650,78 @@
             </div>
         </div>
 
+        <!-- Section 5: TABEL & GRAFIK HALO JPN (DIBUAT TEPAT DI BAWAH PEMULIHAN KEUANGAN) -->
+        <div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-3">
+                <div>
+                    <h2 class="text-sm sm:text-base font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-headset text-indigo-500 mr-2"></i> TABEL REKAPITULASI LAYANAN HALO JPN
+                    </h2>
+                    <p class="text-xs text-slate-500">Rekapitulasi jumlah konsultasi/layanan Halo JPN per bulan</p>
+                </div>
+                <button onclick="openHaloJpnModal()" class="no-print bg-tosca-600 hover:bg-tosca-700 text-white font-bold text-xs px-3.5 py-2 rounded-lg shadow-sm flex items-center transition self-start sm:self-auto">
+                    <i class="fa-solid fa-plus mr-1.5"></i> Input Data Halo JPN
+                </button>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-xs text-left excel-table border-collapse min-w-[950px]">
+                    <thead>
+                        <tr class="bg-tosca-800 text-white text-center font-bold">
+                            <th class="p-2.5 w-40">KATEGORI</th>
+                            <th class="p-2 min-w-[80px]">JANUARI</th>
+                            <th class="p-2 min-w-[80px]">FEB</th>
+                            <th class="p-2 min-w-[80px]">MAR</th>
+                            <th class="p-2 min-w-[80px]">APR</th>
+                            <th class="p-2 min-w-[80px]">MEI</th>
+                            <th class="p-2 min-w-[80px]">JUN</th>
+                            <th class="p-2 min-w-[80px]">JUL</th>
+                            <th class="p-2 min-w-[80px]">AGT</th>
+                            <th class="p-2 min-w-[80px]">SEP</th>
+                            <th class="p-2 min-w-[80px]">OKT</th>
+                            <th class="p-2 min-w-[80px]">NOV</th>
+                            <th class="p-2 min-w-[80px]">DES</th>
+                            <th class="p-2.5 min-w-[120px] bg-tosca-900">TOTAL VOLUME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-2.5 font-bold text-indigo-900 bg-indigo-50/50">Halo JPN</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_1">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_2">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_3">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_4">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_5">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_6">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_7">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_8">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_9">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_10">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_11">0</td>
+                            <td class="p-2 text-center font-medium text-slate-700" id="haloJpnVal_12">0</td>
+                            <td class="p-2.5 text-center font-black text-indigo-900 bg-indigo-100/60" id="haloJpnVal_TOTAL">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- GRAFIK HALO JPN -->
+            <div class="pt-4 border-t border-slate-100 space-y-4 no-print">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-chart-bar text-indigo-600 mr-2"></i> Grafik Tren Layanan Halo JPN Per Bulan
+                        </h3>
+                        <p class="text-[11px] text-slate-500">Visualisasi volume konsultasi dan layanan Halo JPN</p>
+                    </div>
+                </div>
+
+                <div class="h-60 sm:h-64 bg-slate-50/50 p-3 rounded-2xl border border-slate-200 relative">
+                    <canvas id="chartHaloJpnBar"></canvas>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- MODAL POPUP 1: FORM TAMBAH / EDIT KEGIATAN -->
@@ -796,6 +868,39 @@
                 <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
                     <button type="button" onclick="closePemulihanModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
                     <button type="submit" id="btnSavePemulihan" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
+                        <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP: HALO JPN -->
+    <div id="modalHaloJpn" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden p-3">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200">
+            <div class="bg-gradient-to-r from-tosca-800 to-tosca-700 text-white p-4 flex items-center justify-between">
+                <h3 class="font-bold text-sm flex items-center">
+                    <i class="fa-solid fa-headset text-indigo-300 mr-2"></i> Input Data Halo JPN
+                </h3>
+                <button onclick="closeHaloJpnModal()" class="text-white/70 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="formHaloJpn" onsubmit="simpanHaloJpnData(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bulan *</label>
+                    <select id="haloJpnBulanSelect" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-tosca-500 focus:outline-none">
+                        <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-indigo-900 mb-1">Jumlah Konsultasi / Layanan Halo JPN *</label>
+                    <input type="number" id="haloJpnValueInput" min="0" placeholder="0" required class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+
+                <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+                    <button type="button" onclick="closeHaloJpnModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition">Batal</button>
+                    <button type="submit" id="btnSaveHaloJpn" class="px-5 py-2 text-xs font-semibold text-white bg-tosca-600 rounded-lg hover:bg-tosca-700 transition flex items-center shadow-md">
                         <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan
                     </button>
                 </div>
@@ -964,15 +1069,18 @@
         const db = getFirestore(app);
         const colRef = collection(db, "kegiatan_datun");
         const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
+        const haloJpnColRef = collection(db, "halo_jpn_datun");
         const chatColRef = collection(db, "chat_datun");
 
         let datasetKegiatan = [];
         let datasetPemulihan = [];
+        let datasetHaloJpn = [];
         let chatMessagesCache = [];
         let chartBarInstance = null;
         let chartPieInstance = null;
         let chartCompareInstance = null;
         let chartFinanceLineInstance = null;
+        let chartHaloJpnBarInstance = null;
         let hideTooltipTimer = null;
         let unreadChatCount = 0;
         let isChatOpen = false;
@@ -1057,11 +1165,9 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             initCharts();
-            // Heartbeat dimatikan sepenuhnya untuk menghemat kuota Firestore
             initNicknameState();
             startRealtimeClock();
 
-            // Event listener klik di luar jendela chat untuk menutup otomatis
             document.addEventListener('click', function(event) {
                 const chatWidget = document.getElementById('floatingChatWidget');
                 const chatWindow = document.getElementById('chatWindowBox');
@@ -1071,7 +1177,6 @@
             });
         });
 
-        /* --- FUNGSI KONTROL KEAMANAN HAK AKSES & REVISI TRANSISI MODE --- */
         window.handleAdminModeToggle = function() {
             const container = document.getElementById('mainPageContainer');
             if (isAdminMode) {
@@ -1155,6 +1260,44 @@
             document.getElementById('pemulihanDipulihkanInput').value = 0;
             document.getElementById('modalPemulihan').classList.remove('hidden');
         }
+
+        window.openHaloJpnModal = function() {
+            if (!checkAdminPermissionOrWarn()) return;
+            document.getElementById('haloJpnValueInput').value = 0;
+            document.getElementById('modalHaloJpn').classList.remove('hidden');
+        }
+
+        window.closeHaloJpnModal = function() {
+            document.getElementById('modalHaloJpn').classList.add('hidden');
+            document.getElementById('formHaloJpn').reset();
+        }
+
+        window.simpanHaloJpnData = async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSaveHaloJpn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Menyimpan...`;
+
+            try {
+                const selectEl = document.getElementById('filterTahun');
+                const tahunAktif = selectEl ? selectEl.value : '2026';
+                const bulanNum = parseInt(document.getElementById('haloJpnBulanSelect').value);
+                const docCustomId = `${tahunAktif}_${bulanNum}`;
+
+                // Menyimpan dokumen spesifik per bulan & tahun guna menghemat kuota pembacaan Firestore
+                await setDoc(doc(db, "halo_jpn_datun", docCustomId), {
+                    tahun: tahunAktif,
+                    bulan: bulanNum,
+                    jumlah: parseInt(document.getElementById('haloJpnValueInput').value) || 0,
+                    updatedAt: new Date().toISOString()
+                });
+                closeHaloJpnModal();
+            } catch (err) { alert('Gagal: ' + err.message); }
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan`;
+            }
+        };
 
         window.editKegiatan = function(firestoreId) {
             if (!checkAdminPermissionOrWarn()) return;
@@ -1280,6 +1423,15 @@
                 datasetPemulihan.push({ firestoreId: docSnap.id, ...docSnap.data() });
             });
             renderPemulihanTable();
+        });
+
+        // Sinkronisasi hemat kuota untuk Halo JPN
+        onSnapshot(haloJpnColRef, (snapshot) => {
+            datasetHaloJpn = [];
+            snapshot.forEach((docSnap) => {
+                datasetHaloJpn.push({ firestoreId: docSnap.id, ...docSnap.data() });
+            });
+            renderHaloJpnTable();
         });
 
         const getRecentChatQuery = () => {
@@ -1830,6 +1982,7 @@
             
             renderMatriksView(dataTahun);
             renderPemulihanTable();
+            renderHaloJpnTable();
         }
         window.renderAll = renderAll;
 
@@ -2007,6 +2160,63 @@
 
             renderFinanceLineChart(disepakatiArr, dipulihkanArr);
             renderKPI(datasetKegiatan.filter(x => x.tahun === tahunAktif));
+        }
+
+        function renderHaloJpnTable() {
+            const selectEl = document.getElementById('filterTahun');
+            const tahunAktif = selectEl ? selectEl.value : '2026';
+            const haloJpnTahun = datasetHaloJpn.filter(x => x.tahun === tahunAktif);
+
+            let grandTotalHaloJpn = 0;
+            let haloJpnArr = Array(12).fill(0);
+
+            for (let i = 1; i <= 12; i++) {
+                const itemBulan = haloJpnTahun.find(x => parseInt(x.bulan) === i);
+                const val = itemBulan ? (parseInt(itemBulan.jumlah) || 0) : 0;
+
+                haloJpnArr[i-1] = val;
+                grandTotalHaloJpn += val;
+
+                const elVal = document.getElementById(`haloJpnVal_${i}`);
+                if (elVal) elVal.innerText = val > 0 ? val : '0';
+            }
+
+            document.getElementById('haloJpnVal_TOTAL').innerText = grandTotalHaloJpn;
+            renderHaloJpnBarChart(haloJpnArr);
+        }
+
+        function renderHaloJpnBarChart(dataArr) {
+            const ctx = document.getElementById('chartHaloJpnBar').getContext('2d');
+            if (chartHaloJpnBarInstance) chartHaloJpnBarInstance.destroy();
+
+            chartHaloJpnBarInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
+                    datasets: [
+                        {
+                            label: 'Layanan Halo JPN',
+                            data: dataArr,
+                            backgroundColor: '#6366F1',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, font: { size: 9 } }
+                        }
+                    }
+                }
+            });
         }
 
         function renderFinanceLineChart(disepakatiData, dipulihkanData) {
@@ -2750,7 +2960,6 @@
                     });
                 }
 
-                // Tambahan Baris TOTAL Matriks di bawah bulan Desember
                 const totalRowVal = ["TOTAL", "", totalMou, totalLitigasi, totalNonLitigasi, totalLA, totalLO, totalPelayanan, totalThl, totalPenegakan];
                 const addedTotalRow = ws.addRow(totalRowVal);
                 addedTotalRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
@@ -2822,7 +3031,6 @@
                     cell.border = borderThin;
                 });
 
-                // Memecah Kategori Pertimbangan menjadi Legal Assistance (LA) dan Legal Opinion (LO) di Ringkasan Grafik Excel
                 let countMou = 0, countLit = 0, countNonLit = 0, countLA = 0, countLO = 0, countPel = 0, countThl = 0, countPen = 0;
                 dataTahun.forEach(x => {
                     if (x.kategori === 'MoU') countMou++;

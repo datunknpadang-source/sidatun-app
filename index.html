@@ -2406,10 +2406,10 @@
                     subInfoBadge = `<div class="text-[10px] text-tosca-700 font-medium pl-3.5 mt-0.5">Jangka Waktu: ${escapeHtml(jwText)}</div>`;
                 } else if (it.kategori === 'Bantuan Hukum Litigasi' || it.kategori === 'Bantuan Hukum Non-Litigasi' || it.kategori === 'Pertimbangan LA' || it.kategori === 'Pertimbangan LO') {
                     const jmlSkk = parseInt(it.jumlahSkk) || 1;
-                    subInfoBadge = `<div class="text-[10px] text-blue-700 font-medium pl-3.5 mt-0.5">Jumlah SKK: ${jmlSkk} SKK</div>`;
+                    subInfoBadge = `<div class="text-[10px] text-blue-700 font-medium pl-3.5 mt-0.5">Jumlah: ${jmlSkk} SKK</div>`;
                 } else if (it.kategori === 'Pelayanan Hukum') {
                     const jmlPel = parseInt(it.jumlahPelayanan) || 1;
-                    subInfoBadge = `<div class="text-[10px] text-purple-700 font-medium pl-3.5 mt-0.5">Jumlah Layanan: ${jmlPel} Layanan</div>`;
+                    subInfoBadge = `<div class="text-[10px] text-purple-700 font-medium pl-3.5 mt-0.5">Jumlah: ${jmlPel} Layanan</div>`;
                 }
 
                 let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;

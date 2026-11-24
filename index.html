@@ -2400,8 +2400,21 @@
 
                 let labelInstansiText = it.instansi && it.instansi !== '-' ? it.instansi : (it.kategori === 'Pelayanan Hukum' ? `Pelayanan (${it.jumlahPelayanan || 1})` : 'Pelayanan Hukum');
 
+                let subInfoBadge = '';
+                if (it.kategori === 'MoU') {
+                    const jwText = (it.jangkaWaktu && it.jangkaWaktu !== '-') ? it.jangkaWaktu : '-';
+                    subInfoBadge = `<div class="text-[10px] text-tosca-700 font-medium pl-3.5 mt-0.5">Jangka Waktu: ${escapeHtml(jwText)}</div>`;
+                } else if (it.kategori === 'Bantuan Hukum Litigasi' || it.kategori === 'Bantuan Hukum Non-Litigasi' || it.kategori === 'Pertimbangan LA' || it.kategori === 'Pertimbangan LO') {
+                    const jmlSkk = parseInt(it.jumlahSkk) || 1;
+                    subInfoBadge = `<div class="text-[10px] text-blue-700 font-medium pl-3.5 mt-0.5">Jumlah SKK: ${jmlSkk} SKK</div>`;
+                } else if (it.kategori === 'Pelayanan Hukum') {
+                    const jmlPel = parseInt(it.jumlahPelayanan) || 1;
+                    subInfoBadge = `<div class="text-[10px] text-purple-700 font-medium pl-3.5 mt-0.5">Jumlah Layanan: ${jmlPel} Layanan</div>`;
+                }
+
                 let t = `<div class="mb-1.5 pb-1.5 border-b border-slate-100 last:border-none">`;
                 t += `<div class="flex items-start justify-between"><span onmouseenter="showCustomTooltip(event, '${itemDataAttr}')" onmouseleave="hideCustomTooltip()" class="cursor-pointer font-semibold text-slate-800 hover:text-tosca-700 hover:underline flex items-start flex-grow"><span class="mr-1"><b>${idx+1}.</b></span> <span>${labelInstansiText}</span></span></div>`;
+                t += subInfoBadge;
                 if (it.driveLink && it.driveLink !== '-' && it.driveLink.trim() !== '') {
                     t += `<div class="flex items-center space-x-2 mt-1 pl-3"><button onclick="previewDriveFile('${it.driveLink}', '${it.instansi}')" class="text-blue-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-eye mr-1"></i> Lihat</button><span class="text-slate-300">|</span><button onclick="downloadDriveFile('${it.driveLink}')" class="text-emerald-600 font-semibold text-[10px] hover:underline flex items-center"><i class="fa-solid fa-download mr-1"></i> Unduh</button></div>`;
                 }

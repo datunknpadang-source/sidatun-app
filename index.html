@@ -468,8 +468,28 @@
                         <span class="bg-tosca-50 text-tosca-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-tosca-200" id="chartYearBadge">Tahun 2026</span>
                     </div>
                 </div>
+                <div class="flex items-center gap-1 mb-3 p-1 bg-slate-50 rounded-xl border border-slate-100 w-fit" role="tablist" aria-label="Panel grafik tren">
+                    <button id="btnTrendTab" type="button" role="tab" aria-selected="true" onclick="switchTrendPanel('trend')" class="px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white text-tosca-700 shadow-sm border border-slate-200 transition">
+                        <i class="fa-solid fa-chart-column mr-1.5"></i>Tren Kegiatan
+                    </button>
+                    <button id="btnNewsTab" type="button" role="tab" aria-selected="false" onclick="switchTrendPanel('news')" class="px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-500 hover:text-tosca-700 transition">
+                        <i class="fa-regular fa-newspaper mr-1.5"></i>News
+                    </button>
+                </div>
                 <div id="chartCanvasContainer" class="h-56 sm:h-64 relative chart-transition-container chart-zoom-in">
                     <canvas id="chartGiatBar" class="cursor-pointer"></canvas>
+                </div>
+                <div id="newsHeadlinePanel" class="hidden h-56 sm:h-64 overflow-y-auto custom-scrollbar pr-1" role="tabpanel" aria-labelledby="btnNewsTab">
+                    <div id="newsHeadlineList" class="space-y-2">
+                        <div class="h-full min-h-40 flex flex-col items-center justify-center text-center text-slate-400">
+                            <i class="fa-regular fa-newspaper text-2xl mb-2"></i>
+                            <p class="text-xs font-semibold">Pilih tab News untuk memuat headline</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-slate-100 mt-2 pt-2">
+                        <span id="newsHeadlineStatus" class="text-[10px] text-slate-400">Headline berita · tautan ke sumber asli</span>
+                        <button type="button" onclick="loadNewsHeadlines(true)" class="text-[10px] font-bold text-tosca-700 hover:text-tosca-900"><i class="fa-solid fa-rotate-right mr-1"></i>Perbarui</button>
+                    </div>
                 </div>
             </div>
 
@@ -1051,7 +1071,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -1071,7 +1091,12 @@
         const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
         const haloJpnColRef = collection(db, "halo_jpn_datun");
         const chatColRef = collection(db, "chat_datun");
+        // News Center menggunakan koleksi terpisah; hanya membaca headline saat tab dibuka.
+        const newsColRef = collection(db, "news_articles");
 
+        let newsHeadlinesCache = [];
+        let newsHeadlinesCacheAt = 0;
+        let activeTrendPanel = 'trend';
         let datasetKegiatan = [];
         let datasetPemulihan = [];
         let datasetHaloJpn = [];
@@ -2784,6 +2809,129 @@
                 container.classList.remove('chart-zoom-out');
             }, 200);
         };
+
+        const NEWS_CACHE_TTL = 15 * 60 * 1000;
+        const NEWS_HEADLINE_LIMIT = 15;
+
+        function switchTrendPanel(panel) {
+            if (panel !== 'trend' && panel !== 'news') return;
+            activeTrendPanel = panel;
+            const trendBtn = document.getElementById('btnTrendTab');
+            const newsBtn = document.getElementById('btnNewsTab');
+            const chartContainer = document.getElementById('chartCanvasContainer');
+            const newsPanel = document.getElementById('newsHeadlinePanel');
+            const chartTitle = document.getElementById('chartBarTitle');
+            const chartSubtitle = document.getElementById('chartBarSubtitle');
+
+            chartContainer.classList.toggle('hidden', panel !== 'trend');
+            newsPanel.classList.toggle('hidden', panel !== 'news');
+            trendBtn.setAttribute('aria-selected', panel === 'trend' ? 'true' : 'false');
+            newsBtn.setAttribute('aria-selected', panel === 'news' ? 'true' : 'false');
+            trendBtn.className = panel === 'trend'
+                ? 'px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white text-tosca-700 shadow-sm border border-slate-200 transition'
+                : 'px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-500 hover:text-tosca-700 transition';
+            newsBtn.className = panel === 'news'
+                ? 'px-3 py-1.5 rounded-lg text-[11px] font-bold bg-white text-tosca-700 shadow-sm border border-slate-200 transition'
+                : 'px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-500 hover:text-tosca-700 transition';
+
+            if (panel === 'trend') {
+                chartTitle.innerText = isMonthDetailMode && selectedMonthDetailNum
+                    ? `Tren Kegiatan Bulan ${NAMA_BULAN_LENGKAP[selectedMonthDetailNum]}`
+                    : 'Tren Rekapitulasi Kegiatan Per Bulan';
+                chartSubtitle.innerText = isMonthDetailMode
+                    ? 'Kategori kegiatan pada bulan terpilih (Sorot kolom untuk rincian)'
+                    : 'Frekuensi berdasarkan warna masing-masing kategori (Klik area bulan untuk detail)';
+                if (chartBarInstance) requestAnimationFrame(() => chartBarInstance.resize());
+            } else {
+                chartTitle.innerText = 'News Headline';
+                chartSubtitle.innerText = 'Judul berita terbaru · Klik untuk membuka website sumber';
+                loadNewsHeadlines(false);
+            }
+        }
+        window.switchTrendPanel = switchTrendPanel;
+
+        function renderNewsHeadlineItems(items) {
+            const list = document.getElementById('newsHeadlineList');
+            const status = document.getElementById('newsHeadlineStatus');
+            list.replaceChildren();
+
+            if (!items.length) {
+                const empty = document.createElement('div');
+                empty.className = 'min-h-40 flex flex-col items-center justify-center text-center text-slate-400';
+                empty.innerHTML = '<i class="fa-regular fa-newspaper text-2xl mb-2"></i><p class="text-xs font-semibold">Belum ada headline berita</p><p class="text-[10px] mt-1">Berita akan tampil setelah koleksi news_articles diisi.</p>';
+                list.appendChild(empty);
+                status.textContent = 'Belum ada headline tersimpan';
+                return;
+            }
+
+            items.forEach((item) => {
+                const url = String(item.url || item.sourceUrl || '').trim();
+                let parsedUrl;
+                try { parsedUrl = new URL(url); } catch (_) { return; }
+                if (!['http:', 'https:'].includes(parsedUrl.protocol)) return;
+
+                const link = document.createElement('a');
+                link.href = parsedUrl.href;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.className = 'block p-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-tosca-50 hover:border-tosca-200 transition group';
+
+                const meta = document.createElement('div');
+                meta.className = 'flex items-center gap-2 mb-1.5';
+                const category = document.createElement('span');
+                category.className = 'text-[9px] uppercase tracking-wide font-extrabold text-tosca-700 bg-tosca-100 px-2 py-0.5 rounded-full';
+                category.textContent = String(item.category || 'BERITA');
+                const source = document.createElement('span');
+                source.className = 'text-[10px] font-semibold text-slate-400 truncate';
+                source.textContent = String(item.source || item.sourceName || parsedUrl.hostname.replace(/^www\./, ''));
+                meta.append(category, source);
+
+                const title = document.createElement('div');
+                title.className = 'text-[11px] sm:text-xs font-bold leading-relaxed text-slate-700 group-hover:text-tosca-800';
+                title.textContent = String(item.title || 'Judul berita tidak tersedia');
+
+                const footer = document.createElement('div');
+                footer.className = 'flex items-center justify-between mt-1.5';
+                const date = document.createElement('span');
+                date.className = 'text-[9px] text-slate-400';
+                const rawDate = item.publishedAt?.toDate ? item.publishedAt.toDate() : new Date(item.publishedAt || item.fetchedAt || 0);
+                date.textContent = Number.isNaN(rawDate.getTime()) || !rawDate.getTime() ? 'Berita terbaru' : rawDate.toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                const open = document.createElement('span');
+                open.className = 'text-[9px] font-bold text-tosca-700';
+                open.textContent = 'Buka sumber ↗';
+                footer.append(date, open);
+                link.append(meta, title, footer);
+                list.appendChild(link);
+            });
+            status.textContent = `${Math.min(items.length, NEWS_HEADLINE_LIMIT)} headline · klik untuk membaca di sumber asli`;
+        }
+
+        async function loadNewsHeadlines(forceRefresh = false) {
+            const status = document.getElementById('newsHeadlineStatus');
+            const list = document.getElementById('newsHeadlineList');
+            if (!forceRefresh && newsHeadlinesCache.length && Date.now() - newsHeadlinesCacheAt < NEWS_CACHE_TTL) {
+                renderNewsHeadlineItems(newsHeadlinesCache);
+                return;
+            }
+            status.textContent = 'Memuat headline...';
+            if (!newsHeadlinesCache.length) {
+                list.innerHTML = '<div class="min-h-40 flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p class="text-xs">Memuat berita...</p></div>';
+            }
+            try {
+                const newsQuery = query(newsColRef, orderBy('publishedAt', 'desc'), limit(NEWS_HEADLINE_LIMIT));
+                const snapshot = await getDocs(newsQuery);
+                newsHeadlinesCache = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+                newsHeadlinesCacheAt = Date.now();
+                renderNewsHeadlineItems(newsHeadlinesCache);
+            } catch (error) {
+                console.error('Gagal memuat headline News Center:', error);
+                status.textContent = 'Headline belum dapat dimuat';
+                if (!newsHeadlinesCache.length) {
+                    list.innerHTML = '<div class="min-h-40 flex flex-col items-center justify-center text-center text-amber-600"><i class="fa-solid fa-circle-exclamation text-xl mb-2"></i><p class="text-xs font-semibold">News Center belum terhubung</p><p class="text-[10px] mt-1 text-slate-400">Pastikan koleksi news_articles tersedia dan Firestore Rules mengizinkan staf membaca headline.</p></div>';
+                }
+            }
+        }
+        window.loadNewsHeadlines = loadNewsHeadlines;
 
         function renderCharts(data) {
             let monthlyData = CATEGORY_KEYS.map(() => Array(12).fill(0));

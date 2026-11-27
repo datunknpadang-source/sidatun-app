@@ -455,42 +455,21 @@
         <!-- Section 2: Visualisasi Grafik Ganda -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 no-print">
             <div class="lg:col-span-2 bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200">
-                <div class="flex items-start justify-between mb-3 gap-2">
+                <div class="flex items-center justify-between mb-3">
                     <div>
                         <h2 id="chartBarTitle" class="text-xs sm:text-sm font-bold text-slate-800 transition-all duration-300">Tren Rekapitulasi Kegiatan Per Bulan</h2>
                         <p id="chartBarSubtitle" class="text-[11px] text-slate-500 transition-all duration-300">Frekuensi berdasarkan warna masing-masing kategori (Klik area bulan untuk detail)</p>
-                        <div class="inline-flex items-center bg-slate-100 p-0.5 rounded-lg mt-2 border border-slate-200 text-[11px] font-bold">
-                            <button type="button" id="tabTrenKegiatanBtn" onclick="switchTrendNewsTab('tren')" class="px-2.5 py-1 rounded-md bg-tosca-700 text-white shadow-sm transition">
-                                Tren Kegiatan
-                            </button>
-                            <button type="button" id="tabNewsHeadlineBtn" onclick="switchTrendNewsTab('news')" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">
-                                News
-                            </button>
-                        </div>
                     </div>
 
-                    <div id="trenChartControls" class="flex items-center space-x-2 flex-shrink-0">
+                    <div class="flex items-center space-x-2">
                         <button id="btnBackToYearChart" onclick="backToYearlyChart()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold px-3 py-1 rounded-full border border-slate-300 transition shadow-sm flex items-center">
                             <i class="fa-solid fa-arrow-left mr-1.5 text-xs text-tosca-700"></i> Kembali
                         </button>
                         <span class="bg-tosca-50 text-tosca-700 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border border-tosca-200" id="chartYearBadge">Tahun 2026</span>
                     </div>
-
-                    <div id="newsMetaBadge" class="hidden text-right flex-shrink-0">
-                        <span class="bg-tosca-50 text-tosca-700 text-[10px] font-semibold px-2.5 py-1 rounded-full border border-tosca-200 inline-block">
-                            Update 15 menit
-                        </span>
-                    </div>
                 </div>
-
-                <!-- KONTEN TAB TREN KEGIATAN -->
                 <div id="chartCanvasContainer" class="h-56 sm:h-64 relative chart-transition-container chart-zoom-in">
                     <canvas id="chartGiatBar" class="cursor-pointer"></canvas>
-                </div>
-
-                <!-- KONTEN TAB NEWS HEADLINE -->
-                <div id="newsHeadlineContainer" class="hidden h-56 sm:h-64 overflow-y-auto custom-scrollbar pr-1 space-y-2.5">
-                    <div id="newsHeadlineList" class="divide-y divide-slate-100"></div>
                 </div>
             </div>
 
@@ -1072,7 +1051,7 @@
     <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, setDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA8d8iE56ByYIDDv7sAwneU8tWE8MSmiww",
@@ -1092,7 +1071,6 @@
         const pemulihanColRef = collection(db, "pemulihan_keuangan_datun");
         const haloJpnColRef = collection(db, "halo_jpn_datun");
         const chatColRef = collection(db, "chat_datun");
-        const newsColRef = collection(db, "news_headlines");
 
         let datasetKegiatan = [];
         let datasetPemulihan = [];
@@ -1115,31 +1093,6 @@
         let activeHoverCategoryIndex = null;
         let currentDetailInstansiMaps = [{}, {}, {}, {}, {}, {}, {}];
         let currentDetailCounts = [0, 0, 0, 0, 0, 0, 0];
-
-        // Status Tab Tren Kegiatan / News
-        let activeTrendNewsTab = 'tren';
-        const NEWS_CACHE_KEY = 'sidatun_news_headlines_cache_v1';
-        const NEWS_CACHE_TTL_MS = 15 * 60 * 1000;
-        const ILLUSTRATIVE_NEWS = [
-            {
-                title: "Perubahan Regulasi Terbaru, Apa Dampaknya bagi Pemerintahan Daerah?",
-                source: "ANTARA",
-                category: "Hukum",
-                url: "https://www.antaranews.com/hukum"
-            },
-            {
-                title: "Kebijakan Baru Pemerintah Jadi Sorotan, Ini Poin Pentingnya",
-                source: "Kompas",
-                category: "Nasional",
-                url: "https://www.kompas.com"
-            },
-            {
-                title: "Perkembangan Ekonomi Terbaru, Ada Hal Penting yang Perlu Dicermati",
-                source: "CNBC Indonesia",
-                category: "Ekonomi",
-                url: "https://www.cnbcindonesia.com"
-            }
-        ];
 
         // Status Sesi Hak Akses Administrator
         let isAdminMode = false;
@@ -1175,103 +1128,6 @@
 
         const CATEGORY_KEYS = ['MoU', 'Bantuan Hukum Litigasi', 'Bantuan Hukum Non-Litigasi', 'Pertimbangan', 'Pelayanan', 'THL', 'Penegakan'];
         const NAMA_BULAN_LENGKAP = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-
-        window.switchTrendNewsTab = function(tabName) {
-            activeTrendNewsTab = tabName;
-            const btnTren = document.getElementById('tabTrenKegiatanBtn');
-            const btnNews = document.getElementById('tabNewsHeadlineBtn');
-            const chartBox = document.getElementById('chartCanvasContainer');
-            const newsBox = document.getElementById('newsHeadlineContainer');
-            const trenControls = document.getElementById('trenChartControls');
-            const newsBadge = document.getElementById('newsMetaBadge');
-
-            if (tabName === 'news') {
-                btnNews.className = "px-2.5 py-1 rounded-md bg-tosca-700 text-white shadow-sm transition";
-                btnTren.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
-                chartBox.classList.add('hidden');
-                newsBox.classList.remove('hidden');
-                trenControls.classList.add('hidden');
-                newsBadge.classList.remove('hidden');
-                loadNewsHeadlinesCached();
-            } else {
-                btnTren.className = "px-2.5 py-1 rounded-md bg-tosca-700 text-white shadow-sm transition";
-                btnNews.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition";
-                newsBox.classList.add('hidden');
-                chartBox.classList.remove('hidden');
-                newsBadge.classList.add('hidden');
-                trenControls.classList.remove('hidden');
-                if (chartBarInstance) chartBarInstance.resize();
-            }
-        };
-
-        async function loadNewsHeadlinesCached() {
-            const listEl = document.getElementById('newsHeadlineList');
-            if (!listEl) return;
-
-            try {
-                const rawCache = localStorage.getItem(NEWS_CACHE_KEY);
-                if (rawCache) {
-                    const parsed = JSON.parse(rawCache);
-                    if (parsed && parsed.timestamp && (Date.now() - parsed.timestamp < NEWS_CACHE_TTL_MS) && Array.isArray(parsed.items)) {
-                        renderNewsHeadlines(parsed.items);
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.warn('Cache News tidak dapat dibaca:', e);
-            }
-
-            listEl.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Memuat headline berita...</div>`;
-
-            try {
-                const qNews = query(newsColRef, orderBy('publishedAt', 'desc'), limit(15));
-                const snap = await getDocs(qNews);
-                const items = [];
-                snap.forEach((docSnap) => {
-                    const d = docSnap.data();
-                    if (d && d.title && d.url) {
-                        items.push({
-                            title: d.title,
-                            source: d.source || 'Sumber Berita',
-                            category: d.category || 'Umum',
-                            url: d.url
-                        });
-                    }
-                });
-
-                const finalItems = items.length > 0 ? items : ILLUSTRATIVE_NEWS;
-                localStorage.setItem(NEWS_CACHE_KEY, JSON.stringify({
-                    timestamp: Date.now(),
-                    items: finalItems
-                }));
-                renderNewsHeadlines(finalItems);
-            } catch (err) {
-                console.warn('Fallback ke headline ilustratif:', err);
-                renderNewsHeadlines(ILLUSTRATIVE_NEWS);
-            }
-        }
-
-        function renderNewsHeadlines(items) {
-            const listEl = document.getElementById('newsHeadlineList');
-            if (!listEl) return;
-
-            const safeItems = (Array.isArray(items) && items.length > 0) ? items.slice(0, 20) : ILLUSTRATIVE_NEWS;
-            listEl.innerHTML = safeItems.map((item) => {
-                const safeUrl = /^https?:\/\//i.test(item.url || '') ? item.url : '#';
-                return `
-                    <a href="${escapeHtml(safeUrl)}" target="_blank" rel="noopener noreferrer" class="block py-2.5 px-2 hover:bg-slate-50 rounded-lg transition group">
-                        <div class="flex items-center space-x-2 mb-1">
-                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-tosca-50 text-tosca-800 border border-tosca-200">${escapeHtml(item.category || 'Berita')}</span>
-                            <span class="text-[11px] font-semibold text-slate-500">${escapeHtml(item.source || 'Media')}</span>
-                        </div>
-                        <div class="text-xs font-bold text-slate-800 group-hover:text-tosca-700 leading-snug">${escapeHtml(item.title || '')}</div>
-                        <div class="text-[11px] font-semibold text-tosca-700 group-hover:underline mt-1 inline-flex items-center">
-                            Baca selengkapnya di sumber berita <span class="ml-1">↗</span>
-                        </div>
-                    </a>
-                `;
-            }).join('');
-        }
 
         const monthHighlightPlugin = {
             id: 'monthHighlightPlugin',
@@ -1428,6 +1284,7 @@
                 const bulanNum = parseInt(document.getElementById('haloJpnBulanSelect').value);
                 const docCustomId = `${tahunAktif}_${bulanNum}`;
 
+                // Menyimpan dokumen spesifik per bulan & tahun guna menghemat kuota pembacaan Firestore
                 await setDoc(doc(db, "halo_jpn_datun", docCustomId), {
                     tahun: tahunAktif,
                     bulan: bulanNum,
@@ -1568,6 +1425,7 @@
             renderPemulihanTable();
         });
 
+        // Sinkronisasi hemat kuota untuk Halo JPN
         onSnapshot(haloJpnColRef, (snapshot) => {
             datasetHaloJpn = [];
             snapshot.forEach((docSnap) => {
@@ -2635,7 +2493,7 @@
             tt.classList.remove('opacity-100', 'scale-100');
             tt.classList.add('opacity-0', 'scale-95');
             setTimeout(() => { tt.classList.add('hidden'); }, 150);
-        }
+        };
 
         function initCharts() {
             const canvasBar = document.getElementById('chartGiatBar');

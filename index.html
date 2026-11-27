@@ -488,7 +488,7 @@
                     </div>
                     <div class="flex items-center justify-between border-t border-slate-100 mt-2 pt-2">
                         <span id="newsHeadlineStatus" class="text-[10px] text-slate-400">Headline berita · tautan ke sumber asli</span>
-                        <button type="button" onclick="loadNewsHeadlines(true)" class="text-[10px] font-bold text-tosca-700 hover:text-tosca-900"><i class="fa-solid fa-rotate-right mr-1"></i>Perbarui</button>
+                        <button type="button" onclick="loadNewsHeadlines(true)" id="btnRefreshNewsHeadlines" class="text-[10px] font-bold text-tosca-700 hover:text-tosca-900 disabled:opacity-50 disabled:cursor-wait"><i class="fa-solid fa-rotate-right mr-1"></i>Perbarui</button>
                     </div>
                 </div>
             </div>
@@ -2909,26 +2909,40 @@
         async function loadNewsHeadlines(forceRefresh = false) {
             const status = document.getElementById('newsHeadlineStatus');
             const list = document.getElementById('newsHeadlineList');
+            const refreshButton = document.getElementById('btnRefreshNewsHeadlines');
+            const refreshIcon = refreshButton?.querySelector('i');
+
             if (!forceRefresh && newsHeadlinesCache.length && Date.now() - newsHeadlinesCacheAt < NEWS_CACHE_TTL) {
                 renderNewsHeadlineItems(newsHeadlinesCache);
+                status.textContent = `Cache headline · diperiksa ${new Date(newsHeadlinesCacheAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
                 return;
             }
-            status.textContent = 'Memuat headline...';
-            if (!newsHeadlinesCache.length) {
-                list.innerHTML = '<div class="min-h-40 flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p class="text-xs">Memuat berita...</p></div>';
-            }
+
+            if (refreshButton) refreshButton.disabled = true;
+            if (refreshIcon) refreshIcon.classList.add('fa-spin');
+            status.textContent = forceRefresh ? 'Memeriksa ulang berita di Firestore...' : 'Memuat headline...';
+            list.innerHTML = '<div class="min-h-40 flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i><p class="text-xs">Memeriksa headline tersimpan...</p></div>';
+
             try {
                 const newsQuery = query(newsColRef, orderBy('publishedAt', 'desc'), limit(NEWS_HEADLINE_LIMIT));
                 const snapshot = await getDocs(newsQuery);
                 newsHeadlinesCache = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
                 newsHeadlinesCacheAt = Date.now();
                 renderNewsHeadlineItems(newsHeadlinesCache);
+                if (!snapshot.empty) {
+                    status.textContent = `${Math.min(newsHeadlinesCache.length, NEWS_HEADLINE_LIMIT)} headline · pemeriksaan ${newsHeadlinesCacheAt ? new Date(newsHeadlinesCacheAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : ''}`;
+                } else {
+                    status.textContent = `Pemeriksaan selesai ${new Date(newsHeadlinesCacheAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} · belum ada berita di Firestore`;
+                    const emptyText = list.querySelector('p:last-child');
+                    if (emptyText) emptyText.textContent = 'Perbarui hanya memeriksa data tersimpan. Feed berita perlu dihubungkan dan diisi oleh backend.';
+                }
             } catch (error) {
                 console.error('Gagal memuat headline News Center:', error);
-                status.textContent = 'Headline belum dapat dimuat';
-                if (!newsHeadlinesCache.length) {
-                    list.innerHTML = '<div class="min-h-40 flex flex-col items-center justify-center text-center text-amber-600"><i class="fa-solid fa-circle-exclamation text-xl mb-2"></i><p class="text-xs font-semibold">News Center belum terhubung</p><p class="text-[10px] mt-1 text-slate-400">Pastikan koleksi news_articles tersedia dan Firestore Rules mengizinkan staf membaca headline.</p></div>';
-                }
+                status.textContent = 'Pemeriksaan gagal · klik Perbarui untuk mencoba lagi';
+                list.innerHTML = '<div class="min-h-40 flex flex-col items-center justify-center text-center text-amber-600"><i class="fa-solid fa-circle-exclamation text-xl mb-2"></i><p class="text-xs font-semibold">Headline belum dapat dimuat</p><p class="text-[10px] mt-1 text-slate-400">Periksa koneksi, Firestore Rules, dan field publishedAt pada koleksi news_articles.</p></div>';
+            } finally {
+                if (refreshButton) refreshButton.disabled = false;
+                if (refreshIcon) refreshIcon.classList.remove('fa-spin');
             }
         }
         window.loadNewsHeadlines = loadNewsHeadlines;
